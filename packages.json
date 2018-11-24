@@ -1,0 +1,10 @@
+{
+	"dwm": {
+		"type": "git",
+		"source": "https://aur.archlinux.org/dwm.git"
+	},
+	"st": {
+		"type": "st",
+		"source": "https://aur.archlinux.org/st.git"
+	}
+}
