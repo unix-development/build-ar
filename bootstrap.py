@@ -9,6 +9,10 @@ import subprocess
 def main():
    cwd = os.getcwd()
    travis = is_travis()
+
+   if not os.path.exists('build-repository'):
+      os.makedirs('build-repository')
+
    for module in os.listdir('.'):
       if os.path.isdir(module) and os.path.isfile(module + '/package.py'):
          os.chdir(cwd + '/' + module)
