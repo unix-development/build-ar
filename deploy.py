@@ -23,7 +23,7 @@ def set_git_config():
 def commit_change(module):
    if output('git status %s --porcelain | sed s/^...//' % module):
       version = get_package_version(module)
-      print(
+      os.system(
          'git add ./' + module + ' && ' + \
          'git commit -m "Travis: Add ' + module + ' last update on ' + version + ' version"')
 
