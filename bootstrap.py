@@ -87,7 +87,10 @@ if __name__ == '__main__':
    if os.getuid() != 0:
       print('This file needs to be execute as root.')
    else:
-      print(os.environ['IS_TRAVIS_BUILD'])
+      if "IS_TRAVIS_BUILD" in os.environ:
+         print('travis')
+      else:
+         print('not travis')
 
    #print(sys.argv)
    #main()
