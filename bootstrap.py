@@ -8,15 +8,13 @@ import subprocess
 
 def main():
    cwd = os.getcwd()
-   travis = is_travis()
-
    if not os.path.exists('build-repository'):
       os.makedirs('build-repository')
 
    for module in os.listdir('.'):
       if os.path.isdir(module) and os.path.isfile(module + '/package.py'):
          os.chdir(cwd + '/' + module)
-         builder = Builder(module, travis)
+         builder = Builder(module)
          os.chdir(cwd)
 
    build_database()
@@ -25,7 +23,7 @@ def build_database():
    os.system('repo-add -R -n build-repository/lognoz.db.tar.gz build-repository/*.pkg.tar.xz')
 
 class Builder():
-   def __init__(self, module, travis):
+   def __init__(self, module):
       __import__(module + '.package')
       self.package = sys.modules['%s.package' % module]
       self.module = module
@@ -79,7 +77,8 @@ class Builder():
       os.system(
          'git init && ' \
          'git remote add origin ' + self.package.source + ' && ' \
-         'git pull origin master')
+         'git pull origin master && ' \
+         'rm -rf .git')
 
       if os.path.isfile('.SRCINFO'):
          os.remove('.SRCINFO')
@@ -103,12 +102,6 @@ def edit_file(filename):
    with fileinput.input(filename, inplace=1) as f:
        for line in f:
           yield line.rstrip('\n')
-
-def is_travis():
-   if "IS_TRAVIS_BUILD" in os.environ:
-      return True
-   else:
-      return False
 
 if __name__ == '__main__':
    if os.getuid() == 0:
