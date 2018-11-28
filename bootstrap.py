@@ -8,14 +8,15 @@ import subprocess
 
 def main():
    cwd = os.getcwd()
+   travis = is_travis()
    for module in os.listdir('.'):
       if os.path.isdir(module) and os.path.isfile(module + '/package.py'):
          os.chdir(cwd + '/' + module)
-         builder = Builder(module)
+         builder = Builder(module, travis)
          os.chdir(cwd)
 
 class Builder():
-   def __init__(self, module):
+   def __init__(self, module, travis):
       __import__(module + '.package')
       self.package = sys.modules['%s.package' % module]
       self.module = module
@@ -26,7 +27,6 @@ class Builder():
          self.git_clone()
          if 'pre_build' in dir(self.package):
             self.package.pre_build()
-         self.commit_change()
 
    def set_helper(self):
       self.package.edit_file = edit_file
@@ -83,14 +83,14 @@ def edit_file(filename):
        for line in f:
           yield line.rstrip('\n')
 
+def is_travis():
+   if "IS_TRAVIS_BUILD" in os.environ:
+      return True
+   else:
+      return False
+
 if __name__ == '__main__':
    if os.getuid() != 0:
       print('This file needs to be execute as root.')
    else:
-      if "IS_TRAVIS_BUILD" in os.environ:
-         print('travis')
-      else:
-         print('not travis')
-
-   #print(sys.argv)
-   #main()
+      main()
