@@ -1,4 +1,7 @@
 sudo: required
+language: python
+python:
+  - "3.6"
 
 services:
   - docker
@@ -10,9 +13,13 @@ before_install:
   - docker build --build-arg USER_ID="$(id -u)" -t "archlinux-repository" .
 
 script:
-   - docker run -e REPO_NAME="build" -v "$PWD":/home/builder/repository  "archlinux-repository"
-   - cd build-repository && ls -l
+  - docker run -e REPO_NAME="build" -v "$PWD":/home/builder/repository  "archlinux-repository"
+  - cd build-repository && ls -l
+  - python deploy.py
+  - git log
 
 env:
   global:
     - IS_TRAVIS_BUILD=true
+    - NAME="Marc-Antoine Loignon"
+    - EMAIL="developer@lognoz.org"
