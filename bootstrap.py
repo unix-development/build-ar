@@ -27,6 +27,10 @@ class Builder():
          self.git_clone()
          if 'pre_build' in dir(self.package):
             self.package.pre_build()
+            self.set_package_validity()
+
+   def set_package_validity(self):
+      os.system('makepkg -g >> PKGBUILD')
 
    def set_helper(self):
       self.package.edit_file = edit_file
@@ -45,7 +49,7 @@ class Builder():
       for f in files:
          if os.path.isdir(f):
             shutil.rmtree(f)
-         elif os.path.isfile(f) and f != 'package.py':
+         if os.path.isfile(f) and f != 'package.py':
             os.remove(f)
 
    def get_package_version(self):
@@ -90,7 +94,7 @@ def is_travis():
       return False
 
 if __name__ == '__main__':
-   if os.getuid() != 0:
-      print('This file needs to be execute as root.')
+   if os.getuid() == 0:
+      print('This file needs to be not execute as root.')
    else:
       main()
