@@ -32,6 +32,8 @@ class Builder():
          if 'pre_build' in dir(self.package):
             self.package.pre_build()
             self.set_package_validity()
+         if output('cd .. && git status %s' % module) != '':
+            self.build_package()
 
    def set_package_validity(self):
       os.system('makepkg -g >> PKGBUILD')
@@ -39,6 +41,12 @@ class Builder():
    def set_helper(self):
       self.package.edit_file = edit_file
       self.package.replace_ending = replace_ending
+
+   def build_package(self):
+      os.system(
+         'sudo pacman -S $(source ./PKGBUILD && echo ${depends[@]} ${makedepends[@]}) --noconfirm && ' \
+         'makepkg -Acs && ' \
+         'mv *.pkg.tar.xz ../build-repository/');
 
    def commit_change(self):
       if output('cd .. && git diff --name-only %s' % self.module) != '':
