@@ -11,7 +11,7 @@ before_install:
 script:
 - docker run -e REPO_NAME="build" -v "$PWD":/home/builder/repository  "archlinux-repository"
 - python deploy.py
-- git log
+- git push https://${GITHUB_TOKEN}@github.com/lognoz/archlinux-repository HEAD:master
 env:
   global:
   - IS_TRAVIS_BUILD=true
