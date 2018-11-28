@@ -1,0 +1,6 @@
+sudo: required
+language: python
+python:
+  - "3.6"
+script:
+  - sudo python bootstrap.py
