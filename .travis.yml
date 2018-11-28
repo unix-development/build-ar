@@ -1,11 +1,13 @@
 sudo: required
-language: python
-python:
-  - "3.6"
-
+services:
+  - docker
+branches:
+  only: master
+before_install:
+  - docker build --build-arg USER_ID="$(id -u)" -t "archlinux-repository" .
 script:
-  - sudo python bootstrap.py
-
+   - docker run -e REPO_NAME="build" -v "$PWD":/home/builder/repository  "archlinux-repository"
+   - cd build-repository && ls -l
 env:
   global:
     - IS_TRAVIS_BUILD=true
