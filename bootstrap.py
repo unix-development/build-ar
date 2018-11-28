@@ -84,4 +84,10 @@ def edit_file(filename):
           yield line.rstrip('\n')
 
 if __name__ == '__main__':
-   main()
+   if os.getuid() != 0:
+      print('This file needs to be execute as root.')
+   else:
+      print(os.environ['IS_TRAVIS_BUILD'])
+
+   #print(sys.argv)
+   #main()
