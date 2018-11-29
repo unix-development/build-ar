@@ -5,9 +5,7 @@ import sys
 import subprocess
 
 def main():
-   travis = is_travis()
-
-   if travis == True:
+   if "TRAVIS" in os.environ:
       set_git_config()
 
    for module in os.listdir('.'):
@@ -35,12 +33,6 @@ def get_package_version(module):
       for line in f.readlines():
          if line.startswith('pkgver='):
             return line.split('=', 1)[1].rstrip("\n\r")
-
-def is_travis():
-   if "IS_TRAVIS_BUILD" in os.environ:
-      return True
-   else:
-      return False
 
 if __name__ == '__main__':
    main()
