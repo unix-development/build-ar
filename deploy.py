@@ -29,7 +29,8 @@ def git_push():
    repository = output('git remote get-url origin') \
       .replace('https://', '') \
       .replace('http://', '') \
-      .replace('git://', '')
+      .replace('git://', '') \
+      .rstrip("\n\r")
 
    os.system('git push https://${GITHUB_TOKEN}@%s HEAD:master' % repository)
 
