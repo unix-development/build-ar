@@ -11,7 +11,6 @@ before_install:
 script:
 - docker run -e REPO_NAME="build" -v "$PWD":/home/builder/repository  "archlinux-repository"
 - python deploy.py
-- git push https://${GITHUB_TOKEN}@github.com/lognoz/archlinux-repository HEAD:master
 env:
   global:
   - NAME="Marc-Antoine Loignon"
