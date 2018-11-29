@@ -51,14 +51,6 @@ class Builder():
          'makepkg -Acs && ' \
          'mv *.pkg.tar.xz ../build-repository/');
 
-   def commit_change(self):
-      if output('cd .. && git diff --name-only %s' % self.module) != '':
-         version = self.get_package_version()
-         print(
-            'cd .. && ' + \
-            'git add ./' + self.module + ' && ' + \
-            'git commit -m "Travis build: Add ' + self.module + ' last update on ' + version + ' version"')
-
    def clean_directory(self):
       files = os.listdir('.')
       for f in files:
@@ -66,12 +58,6 @@ class Builder():
             shutil.rmtree(f)
          if os.path.isfile(f) and f != 'package.py':
             os.remove(f)
-
-   def get_package_version(self):
-      with open('PKGBUILD') as f:
-         for line in f.readlines():
-            if line.startswith('pkgver='):
-               return line.split('=', 1)[1].rstrip("\n\r")
 
    def git_clone(self):
       os.system(
