@@ -10,6 +10,7 @@ before_install:
 - docker build --build-arg USER_ID="$(id -u)" -t "archlinux-repository" .
 script:
 - docker run -e REPO_NAME="build" -v "$PWD":/home/builder/repository  "archlinux-repository"
+- cd build-repository && ls -l && cd ..
 - python deploy.py
 env:
   global:
