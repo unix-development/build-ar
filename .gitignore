@@ -3,6 +3,8 @@ build_repository/
 pkg/
 pkgs/
 src/
+deploy_key
+deploy_key.pub
 *.asc
 *.bz2
 *.deb
@@ -17,3 +19,4 @@ src/
 *.tgz
 *.xz
 *.zip
+*/.*
