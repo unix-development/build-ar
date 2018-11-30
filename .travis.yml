@@ -4,10 +4,23 @@ python:
 - '3.6'
 services:
 - docker
+addons:
+  ssh_known_hosts: <deploy-host>
 branches:
   only: master
 before_install:
 - docker build --build-arg USER_ID="$(id -u)" -t "archlinux-repository" .
+before_deploy:
+- openssl aes-256-cbc -K $encrypted_0a6446eb3ae3_key -iv $encrypted_0a6446eb3ae3_iv -in deploy_rsa.enc -out /tmp/deploy_rsa -d
+- eval "$(ssh-agent -s)"
+- chmod 600 /tmp/deploy_rsa
+- ssh-add /tmp/deploy_rsa
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build-repository lognozc@lognoz.org:/mirror.lognoz.org
+  on:
+    branch: master
 script:
 - docker run -e REPO_NAME="build" -v "$PWD":/home/builder/repository  "archlinux-repository"
 - cd build-repository && ls -l && cd ..
