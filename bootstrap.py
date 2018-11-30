@@ -21,7 +21,7 @@ def main():
 
 def build_database():
    os.system(
-      'pacman -U *.pkg.tar.xz && ' \
+      'sudo pacman -U *.pkg.tar.xz && ' \
       'repo-add -R -n build-repository/lognoz.db.tar.gz build-repository/*.pkg.tar.xz');
 
 class Builder():
