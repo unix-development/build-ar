@@ -5,7 +5,7 @@ python:
 services:
 - docker
 addons:
-  ssh_known_hosts: "<deploy-host>"
+  ssh_known_hosts: "lognoz.org"
 branches:
   only: master
 before_deploy:
