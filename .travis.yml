@@ -2,11 +2,33 @@ sudo: required
 language: python
 python:
 - '3.6'
+services:
+- docker
+addons:
+  ssh_known_hosts: "lognoz.org"
+branches:
+  only: master
 addons:
   ssh_known_hosts: "lognoz.org"
 before_install:
+- docker build --build-arg USER_ID="$(id -u)" -t "archlinux-repository" .
+script:
+- docker run -e REPO_NAME="build" -v "$PWD":/home/builder/repository  "archlinux-repository"
+before_deploy:
 - openssl aes-256-cbc -K $encrypted_9f227eff80a0_key -iv $encrypted_9f227eff80a0_iv -in deploy_key.enc -out ./deploy_key -d
 - eval "$(ssh-agent -s)"
 - chmod 600 ./deploy_key
 - ssh-add ./deploy_key
-- ssh -i ./deploy_key lognozc@lognoz.org pwd
+deploy:
+  provider: script
+  skip_cleanup: true
+  script:
+    - python deploy.py
+    - rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build-repository lognozc@lognoz.org:/home/lognozc/mirror.lognoz.org
+  on:
+    branch: master
+env:
+  global:
+  - NAME="Marc-Antoine Loignon"
+  - EMAIL="developer@lognoz.org"
+  - secure: OVQPz6IW4FZccSKqHwKqB8vd1rrPRJkwutk5LCD9H8NflAQzcISNIPgua5xrKb7vzkDKcIJLf9CdVahd89uOHG5kqtOUCIGPoRJp90n305Ic+Jq11Xh/OoDYHj83tC/M686d9oOuNn70YAzxAKI/qJjvnClOkkIRAM+IJE9qSa+RKSrUxDWlyG+p2/5nLpA8AHBYA/Tt2+ijudvtM+C5PV2/GrajHS5K7LhnqZD/Yp/FBa/mHs6SIQOKgEgieJvO4f/h1EWz8DCBeu3edoUznO+c7B36l2LWjSY4XaURRal/lGjRufpxTW6N+xdofXVuaqwvdMCv3zskQi65zdIxln3idqaiByZWR1kEWrneazIPF9k7XLo+q94v3zlKHhpSlppFKtWbnQE7aKoW0Z+tcpR3S5GOHBOXeLSwGmETg4E78feEDtq9GVtODfaraKtxU3dNWWUzRVwMsMcgGhOZTnLwy+xKBe0O1ECATpiyYF8c4Zg7cQU3qiLW+fgZ1iV0ZwkLtx927UQRV5jolZepK1s97JFmvXULusgPVxA3lEael5ntdg+pz6vAez9Tx2RBI1RgjVU+xzsiJt+kaZBO8nFZJmnyX8bZAyB6zM79Ihd//HDImv5xyC8iklO/NC1S0SeIg2KoQvv/YUPT8ZksWPURj8AdYq4K2WvcL/k4+Vo=
