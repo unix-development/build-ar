@@ -14,9 +14,14 @@ before_deploy:
 - chmod 600 ./deploy_rsa
 - echo -e "Host lognoz.org\n\tStrictHostKeyChecking no\n" >> ~/.ssh/config
 - ssh-add ./deploy_rsa
-- ssh -i ./deploy_rsa lognozc@lognoz.org pwd
 before_install:
 - docker build --build-arg USER_ID="$(id -u)" -t "archlinux-repository" .
+deploy:
+  provider: script
+  skip_cleanup: true
+  script: rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build-repository lognozc@lognoz.org:/mirror.lognoz.org
+  on:
+    branch: master
 script:
 - docker run -e REPO_NAME="build" -v "$PWD":/home/builder/repository  "archlinux-repository"
 - cd build-repository && ls -l && cd ..
