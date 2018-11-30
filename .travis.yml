@@ -4,8 +4,6 @@ python:
 - '3.6'
 services:
 - docker
-branches:
-  only: master
 addons:
   ssh_known_hosts: "lognoz.org"
 before_install:
