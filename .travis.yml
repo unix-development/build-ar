@@ -4,8 +4,6 @@ python:
 - '3.6'
 services:
 - docker
-addons:
-  ssh_known_hosts: "lognoz.org"
 branches:
   only: master
 addons:
