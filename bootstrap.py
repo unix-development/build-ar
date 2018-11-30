@@ -20,7 +20,9 @@ def main():
    build_database()
 
 def build_database():
-   os.system('repo-add -R -n build-repository/lognoz.db.tar.gz build-repository/*.pkg.tar.xz')
+   os.system(
+      'pacman -U *.pkg.tar.xz && ' \
+      'repo-add -R -n build-repository/lognoz.db.tar.gz build-repository/*.pkg.tar.xz');
 
 class Builder():
    def __init__(self, module):
