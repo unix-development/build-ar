@@ -5,16 +5,16 @@ python:
 services:
 - docker
 addons:
-  ssh_known_hosts: <deploy-host>
+  ssh_known_hosts: "<deploy-host>"
 branches:
   only: master
+before_deploy:
+- openssl aes-256-cbc -K $encrypted_9f227eff80a0_key -iv $encrypted_9f227eff80a0_iv -in deploy_rsa.enc -out ./deploy_rsa -d
+- eval "$(ssh-agent -s)"
+- chmod 600 ./deploy_rsa
+- ssh-add ./deploy_rsa
 before_install:
 - docker build --build-arg USER_ID="$(id -u)" -t "archlinux-repository" .
-before_deploy:
-- openssl aes-256-cbc -K $encrypted_0a6446eb3ae3_key -iv $encrypted_0a6446eb3ae3_iv -in deploy_rsa.enc -out /tmp/deploy_rsa -d
-- eval "$(ssh-agent -s)"
-- chmod 600 /tmp/deploy_rsa
-- ssh-add /tmp/deploy_rsa
 deploy:
   provider: script
   skip_cleanup: true
