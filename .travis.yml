@@ -17,7 +17,6 @@ before_install:
 script:
 - docker run -e REPO_NAME="build" -v "$PWD":/home/builder/repository  "archlinux-repository"
 - python deploy.py
-- ssh -i ./deploy_key lognozc@lognoz.org cd /home/lognozc/mirror.lognoz.org && rm -f *
 - rsync -r --delete-after --quiet $TRAVIS_BUILD_DIR/build-repository/* lognozc@lognoz.org:/home/lognozc/mirror.lognoz.org
 env:
   global:
