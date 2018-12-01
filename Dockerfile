@@ -3,7 +3,8 @@ FROM archlinux/base
 COPY . /home/travis/repository
 WORKDIR /home/travis/repository
 
-RUN make pacman-install
+RUN yes | pacman -Syu
+RUN yes | pacman -S base base-devel git make python
 
 #ARG USER_ID=1000
 #ENV BUILD_USER builder
