@@ -3,7 +3,7 @@ FROM archlinux/base
 COPY . /home/travis/repository
 WORKDIR /home/travis/repository
 
-CMD ls -l
+RUN make pacman-install
 
 #ARG USER_ID=1000
 #ENV BUILD_USER builder
