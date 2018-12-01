@@ -8,4 +8,4 @@ RUN echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 VOLUME /home/travis/repository
 WORKDIR /home/travis/repository
 
-CMD python ./bootstrap.py
+CMD python /home/travis/bootstrap.py
