@@ -2,21 +2,22 @@ sudo: required
 language: python
 python:
 - '3.6'
-services:
-- docker
-addons:
-  ssh_known_hosts: "lognoz.org"
-before_install:
-- docker build --build-arg USER_ID="$(id -u)" -t "archlinux-repository" .
-- openssl aes-256-cbc -K $encrypted_9f227eff80a0_key -iv $encrypted_9f227eff80a0_iv -in deploy_key.enc -out ./deploy_key -d
-- eval "$(ssh-agent -s)"
-- chmod 600 ./deploy_key
-- ssh-add ./deploy_key
+#services:
+#- docker
+#addons:
+#  ssh_known_hosts: "lognoz.org"
+#before_install:
+#- docker build --build-arg USER_ID="$(id -u)" -t "archlinux-repository" .
+#- openssl aes-256-cbc -K $encrypted_9f227eff80a0_key -iv $encrypted_9f227eff80a0_iv -in deploy_key.enc -out ./deploy_key -d
+#- eval "$(ssh-agent -s)"
+#- chmod 600 ./deploy_key
+#- ssh-add ./deploy_key
 script:
-- docker run -e REPO_NAME="build" -v "$PWD":/home/builder/repository  "archlinux-repository"
-- python deploy.py
-- ssh -i ./deploy_key lognozc@lognoz.org "rm /home/lognozc/mirror.lognoz.org/*"
-- scp ./build-repository/* lognozc@lognoz.org:/home/lognozc/mirror.lognoz.org
+- echo "asdfasdf"
+#- docker run -e REPO_NAME="build" -v "$PWD":/home/builder/repository  "archlinux-repository"
+#- python deploy.py
+#- ssh -i ./deploy_key lognozc@lognoz.org "rm /home/lognozc/mirror.lognoz.org/*"
+#- scp ./build-repository/* lognozc@lognoz.org:/home/lognozc/mirror.lognoz.org
 env:
   global:
   - NAME="Marc-Antoine Loignon"
