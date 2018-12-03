@@ -9,9 +9,12 @@ build:
 	yes | pacman -S $(DOCKER_PACKAGES)
 	echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
+bootstrap:
+	python bootstrap.py
+
 prepare-ssh:
 	eval "$(ssh-agent -s)"
 	chmod 600 ./deploy_key
 	ssh-add ./deploy_key
 
-.PHONY: docker-build prepare-ssh build
+.PHONY: docker-build prepare-ssh build bootstrap
