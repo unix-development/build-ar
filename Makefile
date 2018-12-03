@@ -7,11 +7,10 @@ docker-build:
 build:
 	yes | pacman -Syu
 	yes | pacman -S $(DOCKER_PACKAGES)
-	useradd -u "1000" -s /bin/bash -d "/home/builder" -G wheel "builder"
 	echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 run:
-	docker run -e REPO_NAME="build" -v "$PWD":/repository/builder $(DOCKER_DEST)
+	docker run -v "$PWD":/repository/builder $(DOCKER_DEST)
 
 bootstrap:
 	python bootstrap.py
