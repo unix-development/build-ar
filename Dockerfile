@@ -3,7 +3,7 @@ FROM archlinux/base
 COPY . /repository/builder
 WORKDIR /repository/builder
 
-RUN echo $(ls -l)
+RUN make build
 
 #RUN pacman -Syu --noconfirm
 #RUN pacman -S base base-devel git make python --noconfirm
