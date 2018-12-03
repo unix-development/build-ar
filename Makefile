@@ -1,6 +1,9 @@
 DOCKER_DEST = archlinux-repository
 DOCKER_PACKAGES = python git
 
+GIT_EMAIL = "developer@lognoz.org"
+GIT_NAME = "Marc-Antoine Loignon"
+
 docker-build:
 	docker build -t $(DOCKER_DEST) .
 
@@ -22,5 +25,10 @@ build:
 prepare-ssh:
 	chmod 600 ./deploy_key
 	ssh-add ./deploy_key
+
+git-commit:
+	git config user.email ${GIT_EMAIL}
+	git config user.name ${GIT_NAME}
+	python deploy.py
 
 .PHONY: docker-build prepare-ssh packages build

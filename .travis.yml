@@ -14,6 +14,7 @@ before_install:
 
 script:
   - make run
+  - make git-commit
 
 #script:
 #- docker run -e REPO_NAME="build" -v "$PWD":/home/travis/repository  "archlinux-repository"
