@@ -10,6 +10,9 @@ GIT_NAME = "Marc-Antoine Loignon"
 SSH_ADDRESS = lognozc@lognoz.org
 SSH_PATH = /home/lognozc/mirror.lognoz.org
 
+# Variables
+PWD = $(shell pwd)
+
 docker-build:
 	docker build -t $(DOCKER_DEST) .
 
@@ -23,7 +26,7 @@ user:
 	echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 run:
-	docker run -v "$PWD":/repository/builder $(DOCKER_DEST)
+	docker run -v "$(PWD)":/repository/builder $(DOCKER_DEST)
 
 build:
 	python bootstrap.py
