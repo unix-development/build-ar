@@ -3,6 +3,7 @@ FROM archlinux/base
 COPY . /repository/builder
 WORKDIR /repository/builder
 
+RUN yes | pacman -S make
 RUN make build
 
 #RUN pacman -Syu --noconfirm
