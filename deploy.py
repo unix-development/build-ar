@@ -5,22 +5,12 @@ import sys
 import subprocess
 
 def main():
-   if is_travis():
-      set_git_config()
-
    for module in os.listdir('.'):
       if os.path.isdir(module) and os.path.isfile(module + '/package.py'):
          commit_change(module)
 
    if is_travis():
       git_push()
-
-
-def set_git_config():
-   if 'NAME' in os.environ and 'EMAIL' in os.environ:
-      os.system(
-         'git config user.email ' + os.environ['EMAIL'] + ' && ' \
-         'git config user.name ' + os.environ['NAME'])
 
 def is_travis():
    return "TRAVIS" in os.environ
