@@ -1,12 +1,12 @@
 DOCKER_DEST = archlinux-repository
-DOCKER_PACKAGES = python git base base-devel
+DOCKER_PACKAGES = python git
 
 docker-build:
 	docker build -t $(DOCKER_DEST) .
 
 build:
-	pacman -Syu --noconfirm
-	pacman -S $(DOCKER_PACKAGES) --noconfirm
+	yes | pacman -Syu
+	yes | pacman -S $(DOCKER_PACKAGES)
 
 prepare-ssh:
 	eval "$(ssh-agent -s)"
