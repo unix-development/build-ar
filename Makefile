@@ -4,7 +4,7 @@ DOCKER_PACKAGES = python git
 docker-build:
 	docker build -t $(DOCKER_DEST) .
 
-build:
+packages:
 	yes | pacman -Syu
 	yes | pacman -S $(DOCKER_PACKAGES)
 
@@ -16,7 +16,7 @@ user:
 run:
 	docker run -v "$PWD":/repository/builder $(DOCKER_DEST)
 
-bootstrap:
+build:
 	python bootstrap.py
 
 prepare-ssh:
@@ -24,4 +24,4 @@ prepare-ssh:
 	chmod 600 ./deploy_key
 	ssh-add ./deploy_key
 
-.PHONY: docker-build prepare-ssh build bootstrap
+.PHONY: docker-build prepare-ssh packages build
