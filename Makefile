@@ -1,9 +1,12 @@
+# Docker configurations
 DOCKER_DEST = archlinux-repository
 DOCKER_PACKAGES = python git
 
+# Git repository configurations
 GIT_EMAIL = "developer@lognoz.org"
 GIT_NAME = "Marc-Antoine Loignon"
 
+# SSH Configurations
 SSH_ADDRESS = lognozc@lognoz.org
 SSH_PATH = /home/lognozc/mirror.lognoz.org
 
