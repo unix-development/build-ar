@@ -3,9 +3,8 @@ FROM base/devel
 COPY . /repository/builder
 WORKDIR /repository/builder
 
-RUN groupadd -g 1000 builder
-RUN useradd -r -u 1000 -g wheel builder
 RUN chmod -R 777 /repository/builder
+RUN make user
 RUN make build
 
 USER builder

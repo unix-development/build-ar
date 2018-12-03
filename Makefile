@@ -7,6 +7,10 @@ docker-build:
 build:
 	yes | pacman -Syu
 	yes | pacman -S $(DOCKER_PACKAGES)
+
+user:
+	groupadd -g 1000 builder
+	useradd -r -u 1000 -g wheel builder
 	echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 run:
