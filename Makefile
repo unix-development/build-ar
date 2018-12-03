@@ -20,6 +20,7 @@ build:
 	python bootstrap.py
 
 prepare-ssh:
+	eval "ssh-agent -s"
 	chmod 600 ./deploy_key
 	ssh-add ./deploy_key
 
