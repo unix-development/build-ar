@@ -4,6 +4,9 @@ DOCKER_PACKAGES = python git
 GIT_EMAIL = "developer@lognoz.org"
 GIT_NAME = "Marc-Antoine Loignon"
 
+SSH_ADDRESS = lognozc@lognoz.org
+SSH_PATH = /home/lognozc/mirror.lognoz.org
+
 docker-build:
 	docker build -t $(DOCKER_DEST) .
 
@@ -30,5 +33,9 @@ git-commit:
 	git config user.email ${GIT_EMAIL}
 	git config user.name ${GIT_NAME}
 	python deploy.py
+
+ssh-push:
+	ssh -i ./deploy_key ${SSH_ADDRESS} "rm ${SSH_PATH}*"
+	scp ./build-repository/* ${SSH_ADDRESS}:${SSH_PATH}
 
 .PHONY: docker-build prepare-ssh packages build

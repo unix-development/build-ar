@@ -15,12 +15,8 @@ before_install:
 script:
   - make run
   - make git-commit
+  - make ssh-push
 
-#script:
-#- docker run -e REPO_NAME="build" -v "$PWD":/home/travis/repository  "archlinux-repository"
-#- python deploy.py
-#- ssh -i ./deploy_key lognozc@lognoz.org "rm /home/lognozc/mirror.lognoz.org/*"
-#- scp ./build-repository/* lognozc@lognoz.org:/home/lognozc/mirror.lognoz.org
 env:
   global:
   - NAME="Marc-Antoine Loignon"
