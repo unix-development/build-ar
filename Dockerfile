@@ -1,10 +1,8 @@
-FROM archlinux/base
+FROM base/devel
 
 COPY . /repository/builder
 WORKDIR /repository/builder
 
-RUN yes | pacman -Sy
-RUN yes | pacman -S make
 RUN make build
 
 #RUN pacman -Syu --noconfirm
