@@ -7,10 +7,11 @@ docker-build:
 build:
 	yes | pacman -Syu
 	yes | pacman -S $(DOCKER_PACKAGES)
+	echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
 prepare-ssh:
 	eval "$(ssh-agent -s)"
 	chmod 600 ./deploy_key
 	ssh-add ./deploy_key
 
-.PHONY: docker-build prepare-ssh
+.PHONY: docker-build prepare-ssh build
