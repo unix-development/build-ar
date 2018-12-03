@@ -4,8 +4,12 @@ python:
   - "3.6"
 services:
   - docker
+
 before_install:
   - make docker-build
+
+script:
+  - make run
 
 #- openssl aes-256-cbc -K $encrypted_9f227eff80a0_key -iv $encrypted_9f227eff80a0_iv -in deploy_key.enc -out ./deploy_key -d
 #- make prepare-ssh

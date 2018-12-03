@@ -9,6 +9,9 @@ build:
 	yes | pacman -S $(DOCKER_PACKAGES)
 	echo "%wheel ALL=(ALL) NOPASSWD: ALL" >> /etc/sudoers
 
+run:
+	docker run -e REPO_NAME="build" -v "$PWD":/repository/builder $(DOCKER_DEST)
+
 bootstrap:
 	python bootstrap.py
 
