@@ -1,5 +1,5 @@
 # Docker configurations
-DOCKER_DEST = archlinux-repository
+DOCKER_NAME = archlinux-repository
 DOCKER_PACKAGES = python git
 
 # Git repository configurations
@@ -26,10 +26,10 @@ ssh:
 	ssh-keyscan -t rsa -H $(SSH_HOST) >> ~/.ssh/known_hosts
 
 docker-build:
-	docker build --build-arg USER_ID="$(ID)" -t "$(DOCKER_DEST)" .
+	docker build --build-arg USER_ID="$(ID)" -t "$(DOCKER_NAME)" .
 
 docker-run:
-	docker run -v "$(PWD)":/home/builder/repository $(DOCKER_DEST)
+	docker run -v "$(PWD)":/home/builder/repository $(DOCKER_NAME)
 
 provision-packages:
 	yes | pacman -Syu
