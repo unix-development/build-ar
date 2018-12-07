@@ -23,7 +23,7 @@ build:
 ssh:
 	chmod 600 ./deploy_key
 	ssh-add ./deploy_key
-	ssh-keyscan -t rsa -H lognoz.org >> ~/.ssh/known_hosts
+	ssh-keyscan -t rsa -H $(SSH_HOST) >> ~/.ssh/known_hosts
 
 docker-build:
 	docker build --build-arg USER_ID="$(ID)" -t "$(DOCKER_DEST)" .
