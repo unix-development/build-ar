@@ -32,9 +32,6 @@ docker-run:
 	docker run -v "$(PWD)":/home/builder/repository $(DOCKER_NAME)
 
 provision-packages:
-	echo '[archlinuxfr]' >> /etc/pacman.conf
-	echo 'SigLevel = Never' >> /etc/pacman.conf
-	echo 'Server = http://repo.archlinux.fr/$$arch' >> /etc/pacman.conf
 	yes | pacman -Syu
 	yes | pacman -S $(DOCKER_PACKAGES)
 
