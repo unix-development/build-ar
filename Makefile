@@ -6,7 +6,7 @@ DOCKER_PACKAGES = python git
 GIT_EMAIL = "developer@lognoz.org"
 GIT_NAME = "Marc-Antoine Loignon"
 
-# SSH Configurations
+# SSH configurations
 SSH_USER = lognozc
 SSH_HOST = lognoz.org
 SSH_PATH = /home/lognozc/mirror.lognoz.org
