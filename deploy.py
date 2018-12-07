@@ -29,7 +29,7 @@ def commit_change(module):
       version = get_package_version(module)
       os.system(
          'git add ./' + module + ' && ' + \
-         'git commit -m "Travis: Add ' + module + ' last update on ' + version + ' version"')
+         'git commit -m "Bot: Add ' + module + ' last update on ' + version + ' version"')
 
 def output(command):
    return subprocess.check_output(command, shell=True).decode(sys.stdout.encoding)
