@@ -64,8 +64,7 @@ class Builder():
 
    def build_package(self):
       os.system(
-         'sudo pacman -S $(source ./PKGBUILD && echo ${depends[@]} ${makedepends[@]}) --noconfirm && ' \
-         'makepkg && ' \
+         'makepkg -Acs && ' \
          'mv *.pkg.tar.xz ../build-repository/');
 
    def clean_directory(self):
