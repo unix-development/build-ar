@@ -7,7 +7,7 @@ services:
   - docker
 
 before_install:
-  - openssl aes-256-cbc -K $encrypted_9f227eff80a0_key -iv $encrypted_9f227eff80a0_iv -in deploy_key.enc -out ./deploy_key -d
+  - openssl aes-256-cbc -K $encrypted_132d63ea0a65_key -iv $encrypted_132d63ea0a65_iv -in deploy_key.enc -out ./deploy_key -d
   - eval "$(ssh-agent -s)"
   - make ssh
 
