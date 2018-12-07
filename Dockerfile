@@ -3,8 +3,8 @@ FROM base/devel
 ARG USER_ID=1000
 ADD Makefile /
 
-RUN make user
-RUN make packages
+RUN make provision-user
+RUN make provision-packages
 
 VOLUME /home/builder/repository
 WORKDIR /home/builder/repository
