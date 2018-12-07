@@ -14,8 +14,7 @@ before_install:
 
 script:
   - make run
-  - make git-commit
-  - make ssh-push
+  - make deploy
 
 notifications:
   email:
