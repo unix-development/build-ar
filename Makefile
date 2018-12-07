@@ -14,6 +14,10 @@ SSH_PATH = /home/lognozc/mirror.lognoz.org
 # Variables
 PWD = $(shell pwd)
 ID = $(shell id -u)
+AUR_REPOSITORY = ' \
+	[archlinuxfr] \
+	SigLevel = Never \
+	Server = http://repo.archlinux.fr/$arch'
 
 all: docker-build docker-run deploy-git deploy-ssh
 
@@ -32,6 +36,7 @@ docker-run:
 	docker run -v "$(PWD)":/home/builder/repository $(DOCKER_NAME)
 
 provision-packages:
+	echo $(AUR_REPOSITORY) >> /etc/pacman.conf
 	yes | pacman -Syu
 	yes | pacman -S $(DOCKER_PACKAGES)
 
