@@ -111,6 +111,7 @@ def get_packages():
       if os.path.isdir(module) and os.path.isfile(module + '/package.py'):
          packages.append(module)
 
+   packages.sort()
    return packages
 
 def build_database():
