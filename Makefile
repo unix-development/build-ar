@@ -15,8 +15,6 @@ SSH_PATH = /home/lognozc/mirror.lognoz.org
 PWD = $(shell pwd)
 ID = $(shell id -u)
 
-all: docker-build docker-run deploy-git deploy-ssh
-
 build:
 	python ./repository.py
 
