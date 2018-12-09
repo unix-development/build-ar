@@ -20,15 +20,15 @@ all: docker-build docker-run deploy-git deploy-ssh
 build:
 	python ./repository.py
 
-ssh:
+prepare:
 	chmod 600 ./deploy_key
 	ssh-add ./deploy_key
 	ssh-keyscan -t rsa -H $(SSH_HOST) >> ~/.ssh/known_hosts
 
-docker-build:
+docker:
 	docker build --build-arg USER_ID="$(ID)" -t "$(DOCKER_NAME)" .
 
-docker-run:
+run:
 	docker run -v "$(PWD)":/home/builder/repository $(DOCKER_NAME)
 
 provision-packages:
@@ -42,11 +42,11 @@ provision-user:
 	chown -R builder /home/builder
 	echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
-deploy-git:
+git-push:
 	git config user.email ${GIT_EMAIL}
 	git config user.name ${GIT_NAME}
 	python deploy.py
 
-deploy-ssh:
+ssh-push:
 	ssh -i ./deploy_key ${SSH_USER}@${SSH_HOST} "rm -f ${SSH_PATH}/*"
 	scp ./build-repository/* ${SSH_USER}@${SSH_HOST}:${SSH_PATH}
