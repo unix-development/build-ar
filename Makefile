@@ -18,7 +18,7 @@ ID = $(shell id -u)
 all: docker-build docker-run deploy-git deploy-ssh
 
 build:
-	python ./bootstrap.py
+	python ./repository.py
 
 ssh:
 	chmod 600 ./deploy_key
