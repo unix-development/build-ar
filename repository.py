@@ -11,16 +11,12 @@ def main():
    if not os.path.exists('build-repository'):
       os.makedirs('build-repository')
 
-   for module in os.listdir('.'):
-      if os.path.isdir(module) and os.path.isfile(module + '/package.py'):
-         os.chdir(cwd + '/' + module)
-         builder = Builder(module)
-         os.chdir(cwd)
+   for package in get_packages():
+      os.chdir(cwd + '/' + package)
+      builder = Builder(package)
+      os.chdir(cwd)
 
    build_database()
-
-def build_database():
-   os.system('repo-add build-repository/lognoz.db.tar.gz build-repository/*.pkg.tar.xz');
 
 class Builder():
    def __init__(self, module):
@@ -105,6 +101,17 @@ def edit_file(filename):
    with fileinput.input(filename, inplace=1) as f:
        for line in f:
           yield line.rstrip('\n')
+
+def get_packages():
+   packages = []
+   for module in os.listdir('.'):
+      if os.path.isdir(module) and os.path.isfile(module + '/package.py'):
+         packages.append(module)
+
+   return packages
+
+def build_database():
+   os.system('repo-add build-repository/lognoz.db.tar.gz build-repository/*.pkg.tar.xz');
 
 if __name__ == '__main__':
    if os.getuid() == 0:
