@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import os
+import re
 import sys
 import shutil
 import fileinput
@@ -124,7 +125,7 @@ def version(module):
    with open('./PKGBUILD') as f:
       for line in f.readlines():
          if line.startswith('pkgver='):
-            return line.split('=', 1)[1].rstrip("\n\r")
+            return re.sub('[^0-9\.]', '', line.split('=', 1)[1].rstrip("\n\r"))
 
 if __name__ == '__main__':
    if os.getuid() == 0:
