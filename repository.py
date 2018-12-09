@@ -32,30 +32,9 @@ class Builder():
 
          if 'pre_build' in dir(self.package):
             self.package.pre_build()
-            self.set_package_validity()
 
          if not in_repository(module):
             self.build_package()
-
-   def set_package_validity(self):
-      os.system('makepkg -g >> md5sums.txt')
-
-      with open('md5sums.txt') as f:
-         replace = False
-         cpt = 0
-         md5 = f.readlines()
-         os.remove('md5sums.txt')
-
-      for line in edit_file('PKGBUILD'):
-         if line.startswith('md5sums=(') or replace:
-            replace = True
-            line = md5[cpt].rstrip('\n')
-            cpt = cpt + 1
-
-         if cpt > len(md5) - 1:
-            replace = False
-
-         print(line)
 
    def set_helper(self):
       self.package.edit_file = edit_file
