@@ -115,7 +115,10 @@ def get_packages():
    return packages
 
 def build_database():
-   os.system('repo-add build-repository/lognoz.db.tar.gz build-repository/*.pkg.tar.xz');
+   os.system(
+      'rm -f lognoz.db* && ' \
+      'rm -f lognoz.file* && ' \
+      'repo-add build-repository/lognoz.db.tar.gz build-repository/*.pkg.tar.xz');
 
 def in_repository(package):
    for file in os.listdir('../build-repository'):
