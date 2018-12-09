@@ -122,6 +122,10 @@ def in_repository(package):
       if file.startswith(package + '-' + version(package) + '-'):
          return True
 
+   for file in os.listdir('../build-repository'):
+      if file.startswith(package + '-'):
+         os.remove('../build-repository/' + file)
+
 def version(module):
    with open('./PKGBUILD') as f:
       for line in f.readlines():
