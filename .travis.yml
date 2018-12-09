@@ -7,9 +7,13 @@ before_install:
   - sudo apt-get install python3
   - openssl aes-256-cbc -K $encrypted_132d63ea0a65_key -iv $encrypted_132d63ea0a65_iv -in deploy_key.enc -out ./deploy_key -d
   - eval "$(ssh-agent -s)"
-  - make ssh
+install:
 script:
-  - make all
+  - make prepare
+  - make docker
+  - make run
+  - make git-push
+  - make ssh-push
 notifications:
   email:
     on_success: never
