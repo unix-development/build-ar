@@ -30,11 +30,11 @@ class Builder():
          self.clean_directory()
          self.git_clone()
 
-         if not in_repository(module):
-            if 'pre_build' in dir(self.package):
-               self.package.pre_build()
-               self.set_package_validity()
+         if 'pre_build' in dir(self.package):
+            self.package.pre_build()
+            self.set_package_validity()
 
+         if not in_repository(module):
             self.build_package()
 
    def set_package_validity(self):
