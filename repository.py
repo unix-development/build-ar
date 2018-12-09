@@ -95,9 +95,9 @@ def get_packages():
 
 def build_database():
    os.system(
-      'rm -f lognoz.db* && ' \
-      'rm -f lognoz.file* && ' \
-      'repo-add build-repository/lognoz.db.tar.gz build-repository/*.pkg.tar.xz');
+      'repo-add build-repository/lognoz.db.tar.gz build-repository/*.pkg.tar.xz && ' \
+      'rm -f lognoz.db.tar.gz.old && ' \
+      'rm -f lognoz.files*');
 
 def in_repository(package):
    for file in os.listdir('../build-repository'):
