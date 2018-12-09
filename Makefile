@@ -1,7 +1,3 @@
-# Docker configurations
-DOCKER_NAME = archlinux-repository
-DOCKER_PACKAGES = python git
-
 # Git repository configurations
 GIT_EMAIL = "developer@lognoz.org"
 GIT_NAME = "Marc-Antoine Loignon"
@@ -10,10 +6,6 @@ GIT_NAME = "Marc-Antoine Loignon"
 SSH_USER = lognozc
 SSH_HOST = lognoz.org
 SSH_PATH = /home/lognozc/mirror.lognoz.org
-
-# Variables
-PWD = $(shell pwd)
-ID = $(shell id -u)
 
 build:
 	python ./repository.py
@@ -24,14 +16,14 @@ prepare:
 	ssh-keyscan -t rsa -H $(SSH_HOST) >> ~/.ssh/known_hosts
 
 docker:
-	docker build --build-arg USER_ID="$(ID)" -t "$(DOCKER_NAME)" .
+	docker build --build-arg USER_ID="$(shell id -u)" -t archlinux-repository .
 
 run:
-	docker run -v "$(PWD)":/home/builder/repository $(DOCKER_NAME)
+	docker run -v "$(shell pwd)":/home/builder/repository archlinux-repository
 
 provision-packages:
 	yes | pacman -Syu
-	yes | pacman -S $(DOCKER_PACKAGES)
+	yes | pacman -S python git
 
 provision-user:
 	mkdir -p /home/builder/repository
