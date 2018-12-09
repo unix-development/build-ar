@@ -8,11 +8,11 @@ SSH_HOST = lognoz.org
 SSH_PATH = /home/lognozc/mirror.lognoz.org
 
 build:
-	python ./repository.py
+	python repository.py
 
 prepare:
-	chmod 600 ./deploy_key
-	ssh-add ./deploy_key
+	chmod 600 deploy_key
+	ssh-add deploy_key
 	ssh-keyscan -t rsa -H $(SSH_HOST) >> ~/.ssh/known_hosts
 
 docker:
@@ -38,5 +38,5 @@ git-push:
 	python deploy.py
 
 ssh-push:
-	ssh -i ./deploy_key ${SSH_USER}@${SSH_HOST} "rm -f ${SSH_PATH}/*"
-	scp ./build-repository/* ${SSH_USER}@${SSH_HOST}:${SSH_PATH}
+	ssh -i deploy_key ${SSH_USER}@${SSH_HOST} "rm -f ${SSH_PATH}/*"
+	scp build-repository/* ${SSH_USER}@${SSH_HOST}:${SSH_PATH}
