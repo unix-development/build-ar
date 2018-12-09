@@ -8,7 +8,7 @@ SSH_HOST = lognoz.org
 SSH_PATH = /home/lognozc/mirror.lognoz.org
 
 build:
-	python repository.py
+	python repository.py build lognoz
 
 prepare:
 	chmod 600 deploy_key
