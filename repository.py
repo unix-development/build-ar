@@ -19,6 +19,13 @@ def build(name):
 
    build_database(name)
 
+def commit():
+   for package in get_packages():
+      commit_change(package)
+
+   if is_travis():
+      git_push()
+
 class Builder():
    def __init__(self, module):
       __import__(module + '.package')
@@ -114,10 +121,32 @@ def version(module):
          if line.startswith('pkgver='):
             return re.sub('[^0-9\.]', '', line.split('=', 1)[1].rstrip("\n\r"))
 
+def is_travis():
+   return "TRAVIS" in os.environ
+
+def git_push():
+   repository = output('git remote get-url origin') \
+      .replace('https://', '') \
+      .replace('http://', '') \
+      .replace('git://', '') \
+      .rstrip("\n\r")
+
+   os.system('git push https://${GITHUB_TOKEN}@%s HEAD:master' % repository)
+
+def commit_change(module):
+   if output('git status %s --porcelain | sed s/^...//' % module):
+      os.system(
+         'git add ./' + module + ' && ' + \
+         'git commit -m "Bot: Add ' + module + ' last update on ' + version(module) + ' version"')
+
+def output(command):
+   return subprocess.check_output(command, shell=True).decode(sys.stdout.encoding)
+
 if __name__ == '__main__':
    if os.getuid() == 0:
       print('This file needs to be not execute as root.')
 
-   if len(sys.argv) == 3:
-      if sys.argv[1] == 'build':
-         build(sys.argv[2])
+   if len(sys.argv) == 3 and sys.argv[1] == 'build':
+      build(sys.argv[2])
+   elif len(sys.argv) == 2 and sys.argv[1] == 'commit':
+      commit()
