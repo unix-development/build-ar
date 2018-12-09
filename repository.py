@@ -7,7 +7,7 @@ import shutil
 import fileinput
 import subprocess
 
-def main():
+def build(name):
    cwd = os.getcwd()
    if not os.path.exists('build-repository'):
       os.makedirs('build-repository')
@@ -17,7 +17,7 @@ def main():
       builder = Builder(package)
       os.chdir(cwd)
 
-   build_database()
+   build_database(name)
 
 class Builder():
    def __init__(self, module):
@@ -93,11 +93,11 @@ def get_packages():
    packages.sort()
    return packages
 
-def build_database():
+def build_database(name):
    os.system(
-      'repo-add build-repository/lognoz.db.tar.gz build-repository/*.pkg.tar.xz && ' \
-      'rm -f lognoz.db.tar.gz.old && ' \
-      'rm -f lognoz.files*');
+      'repo-add build-repository/' + name + '.db.tar.gz build-repository/*.pkg.tar.xz && ' \
+      'rm -f ' + name + '.db.tar.gz.old && ' \
+      'rm -f ' + name + '.files*');
 
 def in_repository(package):
    for file in os.listdir('../build-repository'):
@@ -117,5 +117,7 @@ def version(module):
 if __name__ == '__main__':
    if os.getuid() == 0:
       print('This file needs to be not execute as root.')
-   else:
-      main()
+
+   if len(sys.argv) == 3:
+      if sys.argv[1] == 'build':
+         build(sys.argv[2])
