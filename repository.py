@@ -28,10 +28,12 @@ class Builder():
          self.set_helper()
          self.clean_directory()
          self.git_clone()
-         if 'pre_build' in dir(self.package):
-            self.package.pre_build()
-            self.set_package_validity()
-         if output('cd .. && git status %s' % module) != '':
+
+         if not in_repository(module):
+            if 'pre_build' in dir(self.package):
+               self.package.pre_build()
+               self.set_package_validity()
+
             self.build_package()
 
    def set_package_validity(self):
@@ -112,6 +114,17 @@ def get_packages():
 
 def build_database():
    os.system('repo-add build-repository/lognoz.db.tar.gz build-repository/*.pkg.tar.xz');
+
+def in_repository(package):
+   for file in os.listdir('../build-repository'):
+      if file.startswith(package + '-' + version(package) + '-'):
+         return True
+
+def version(module):
+   with open('./PKGBUILD') as f:
+      for line in f.readlines():
+         if line.startswith('pkgver='):
+            return line.split('=', 1)[1].rstrip("\n\r")
 
 if __name__ == '__main__':
    if os.getuid() == 0:
