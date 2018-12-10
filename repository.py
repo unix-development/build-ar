@@ -20,8 +20,11 @@ def build(name):
    build_database(name)
 
 def commit():
+   cwd = os.getcwd()
    for package in get_packages():
+      os.chdir(cwd + '/' + package)
       commit_change(package)
+      os.chdir(cwd)
 
    if is_travis():
       git_push()
