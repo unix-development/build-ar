@@ -24,7 +24,7 @@ def deploy():
    for directory in get_packages():
       module = packages_path + '/' + directory
       if output('git status %s --porcelain | sed s/^...//' % module):
-         print(
+         os.system(
             'git add ' + module + ' && ' + \
             'git commit -m "Bot: Add ' + module + ' last update on ' + version(module) + ' version"')
 
