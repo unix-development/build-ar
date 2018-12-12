@@ -8,7 +8,7 @@ SSH_HOST = lognoz.org
 SSH_PATH = /home/lognozc/mirror.lognoz.org
 
 build:
-	python repository.py build lognoz
+	python build/builder.py create lognoz
 
 prepare:
 	chmod 600 deploy_key
@@ -35,7 +35,7 @@ provision-user:
 git-push:
 	git config user.email ${GIT_EMAIL}
 	git config user.name ${GIT_NAME}
-	python repository.py commit
+	python build/builder.py deploy
 
 ssh-push:
 	ssh -i deploy_key ${SSH_USER}@${SSH_HOST} "rm -f ${SSH_PATH}/*"
