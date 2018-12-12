@@ -39,4 +39,4 @@ git-push:
 
 ssh-push:
 	ssh -i deploy_key ${SSH_USER}@${SSH_HOST} "rm -f ${SSH_PATH}/*"
-	scp build-repository/* ${SSH_USER}@${SSH_HOST}:${SSH_PATH}
+	scp repository/* ${SSH_USER}@${SSH_HOST}:${SSH_PATH}
