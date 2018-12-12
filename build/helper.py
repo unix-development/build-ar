@@ -16,7 +16,7 @@ repository_path = base_path + '/repository'
 packages_path = base_path + '/packages'
 
 def git_repository():
-   repository = output('git remote get-url origin') \
+   return output('git remote get-url origin') \
       .replace('https://', '') \
       .replace('http://', '') \
       .replace('git://', '') \
