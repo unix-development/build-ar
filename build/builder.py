@@ -22,7 +22,7 @@ def create(database):
 
 def deploy():
    for package in get_packages():
-      module = packages_path + '/' + directory
+      module = packages_path + '/' + package
       if output('git status %s --porcelain | sed s/^...//' % module):
          os.system(
             'git add ' + module + ' && ' + \
