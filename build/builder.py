@@ -21,12 +21,12 @@ def create(database):
    os.system('repo-add ./' + database + '.db.tar.gz ./*.pkg.tar.xz')
 
 def deploy():
-   for directory in get_packages():
+   for package in get_packages():
       module = packages_path + '/' + directory
       if output('git status %s --porcelain | sed s/^...//' % module):
          os.system(
             'git add ' + module + ' && ' + \
-            'git commit -m "Bot: Add ' + module + ' last update on ' + version(module) + ' version"')
+            'git commit -m "Bot: Add ' + package + ' last update on ' + version(module) + ' version"')
 
    if is_travis():
       repository = git_repository()
