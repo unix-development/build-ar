@@ -40,3 +40,5 @@ git-push:
 ssh-push:
 	ssh -i deploy_key ${SSH_USER}@${SSH_HOST} "rm -f ${SSH_PATH}/*"
 	scp repository/* ${SSH_USER}@${SSH_HOST}:${SSH_PATH}
+
+.PHONY: build prepare docker run provision-packages provision-user git-push ssh-push
