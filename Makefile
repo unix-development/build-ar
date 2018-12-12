@@ -16,7 +16,7 @@ prepare:
 	ssh-keyscan -t rsa -H $(SSH_HOST) >> ~/.ssh/known_hosts
 
 docker:
-	docker build --build-arg USER_ID="$(shell id -u)" -t archlinux-repository .
+	docker build --build-arg USER_ID="$(shell id -u)" -t archlinux-repository -f build/Dockerfile .
 
 run:
 	docker run -v "$(shell pwd)":/home/builder/repository archlinux-repository
