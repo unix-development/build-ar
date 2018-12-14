@@ -5,6 +5,8 @@ pkgs/
 src/
 deploy_key
 deploy_key.pub
+**/.*
+**/README.md
 *.asc
 *.bz2
 *.deb
@@ -19,4 +21,3 @@ deploy_key.pub
 *.tgz
 *.xz
 *.zip
-*/.*
