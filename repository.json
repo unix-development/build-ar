@@ -1,0 +1,13 @@
+{
+	"database": "",
+	"git": {
+		"name": "",
+		"email": ""
+	},
+	"ssh": {
+		"port": 22,
+		"user": "",
+		"host": "",
+		"path": ""
+	}
+}
