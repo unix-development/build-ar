@@ -2,6 +2,7 @@
 
 import os
 import sys
+import json
 from package import *
 from helper import *
 
@@ -32,9 +33,20 @@ def deploy():
       repository = git_repository()
       os.system('git push https://${GITHUB_TOKEN}@%s HEAD:master' % repository)
 
+def config(setting):
+   keys = setting.split('.')
+   with open('repository.json') as file:
+      data = json.load(file)
+      for key in keys:
+         data = data[key]
+      print(data)
+
 def main(argv):
-   if len(argv) == 2 and argv[0] == 'create':
-      create(argv[1])
+   if len(argv) == 2:
+      if argv[0] == 'create':
+         create(argv[1])
+      elif argv[0] == 'config':
+         config(argv[1])
    elif len(argv) == 1 and argv[0] == 'deploy':
       deploy()
 
