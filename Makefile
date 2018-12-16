@@ -1,14 +1,23 @@
-# Git repository configurations
-GIT_EMAIL = "developer@lognoz.org"
-GIT_NAME = "Marc-Antoine Loignon"
+# General variables
+BUILDER  := python build/builder.py
+CONFIG   := $(BUILDER) config
+DATABASE := $(shell $(CONFIG) database)
+ID       := $(shell id -u)
+PWD      := $(shell pwd)
 
-# SSH configurations
-SSH_USER = lognozc
-SSH_HOST = lognoz.org
-SSH_PATH = /home/lognozc/mirror.lognoz.org
+# Git repository variables
+GIT_EMAIL := $(shell $(CONFIG) git.email)
+GIT_NAME  := $(shell $(CONFIG) git.name)
+
+# SSH variables
+SSH_USER := $(shell $(CONFIG) ssh.user)
+SSH_HOST := $(shell $(CONFIG) ssh.host)
+SSH_PATH := $(shell $(CONFIG) ssh.path)
+SSH_PORT := $(shell $(CONFIG) ssh.port)
+SSH_URL  := $(SSH_NAME)@$(SSH_HOST)
 
 build:
-	python build/builder.py create lognoz
+	$(BUILDER) create lognoz
 
 prepare:
 	chmod 600 deploy_key
@@ -16,10 +25,15 @@ prepare:
 	ssh-keyscan -t rsa -H $(SSH_HOST) >> ~/.ssh/known_hosts
 
 docker:
-	docker build --build-arg USER_ID="$(shell id -u)" -t archlinux-repository -f build/Dockerfile .
+	docker build \
+		--build-arg USER_ID="$(ID)" \
+		--tag=archlinux-repository \
+		--file=./build/Dockerfile ./
 
 run:
-	docker run -v "$(shell pwd)":/home/builder/repository archlinux-repository
+	docker run \
+		--volume="$(PWD)":/home/builder/repository \
+		archlinux-repository
 
 provision-packages:
 	yes | pacman -Syu
@@ -33,12 +47,12 @@ provision-user:
 	echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 git-push:
-	git config user.email ${GIT_EMAIL}
-	git config user.name ${GIT_NAME}
-	python build/builder.py deploy
+	git config user.email $(GIT_EMAIL)
+	git config user.name $(GIT_NAME)
+	$(BUILDER) deploy
 
 ssh-push:
-	ssh -i deploy_key ${SSH_USER}@${SSH_HOST} "rm -f ${SSH_PATH}/*"
-	scp repository/* ${SSH_USER}@${SSH_HOST}:${SSH_PATH}
+	ssh -i deploy_key $(SSH_URL) "rm -f $(SSH_PATH)/*"
+	scp repository/* $(SSH_URL):$(SSH_PATH)
 
 .PHONY: build prepare docker run provision-packages provision-user git-push ssh-push
