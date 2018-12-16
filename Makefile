@@ -14,10 +14,10 @@ SSH_USER := $(shell $(CONFIG) ssh.user)
 SSH_HOST := $(shell $(CONFIG) ssh.host)
 SSH_PATH := $(shell $(CONFIG) ssh.path)
 SSH_PORT := $(shell $(CONFIG) ssh.port)
-SSH_URL  := $(SSH_NAME)@$(SSH_HOST)
+SSH_URL  := $(SSH_USER)@$(SSH_HOST)
 
 build:
-	$(BUILDER) create lognoz
+	$(BUILDER) create $(DATABASE)
 
 prepare:
 	chmod 600 deploy_key
@@ -47,8 +47,8 @@ provision-user:
 	echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 git-push:
-	git config user.email $(GIT_EMAIL)
-	git config user.name $(GIT_NAME)
+	git config user.email '$(GIT_EMAIL)'
+	git config user.name '$(GIT_NAME)'
 	$(BUILDER) deploy
 
 ssh-push:
