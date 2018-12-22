@@ -1,7 +1,7 @@
 sudo: required
 language: python
 python:
-  - "3.6"
+  - '3.6'
 services:
   - docker
 before_install:
@@ -11,8 +11,8 @@ script:
   - make prepare
   - make docker
   - make run
-  - make git-push
   - make ssh-push
+  - make git-push
 cache:
   directories:
     - repository
