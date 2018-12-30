@@ -19,12 +19,12 @@ PWD        := $(shell pwd)
 config = $(shell python build/builder.py config $(1))
 
 build:
-	$(BUILDER) create $(DATABASE)
+	python build/builder.py create $(call config, database)
 
 prepare:
 	chmod 600 deploy_key
 	ssh-add deploy_key
-	ssh-keyscan -t rsa -H $(SSH_HOST) >> ~/.ssh/known_hosts
+	ssh-keyscan -t rsa -H $(call config, ssh.host) >> ~/.ssh/known_hosts
 
 docker:
 	docker build \
@@ -49,9 +49,9 @@ provision-user:
 	echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 git-push:
-	git config user.email '$(GIT_EMAIL)'
-	git config user.name '$(GIT_NAME)'
-	$(BUILDER) deploy
+	git config user.email '$(call config, git.email)'
+	git config user.name '$(call config, git.name)'
+	python build/builder.py deploy
 
 ssh-push:
 	ssh -i deploy_key $(SSH_URL) "rm -f $(SSH_PATH)/*"
