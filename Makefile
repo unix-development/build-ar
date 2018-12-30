@@ -15,6 +15,9 @@ PACKAGES   := python git
 ID         := $(shell id -u)
 PWD        := $(shell pwd)
 
+# Return configuration value defined by user in repository.json.
+config = $(shell python build/builder.py config $(1))
+
 build:
 	$(BUILDER) create $(DATABASE)
 
