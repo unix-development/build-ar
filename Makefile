@@ -12,20 +12,8 @@
 
 BUILDER  := python build/builder.py
 CONFIG   := $(BUILDER) config
-DATABASE := $(shell $(CONFIG) database)
 ID       := $(shell id -u)
 PWD      := $(shell pwd)
-
-# Git repository variables
-GIT_EMAIL := $(shell $(CONFIG) git.email)
-GIT_NAME  := $(shell $(CONFIG) git.name)
-
-# SSH variables
-SSH_USER := $(shell $(CONFIG) ssh.user)
-SSH_HOST := $(shell $(CONFIG) ssh.host)
-SSH_PATH := $(shell $(CONFIG) ssh.path)
-SSH_PORT := $(shell $(CONFIG) ssh.port)
-SSH_URL  := $(SSH_USER)@$(SSH_HOST)
 
 build:
 	$(BUILDER) create $(DATABASE)
