@@ -10,10 +10,10 @@
 # The above copyright notice and this permission notice shall be included in
 # all copies or substantial portions of the Software.
 
-BUILDER  := python build/builder.py
-CONFIG   := $(BUILDER) config
-ID       := $(shell id -u)
-PWD      := $(shell pwd)
+PARAMETERS := database git.email git.name ssh.user ssh.host ssh.path ssh.port
+PACKAGES   := python git
+ID         := $(shell id -u)
+PWD        := $(shell pwd)
 
 build:
 	$(BUILDER) create $(DATABASE)
@@ -36,7 +36,7 @@ run:
 
 provision-packages:
 	yes | pacman -Syu
-	yes | pacman -S python git
+	yes | pacman -S $(PACKAGES)
 
 provision-user:
 	mkdir -p /home/builder/repository
