@@ -18,7 +18,7 @@ PWD        := $(shell pwd)
 # Return configuration value defined by user in repository.json.
 config = $(shell python build/builder.py config $(1))
 
-# Test if it's SSH connection can be establish and directory exist
+# Test if SSH connection can be establish and directory exist
 # in the server. Returns success or fail.
 is_ssh_valid = $(shell \
 	ssh -i ./deploy_key \
@@ -26,6 +26,10 @@ is_ssh_valid = $(shell \
 	[[ -d $(3) ]] && \
 		echo 'true' || echo 'false' \
 )
+
+deploy: git-push ssh-push
+
+valid: valid-config valid-ssh
 
 build:
 	python build/builder.py create $(call config, database)
@@ -82,7 +86,5 @@ valid-ssh:
 			echo '  It can be establish', \
 			$(error Error: SSH connection fail))
 
-valid: valid-config valid-ssh
-
-.PHONY: build prepare docker run provision-packages provision-user \
+.PHONY: build deploy prepare docker run provision-packages provision-user \
 	git-push ssh-push valid valid-config valid-ssh
