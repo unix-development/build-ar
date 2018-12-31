@@ -32,43 +32,43 @@ deploy: git-push ssh-push
 valid: valid-config valid-ssh
 
 build:
-	python build/builder.py create $(call config, database)
+	@python build/builder.py create $(call config, database)
 
 prepare:
-	chmod 600 deploy_key
-	ssh-add deploy_key
-	ssh-keyscan -t rsa -H $(call config, ssh.host) >> ~/.ssh/known_hosts
+	@chmod 600 deploy_key
+	@ssh-add deploy_key
+	@ssh-keyscan -t rsa -H $(call config, ssh.host) >> ~/.ssh/known_hosts
 
 docker:
-	docker build \
+	@docker build \
 		--build-arg USER_ID="$(ID)" \
 		--tag=archlinux-repository \
 		--file=./build/Dockerfile ./
 
 run:
-	docker run \
+	@docker run \
 		--volume="$(PWD)":/home/builder/repository \
 		archlinux-repository
 
 provision-packages:
-	yes | pacman -Syu
-	yes | pacman -S $(PACKAGES)
+	@yes | pacman -Syu
+	@yes | pacman -S $(PACKAGES)
 
 provision-user:
-	mkdir -p /home/builder/repository
-	useradd -u $(USER_ID) -s /bin/bash -d /home/builder -G wheel builder
-	chmod -R 777 /home/builder
-	chown -R builder /home/builder
-	echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
+	@mkdir -p /home/builder/repository
+	@useradd -u $(USER_ID) -s /bin/bash -d /home/builder -G wheel builder
+	@chmod -R 777 /home/builder
+	@chown -R builder /home/builder
+	@echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 git-push:
-	git config user.email '$(call config, git.email)'
-	git config user.name '$(call config, git.name)'
-	python build/builder.py deploy
+	@git config user.email '$(call config, git.email)'
+	@git config user.name '$(call config, git.name)'
+	@python build/builder.py deploy
 
 ssh-push:
-	ssh -i deploy_key $(call config, ssh.user)@$(call config, ssh.host) 'rm -f $(call config, ssh.path)/*'
-	scp repository/* $(call config, ssh.user)@$(call config, ssh.host):$(call config, ssh.path)
+	@ssh -i deploy_key $(call config, ssh.user)@$(call config, ssh.host) 'rm -f $(call config, ssh.path)/*'
+	@scp repository/* $(call config, ssh.user)@$(call config, ssh.host):$(call config, ssh.path)
 
 valid-config:
 	@echo 'Detect configuration in repository.json:'
