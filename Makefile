@@ -67,6 +67,9 @@ git-push:
 	@python build/builder.py deploy
 
 ssh-push:
+	@rm -f repository/*.old
+	@rm -f repository/*.files
+	@rm -f repository/*.files.tar.gz
 	@ssh -i deploy_key $(call config, ssh.user)@$(call config, ssh.host) 'rm -f $(call config, ssh.path)/*'
 	@scp repository/* $(call config, ssh.user)@$(call config, ssh.host):$(call config, ssh.path)
 
