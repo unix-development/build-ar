@@ -9,10 +9,10 @@ before_install:
 install:
 script:
   - make prepare
+  - make valid
   - make docker
   - make run
-  - make ssh-push
-  - make git-push
+  - make deploy
 cache:
   directories:
     - repository
