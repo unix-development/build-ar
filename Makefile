@@ -24,7 +24,7 @@ is_ssh_valid = $(shell \
 	ssh -i ./deploy_key \
 	-p $(1) -q $(2) \
 	[[ -d $(3) ]] && \
-		echo "true" || echo "false" \
+		echo 'true' || echo 'false' \
 )
 
 build:
