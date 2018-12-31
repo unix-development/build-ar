@@ -72,8 +72,8 @@ ssh-push:
 	@rm -f repository/*.files.tar.gz
 	@ssh -i deploy_key $(call config, ssh.user)@$(call config, ssh.host) \
 		'rm -rf $(call config, ssh.path)/*'
-	@rsync -avz --copy-links --progress repository/ \
-		$(call config, ssh.user)@$(call config, ssh.host):$(call config, ssh.path)
+	@rsync -avz --copy-links --progress -e 'ssh -p $(call config, ssh.port)' \
+		repository/ $(call config, ssh.user)@$(call config, ssh.host):$(call config, ssh.path)
 
 valid-config:
 	@echo 'Detect configuration in repository.json:'
