@@ -67,8 +67,8 @@ git-push:
 	python build/builder.py deploy
 
 ssh-push:
-	ssh -i deploy_key $(SSH_URL) "rm -f $(SSH_PATH)/*"
-	scp repository/* $(SSH_URL):$(SSH_PATH)
+	ssh -i deploy_key $(call config, ssh.user)@$(call config, ssh.host) 'rm -f $(call config, ssh.path)/*'
+	scp repository/* $(call config, ssh.user)@$(call config, ssh.host):$(call config, ssh.path)
 
 valid-config:
 	@echo 'Detect configuration in repository.json:'
