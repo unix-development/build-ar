@@ -1,0 +1,16 @@
+{
+	"name": "archlinux-repository",
+	"version": "1.0.0",
+	"description": "Arch Linux Repository web site content",
+	"license": "MIT",
+	"author": "Marc-Antoine Loignon",
+	"devDependencies": {
+		"autoprefixer": "^9.4.4",
+		"grunt": "^1.0.3",
+		"grunt-contrib-watch": "^1.1.0",
+		"grunt-postcss": "^0.9.0",
+		"grunt-sass": "^3.0.2",
+		"grunt-scss-lint": "^0.5.0",
+		"node-sass": "^4.11.0"
+	}
+}
