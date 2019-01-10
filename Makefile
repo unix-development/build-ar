@@ -15,8 +15,6 @@ ifneq ($(shell if which python &> /dev/null; then echo 1; fi), )
 	SSH_USER  = $(call CONFIG, ssh.user)
 endif
 
-deploy: git-push ssh-push
-
 build:
 	@python build/builder.py create $(DATABASE)
 
@@ -38,6 +36,16 @@ run:
 		--volume="$(PWD)":/home/builder/repository \
 		archlinux-repository
 
+deploy:
+	@rm -f repository/*.old
+	@rm -f repository/*.files
+	@rm -f repository/*.files.tar.gz
+	@git config user.email '$(GIT_EMAIL)'
+	@git config user.name '$(GIT_NAME)'
+	@rsync -avz --update --copy-links --progress -e 'ssh -p $(SSH_PORT)' \
+		repository/ $(SSH_USER)@$(SSH_HOST):$(SSH_PATH)
+	@python build/builder.py deploy
+
 provision-packages:
 	@yes | pacman -Syu
 	@yes | pacman -S $(PACKAGES)
@@ -49,17 +57,4 @@ provision-user:
 	@chown -R builder /home/builder
 	@echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
-git-push:
-	@git config user.email '$(GIT_EMAIL)'
-	@git config user.name '$(GIT_NAME)'
-	@python build/builder.py deploy
-
-ssh-push:
-	@rm -f repository/*.old
-	@rm -f repository/*.files
-	@rm -f repository/*.files.tar.gz
-	@rsync -avz --update --copy-links --progress -e 'ssh -p $(SSH_PORT)' \
-		repository/ $(SSH_USER)@$(SSH_HOST):$(SSH_PATH)
-
-.PHONY: build deploy prepare docker run provision-packages provision-user \
-	git-push ssh-push
+.PHONY: build deploy prepare docker run provision-packages provision-user
