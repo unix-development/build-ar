@@ -6,18 +6,7 @@ PWD        := $(shell pwd)
 # Return configuration value defined by user in repository.json.
 config = $(shell python build/builder.py config $(1))
 
-# Test if SSH connection can be establish and directory exist
-# in the server. Returns success or fail.
-is_ssh_valid = $(shell \
-	ssh -i ./deploy_key \
-	-p $(1) -q $(2) \
-	[[ -d $(3) ]] && \
-		echo 'true' || echo 'false' \
-)
-
 deploy: ssh-push git-push
-
-valid: valid-config valid-ssh
 
 build:
 	@python build/builder.py create $(call config, database)
@@ -62,22 +51,6 @@ ssh-push:
 		'rm -rf $(call config, ssh.path)/*'
 	@rsync -avz --copy-links --progress -e 'ssh -p $(call config, ssh.port)' \
 		repository/ $(call config, ssh.user)@$(call config, ssh.host):$(call config, ssh.path)
-
-valid-config:
-	@echo 'Detect configuration in repository.json:'
-	@$(foreach parameter, $(PARAMETERS), \
-		$(if $(call config, $(parameter)), \
-			echo '  $(parameter): $(call config, $(parameter))'; , \
-			$(error Error: $(parameter) failed)))
-
-valid-ssh:
-	@echo 'Test SSH connection:'
-	@$(if $(filter true, $(call is_ssh_valid, \
-		$(call config, ssh.port), \
-		$(call config, ssh.user)@$(call config, ssh.host), \
-		$(call config, ssh.path))),  \
-			echo '  It can be establish', \
-			$(error Error: SSH connection fail))
 
 .PHONY: build deploy prepare docker run provision-packages provision-user \
 	git-push ssh-push valid valid-config valid-ssh
