@@ -29,18 +29,15 @@ def test_repository():
       'SSH port must be an integer.'
 
 def test_ssh():
-   ssh_command = 'ssh -i ./deploy_key ' \
-      '-p {port} ' \
-      '-q {user}@{host} ' \
-      '[[ -d {path} ]] && ' \
-      'echo 1 || echo 0'
+   command = 'ssh -i ./deploy_key -p {0} -q {1}@{2} [[ -d {3} ]] && echo 1 || echo 0'
+   ssh = [ \
+      repository['ssh']['port'], \
+      repository['ssh']['user'], \
+      repository['ssh']['host'], \
+      repository['ssh']['path'] \
+   ]
 
-   assert output(ssh_command \
-      .replace('{port}', str(repository['ssh']['port'])) \
-      .replace('{user}', repository['ssh']['user']) \
-      .replace('{host}', repository['ssh']['host']) \
-      .replace('{path}', repository['ssh']['path'])) \
-      .strip() == '1', \
+   assert output(command.format(*ssh).strip()).strip() == '1', \
       'SSH connection could not be established.'
 
 def main(argv):
