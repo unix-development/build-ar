@@ -1,10 +1,12 @@
 __pycache__/
+node_modules/
 repository/
 pkg/
 pkgs/
 src/
 deploy_key
 deploy_key.pub
+package-lock.json
 **/.*
 **/README.md
 *.asc
