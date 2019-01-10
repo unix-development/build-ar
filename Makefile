@@ -15,7 +15,7 @@ is_ssh_valid = $(shell \
 		echo 'true' || echo 'false' \
 )
 
-deploy: git-push ssh-push
+deploy: ssh-push git-push
 
 valid: valid-config valid-ssh
 
