@@ -12,9 +12,11 @@ build:
 	@python build/builder.py create $(call config, database)
 
 prepare:
+	@python build/assert.py repository
 	@chmod 600 deploy_key
 	@ssh-add deploy_key
 	@ssh-keyscan -t rsa -H $(call config, ssh.host) >> ~/.ssh/known_hosts
+	@python build/assert.py ssh
 
 docker:
 	@docker build \
