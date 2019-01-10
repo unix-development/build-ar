@@ -34,12 +34,11 @@ def deploy():
       os.system('git push https://${GITHUB_TOKEN}@%s HEAD:master' % repository)
 
 def config(setting):
+   data = repository
    keys = setting.split('.')
-   with open('repository.json') as file:
-      data = json.load(file)
-      for key in keys:
-         data = data[key]
-      print(data)
+   for key in keys:
+      data = data[key]
+   print(data)
 
 def main(argv):
    if len(argv) == 2:
