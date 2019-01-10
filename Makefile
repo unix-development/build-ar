@@ -1,21 +1,30 @@
-PARAMETERS := database git.email git.name ssh.user ssh.host ssh.path ssh.port
-PACKAGES   := python git
-ID         := $(shell id -u)
-PWD        := $(shell pwd)
+PROGRAM = archlinux-repository
+PACKAGES = python git
 
-# Return configuration value defined by user in repository.json.
-config = $(shell python build/builder.py config $(1))
+ID  = $(shell id -u)
+PWD = $(shell pwd)
 
-deploy: ssh-push git-push
+ifneq ($(shell if which python &> /dev/null; then echo 1; fi), )
+	CONFIG    = $(shell python build/builder.py config $(1))
+	DATABASE  = $(call CONFIG, database)
+	GIT_EMAIL = $(call CONFIG, git.email)
+	GIT_NAME  = $(call CONFIG, git.name)
+	SSH_HOST  = $(call CONFIG, ssh.host)
+	SSH_PATH  = $(call CONFIG, ssh.path)
+	SSH_PORT  = $(call CONFIG, ssh.port)
+	SSH_USER  = $(call CONFIG, ssh.user)
+endif
+
+deploy: git-push ssh-push
 
 build:
-	@python build/builder.py create $(call config, database)
+	@python build/builder.py create $(DATABASE)
 
 prepare:
 	@python build/assert.py repository
 	@chmod 600 deploy_key
 	@ssh-add deploy_key
-	@ssh-keyscan -t rsa -H $(call config, ssh.host) >> ~/.ssh/known_hosts
+	@ssh-keyscan -t rsa -H $(SSH_HOST) >> ~/.ssh/known_hosts
 	@python build/assert.py ssh
 
 docker:
@@ -41,18 +50,16 @@ provision-user:
 	@echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
 
 git-push:
-	@git config user.email '$(call config, git.email)'
-	@git config user.name '$(call config, git.name)'
+	@git config user.email '$(GIT_EMAIL)'
+	@git config user.name '$(GIT_NAME)'
 	@python build/builder.py deploy
 
 ssh-push:
 	@rm -f repository/*.old
 	@rm -f repository/*.files
 	@rm -f repository/*.files.tar.gz
-	@ssh -i deploy_key $(call config, ssh.user)@$(call config, ssh.host) \
-		'rm -rf $(call config, ssh.path)/*'
-	@rsync -avz --copy-links --progress -e 'ssh -p $(call config, ssh.port)' \
-		repository/ $(call config, ssh.user)@$(call config, ssh.host):$(call config, ssh.path)
+	@rsync -avz --update --copy-links --progress -e 'ssh -p $(SSH_PORT)' \
+		repository/ $(SSH_USER)@$(SSH_HOST):$(SSH_PATH)
 
 .PHONY: build deploy prepare docker run provision-packages provision-user \
-	git-push ssh-push valid valid-config valid-ssh
+	git-push ssh-push
