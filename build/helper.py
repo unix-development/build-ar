@@ -15,6 +15,10 @@ repository_path = base_path + '/repository'
 # Packages directory
 packages_path = base_path + '/packages'
 
+# Repository setting
+with open(base_path + '/repository.json') as file:
+   repository = json.load(file)
+
 def git_repository():
    return output('git remote get-url origin') \
       .replace('https://', '') \
