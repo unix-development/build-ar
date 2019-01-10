@@ -16,9 +16,9 @@
 			</div>
 
 			<div class="header-action">
-				<a href="https://github.com/archlinux-repository/archlinux-repository" class="button">View on GitHub</a>
-				<a href="https://github.com/archlinux-repository/archlinux-repository/zipball/master" class="button">Download .zip</a>
-				<a href="https://github.com/archlinux-repository/archlinux-repository/tarball/master" class="button">Download .tar.gz</a>
+				<a href="$remote_path" class="button">View on GitHub</a>
+				<a href="$remote_path/zipball/master" class="button">Download .zip</a>
+				<a href="$remote_path/tarball/master" class="button">Download .tar.gz</a>
 			</div>
 		</div>
 
@@ -30,9 +30,9 @@
 
 			<div class="section">
 				<h2>To use Pacman, you need to add this configuration to your /etc/pacman.conf.</h2>
-				<pre>[lognoz]
+				<pre>[$database]
 SigLevel = Optional TrustedOnly
-Server = http://mirror.lognoz.org</pre>
+Server = $path</pre>
 			</div>
 
 			<div class="section">
@@ -45,88 +45,7 @@ Server = http://mirror.lognoz.org</pre>
 							<th>Description</th>
 						</tr>
 					</thead>
-					<tbody>
-						<tr>
-							<td>
-								<a href="#">visual-studio-code-bin-1.30.1-1-x86_64.pkg.tar.xz</a>
-							</td>
-							<td>visual-studio-code-bin</td>
-							<td>6.1</td>
-							<td><p>Visual Studio Code (vscode): Editor for building and debugging modern web and cloud applications (official binary version)</p></td>
-						</tr>
-						<tr>
-							<td>
-								<a href="#">dwm-6.1-3-x86_64.pkg.tar.xz</a>
-							</td>
-							<td>dwm</td>
-							<td>6.1</td>
-							<td><p>Launch a subprocess with environment variables using data from @HashiCorp Consul and Vault.</p></td>
-						</tr>
-						<tr>
-							<td>
-								<a href="#">dwm-6.1-3-x86_64.pkg.tar.xz</a>
-							</td>
-							<td>dwm</td>
-							<td>6.1</td>
-							<td><p>A dynamic window manager for X</p></td>
-						</tr>
-						<tr>
-							<td>
-								<a href="#">dwm-6.1-3-x86_64.pkg.tar.xz</a>
-							</td>
-							<td>dwm</td>
-							<td>6.1</td>
-							<td><p>A dynamic window manager for X</p></td>
-						</tr>
-						<tr>
-							<td>
-								<a href="#">dwm-6.1-3-x86_64.pkg.tar.xz</a>
-							</td>
-							<td>dwm</td>
-							<td>6.1</td>
-							<td><p>A dynamic window manager for X</p></td>
-						</tr>
-						<tr>
-							<td>
-								<a href="#">dwm-6.1-3-x86_64.pkg.tar.xz</a>
-							</td>
-							<td>dwm</td>
-							<td>6.1</td>
-							<td><p>A dynamic window manager for X</p></td>
-						</tr>
-						<tr>
-							<td>
-								<a href="#">dwm-6.1-3-x86_64.pkg.tar.xz</a>
-							</td>
-							<td>dwm</td>
-							<td>6.1</td>
-							<td><p>A dynamic window manager for X</p></td>
-						</tr>
-						<tr>
-							<td>
-								<a href="#">dwm-6.1-3-x86_64.pkg.tar.xz</a>
-							</td>
-							<td>dwm</td>
-							<td>6.1</td>
-							<td><p>A dynamic window manager for X</p></td>
-						</tr>
-						<tr>
-							<td>
-								<a href="#">dwm-6.1-3-x86_64.pkg.tar.xz</a>
-							</td>
-							<td>dwm</td>
-							<td>6.1</td>
-							<td><p>A dynamic window manager for X</p></td>
-						</tr>
-						<tr>
-							<td>
-								<a href="#">dwm-6.1-3-x86_64.pkg.tar.xz</a>
-							</td>
-							<td>dwm</td>
-							<td>6.1</td>
-							<td><p>A dynamic window manager for X</p></td>
-						</tr>
-					</tbody>
+					<tbody>$content</tbody>
 				</table>
 			</div>
 		</div>
