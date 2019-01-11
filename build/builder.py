@@ -40,12 +40,42 @@ def config(setting):
       data = data[key]
    print(data)
 
+def validate(case):
+   if case == 'repository':
+      assert repository['database'], \
+         'Database must be defined.'
+      assert repository['git']['name'], \
+         'Git name must be defined.'
+      assert repository['git']['email'], \
+         'Git email must be defined.'
+      assert repository['ssh']['user'], \
+         'SSH user must be defined.'
+      assert repository['ssh']['host'], \
+         'SSH host must be defined.'
+      assert repository['ssh']['path'], \
+         'SSH path must be defined.'
+      assert repository['ssh']['port'], \
+         'SSH port must be defined.'
+      assert type(repository['ssh']['port']) is int, \
+         'SSH port must be an integer.'
+
+   elif case == 'ssh':
+      script = 'ssh -i ./deploy_key -p $port -q $user@$host [[ -d $path ]] && echo 1 || echo 0'
+      for key in repository['ssh']:
+         value = repository['ssh'][key]
+         script = script.replace(f'${key}', str(value))
+
+      assert output(script) == '1', \
+         'SSH connection could not be established.'
+
 def main(argv):
    if len(argv) == 2:
       if argv[0] == 'create':
          create(argv[1])
       elif argv[0] == 'config':
          config(argv[1])
+      elif argv[0] == 'validate':
+         validate(argv[1])
    elif len(argv) == 1 and argv[0] == 'deploy':
       deploy()
 
