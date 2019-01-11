@@ -24,14 +24,13 @@ def git_repository():
    return output('git remote get-url origin') \
       .replace('https://', '') \
       .replace('http://', '') \
-      .replace('git://', '') \
-      .rstrip("\n\r")
+      .replace('git://', '')
 
 def is_travis():
    return "TRAVIS" in os.environ
 
 def output(command):
-   return subprocess.check_output(command, shell=True).decode(sys.stdout.encoding)
+   return subprocess.check_output(command, shell=True).decode(sys.stdout.encoding).strip()
 
 def replace_ending(find, replace, string):
    split = string.split(find, 1)
