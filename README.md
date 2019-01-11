@@ -119,7 +119,7 @@ To use Pacman, you need to add this configuration to your `/etc/pacman.conf`.
 
 ```
 [custom]
-SigLevel = Never
+SigLevel = Optional TrustedOnly
 Server = http://mirror.yourdomain.org
 ```
 
