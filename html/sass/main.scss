@@ -43,10 +43,15 @@ pre {
 	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
 	background: #f5f2f0;
 	font-size:14px;
-	padding: 20px;
 	line-height: 22px;
 	max-width: 800px;
 	color: #616161;
+	overflow-x: auto;
+
+	code {
+		padding: 20px;
+		display: inline-block;
+	}
 }
 
 h1 {
@@ -86,50 +91,33 @@ table {
 	min-width: 800px;
 	margin-top: 25px;
 
-	p {
-		max-width: 400px;
-		margin: 0;
+	th {
+		color: #3e3e3e;
+		text-align: left;
+		padding: 0px;
+		padding-right: 25px;
+		padding-bottom: 20px;
+		padding-left: 0px;
 		font-size: 14px;
-		line-height: 28px;
 	}
 
-	tr {
-		th {
-			color: #3e3e3e;
-			text-align: left;
-			padding: 0px;
-			padding-right: 25px;
-			padding-bottom: 20px;
-			padding-left: 0px;
-			font-size: 14px;
-		}
+	td {
+		border-top: solid 1px #bfbfbf;
+		padding: 12px 20px;
+		padding-right: 25px;
+		padding-left: 0px;
+		font-size: 14px;
+		color: #3e3e3e;
+		line-height: 25px;
+	}
 
-		td {
-			border-top: solid 1px #bfbfbf;
-			padding: 12px 20px;
-			padding-right: 25px;
-			padding-left: 0px;
-			font-size: 14px;
-			color: #3e3e3e;
+	a {
+		color: #3e3e3e;
+		text-decoration: none;
 
-			&:last-child {
-				max-width: 350px;
-			}
-		}
-
-		a {
-			color: #3e3e3e;
-			text-decoration: none;
-			width: 250px;
-			white-space: nowrap;
-			overflow: hidden;
-			text-overflow: ellipsis;
-			display: block;
-
-			&:hover {
-				color: #000;
-				text-decoration: underline;
-			}
+		&:hover {
+			color: #000;
+			text-decoration: underline;
 		}
 	}
 }
@@ -185,7 +173,9 @@ p {
 }
 
 .header, .content {
+	margin: auto;
 	padding: 70px;
+	max-width: 1500px;
 
 	@include medium {
 		padding: 50px;
@@ -233,16 +223,6 @@ p {
 		}
 	}
 
-	p {
-		margin: 0;
-		color: #60667A;
-		font-weight: 300;
-
-		@include small {
-			color: #656565;
-		}
-	}
-
 	.header-action {
 		margin-top: 45px;
 
@@ -262,10 +242,6 @@ p {
 	.section {
 		margin-bottom: 50px;
 
-		&.packages {
-			overflow-x: auto;
-		}
-
 		@include medium {
 			margin-bottom: 40px;
 		}
@@ -275,6 +251,7 @@ p {
 		}
 
 		&:last-child {
+			overflow-x: auto;
 			margin-bottom: 0px;
 		}
 	}

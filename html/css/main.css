@@ -18,10 +18,13 @@ pre {
   font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
   background: #f5f2f0;
   font-size: 14px;
-  padding: 20px;
   line-height: 22px;
   max-width: 800px;
-  color: #616161; }
+  color: #616161;
+  overflow-x: auto; }
+  pre code {
+    padding: 20px;
+    display: inline-block; }
 
 h1 {
   color: #252737;
@@ -54,12 +57,7 @@ table {
   border-spacing: 0;
   min-width: 800px;
   margin-top: 25px; }
-  table p {
-    max-width: 400px;
-    margin: 0;
-    font-size: 14px;
-    line-height: 28px; }
-  table tr th {
+  table th {
     color: #3e3e3e;
     text-align: left;
     padding: 0px;
@@ -67,24 +65,18 @@ table {
     padding-bottom: 20px;
     padding-left: 0px;
     font-size: 14px; }
-  table tr td {
+  table td {
     border-top: solid 1px #bfbfbf;
     padding: 12px 20px;
     padding-right: 25px;
     padding-left: 0px;
     font-size: 14px;
-    color: #3e3e3e; }
-    table tr td:last-child {
-      max-width: 350px; }
-  table tr a {
     color: #3e3e3e;
-    text-decoration: none;
-    width: 250px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: block; }
-    table tr a:hover {
+    line-height: 25px; }
+  table a {
+    color: #3e3e3e;
+    text-decoration: none; }
+    table a:hover {
       color: #000;
       text-decoration: underline; }
 
@@ -130,7 +122,9 @@ p {
     color: #FFFFFF; }
 
 .header, .content {
-  padding: 70px; }
+  margin: auto;
+  padding: 70px;
+  max-width: 1500px; }
   @media screen and (max-width: 725px) {
     .header, .content {
       padding: 50px; } }
@@ -164,13 +158,6 @@ p {
       padding: 0;
       vertical-align: middle;
       display: table-cell; }
-  .header p {
-    margin: 0;
-    color: #60667A;
-    font-weight: 300; }
-    @media screen and (max-width: 560px) {
-      .header p {
-        color: #656565; } }
   .header .header-action {
     margin-top: 45px; }
     @media screen and (max-width: 725px) {
@@ -184,8 +171,6 @@ p {
   background-color: #FFFFFF; }
   .content .section {
     margin-bottom: 50px; }
-    .content .section.packages {
-      overflow-x: auto; }
     @media screen and (max-width: 725px) {
       .content .section {
         margin-bottom: 40px; } }
@@ -193,4 +178,5 @@ p {
       .content .section {
         margin-bottom: 30px; } }
     .content .section:last-child {
+      overflow-x: auto;
       margin-bottom: 0px; }
