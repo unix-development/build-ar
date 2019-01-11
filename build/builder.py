@@ -86,6 +86,8 @@ def validate(case):
    if case == 'repository':
       assert repository['database'], \
          'Database must be defined.'
+      assert repository['url'], \
+         'Url must be defined.'
       assert repository['git']['name'], \
          'Git name must be defined.'
       assert repository['git']['email'], \
