@@ -3,8 +3,50 @@
 import os
 import sys
 import json
+import time
 from package import *
 from helper import *
+
+def html():
+   os.system('rm -rf ' + repository_path + '/{index.html,css,images}')
+
+   table = ''
+   remote_path = 'https://' + git_repository()
+
+   for package in get_packages():
+      module = packages_path + '/' + package
+      description = extract(module, 'pkgdesc')
+      version = extract(module, 'pkgver')
+      name = extract(module, 'pkgname')
+
+      for path in os.listdir(repository_path):
+         if path.startswith(name + '-' + version + '-'):
+            date = time.strftime('%d %h %Y', \
+               time.gmtime(os.path.getmtime(repository_path + '/' + path)))
+
+            content = \
+               '<tr>' + \
+                  '<td><a href="$path">$name</a></td>' + \
+                  '<td>$version</td>' + \
+                  '<td>$date</td>' + \
+                  '<td>$description</td>' + \
+               '</tr>'
+
+            table += content \
+               .replace('$path', path) \
+               .replace('$name', name) \
+               .replace('$date', date) \
+               .replace('$version', version) \
+               .replace('$description', description)
+
+      os.system('cp -r ' + html_path + '/{index.html,css,images} ' + repository_path)
+
+      for line in edit_file(repository_path + '/index.html'):
+         line = line.replace('$database', repository['database'])
+         line = line.replace('$remote_path', remote_path)
+         line = line.replace('$path', repository['url'])
+         line = line.replace('$content', table)
+         print(line)
 
 def create(database):
    if not os.path.exists(repository_path):
@@ -76,8 +118,11 @@ def main(argv):
          config(argv[1])
       elif argv[0] == 'validate':
          validate(argv[1])
-   elif len(argv) == 1 and argv[0] == 'deploy':
-      deploy()
+   elif len(argv) == 1:
+      if argv[0] == 'deploy':
+         deploy()
+      elif argv[0] == 'html':
+         html()
 
 if __name__ == '__main__':
    if os.getuid() == 0:
