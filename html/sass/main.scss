@@ -22,7 +22,7 @@ $link-color-hover: #000;
 
 body {
 	background: $body-color;
-	margin: 4%;
+	margin: 6%;
 	font-family: 'Montserrat', sans-serif;
 	font-weight: 400;
 
@@ -104,7 +104,7 @@ table {
 		padding-left: 0px;
 		font-size: 14px;
 		color: #3e3e3e;
-		line-height: 25px;
+		line-height: 28px;
 
 		&:last-child {
 			width: 40%;
@@ -174,8 +174,7 @@ p {
 
 .header, .content {
 	margin: auto;
-	padding: 70px;
-	max-width: 1500px;
+	padding: 6.5%;
 
 	@include medium {
 		padding: 50px;
