@@ -14,6 +14,9 @@ base_path = os.path.realpath(__file__).replace('/build/helper.py', '')
 # Repository directory
 repository_path = base_path + '/repository'
 
+# Html directory
+html_path = base_path + '/html'
+
 # Packages directory
 packages_path = base_path + '/packages'
 
