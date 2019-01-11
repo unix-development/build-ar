@@ -9,6 +9,7 @@ from helper import *
 class Package():
    def __init__(self, module, directory):
       self.package = module
+      self.directory = directory
 
       if self.validate():
          self.set_helper()
@@ -22,7 +23,7 @@ class Package():
             self.build_package()
 
    def is_build(self):
-      self.version = extract(packages_path + '/' + directory, 'pkgver')
+      self.version = extract(packages_path + '/' + self.directory, 'pkgver')
 
       for f in os.listdir(repository_path):
          if f.startswith(self.package.name + '-' + self.version + '-'):
