@@ -77,12 +77,6 @@ def extract(module, name):
          if line.startswith(name + '='):
             return line.split('=', 1)[1].strip('\n\r\"\' ')
 
-def version(module):
-   with open(module + '/PKGBUILD') as f:
-      for line in f.readlines():
-         if line.startswith('pkgver='):
-            return re.sub('[^0-9\.]', '', line.split('=', 1)[1].rstrip("\n\r"))
-
 def get_packages():
    packages = []
    for module in os.listdir(packages_path):
