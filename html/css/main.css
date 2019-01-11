@@ -73,6 +73,8 @@ table {
     font-size: 14px;
     color: #3e3e3e;
     line-height: 25px; }
+    table td:last-child {
+      width: 40%; }
   table a {
     color: #3e3e3e;
     text-decoration: none; }

@@ -1,7 +1,3 @@
-// Breakpoints
-$medium-breakpoint: 725px;
-$small-breakpoint: 560px;
-
 // Interface colors
 $body-color: #d0d0d0;
 $link-color: #3e3e3e;
@@ -9,13 +5,13 @@ $link-color-hover: #000;
 
 // Mixins
 @mixin medium {
-	@media screen and (max-width: #{$medium-breakpoint}) {
+	@media screen and (max-width: 725px) {
 		@content;
 	}
 }
 
 @mixin small {
-	@media screen and (max-width: #{$small-breakpoint}) {
+	@media screen and (max-width: 560px) {
 		@content;
 	}
 }
@@ -109,6 +105,10 @@ table {
 		font-size: 14px;
 		color: #3e3e3e;
 		line-height: 25px;
+
+		&:last-child {
+			width: 40%;
+		}
 	}
 
 	a {
