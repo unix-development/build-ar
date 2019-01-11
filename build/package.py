@@ -9,6 +9,7 @@ from helper import *
 class Package():
    def __init__(self, module, directory):
       self.package = module
+      self.version = extract(packages_path + '/' + directory, 'pkgver')
 
       if self.validate():
          self.set_helper()
@@ -23,7 +24,7 @@ class Package():
 
    def is_build(self):
       for f in os.listdir(repository_path):
-         if f.startswith(self.package.name + '-' + self.version() + '-'):
+         if f.startswith(self.package.name + '-' + self.version + '-'):
             return True
 
       for f in os.listdir(repository_path):
@@ -35,12 +36,6 @@ class Package():
          'sudo pacman -S $(source ./PKGBUILD && echo ${depends[@]} ${makedepends[@]}) --noconfirm && ' \
          'makepkg -Ad --skipinteg && ' \
          'mv *.pkg.tar.xz ' + repository_path);
-
-   def version(self):
-      with open('./PKGBUILD') as f:
-         for line in f.readlines():
-            if line.startswith('pkgver='):
-               return re.sub('[^0-9\.]', '', line.split('=', 1)[1].rstrip("\n\r"))
 
    def clean_directory(self):
       files = os.listdir('.')
