@@ -68,6 +68,12 @@ def get_time_ago(date):
          else:
             return formats[key]
 
+def extract(module, name):
+   with open(module + '/PKGBUILD') as f:
+      for line in f.readlines():
+         if line.startswith(name + '='):
+            return line.split('=', 1)[1].strip('\n\r\"\' ')
+
 def version(module):
    with open(module + '/PKGBUILD') as f:
       for line in f.readlines():
