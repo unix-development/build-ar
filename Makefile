@@ -17,6 +17,7 @@ endif
 
 build:
 	@python build/builder.py create $(DATABASE)
+	@python build/builder.py html
 
 prepare:
 	@python build/builder.py validate repository
