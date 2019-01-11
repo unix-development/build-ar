@@ -69,7 +69,7 @@ def deploy():
       if output('git status %s --porcelain | sed s/^...//' % module):
          os.system(
             'git add ' + module + ' && ' + \
-            'git commit -m "Bot: Add ' + package + ' last update on ' + version(module) + ' version"')
+            'git commit -m "Bot: Add last change into ' + package + ' package ~ version ' + version(module) + '"')
 
    if is_travis():
       repository = git_repository()
