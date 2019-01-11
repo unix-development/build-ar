@@ -11,7 +11,7 @@ def html():
    os.system('rm -rf ' + repository_path + '/{index.html,css,images}')
 
    table = ''
-   remote_path = 'https://' + git_repository()
+   remote_path = 'https://' + git_repository().rstrip('.git')
 
    for package in get_packages():
       module = packages_path + '/' + package
