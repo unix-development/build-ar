@@ -19,11 +19,11 @@ build:
 	@python build/builder.py create $(DATABASE)
 
 prepare:
-	@python build/assert.py repository
+	@python build/builder.py validate repository
 	@chmod 600 deploy_key
 	@ssh-add deploy_key
 	@ssh-keyscan -t rsa -H $(SSH_HOST) >> ~/.ssh/known_hosts
-	@python build/assert.py ssh
+	@python build/builder.py validate ssh
 
 docker:
 	@docker build \
