@@ -66,6 +66,7 @@ Define your repository configuration into `repository.json`. Git parameters will
 ```json
 {
    "database": "custom",
+   "url": "https://mirror.yourdomain.org",
    "git": {
       "name": "John Doe",
       "email": "john.doe@yourdomain.org"
