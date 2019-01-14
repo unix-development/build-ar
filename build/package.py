@@ -7,14 +7,17 @@ import shutil
 from helper import *
 
 class Package():
-   def __init__(self, module, directory):
-      self.package = module
-      self.version = extract(packages_path + '/' + directory, 'pkgver')
+   def __init__(self, package, directory):
+      self.package = package
 
       if self.validate():
          self.set_helper()
          self.clean_directory()
          self.git_clone()
+
+         self.module = packages_path + '/' + directory
+         self.version = extract(self.module, 'pkgver')
+         self.description = extract(self.module, 'pkgdesc')
 
          if 'pre_build' in dir(self.package):
             self.package.pre_build()
