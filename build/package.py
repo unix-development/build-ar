@@ -9,7 +9,7 @@ from helper import *
 class Package():
    def __init__(self, module, directory):
       self.package = module
-      self.directory = directory
+      self.version = extract(packages_path + '/' + directory, 'pkgver')
 
       if self.validate():
          self.set_helper()
@@ -20,13 +20,17 @@ class Package():
             self.package.pre_build()
 
          if not self.is_build():
+            self.commit()
             self.build_package()
 
-   def is_build(self):
-      self.version = extract(packages_path + '/' + self.directory, 'pkgver')
+   def commit(self):
+         os.system(
+            'git add . && ' + \
+            'git commit -m "Bot: Add last update into ' + self.package.name + ' package ~ version ' + self.version + '"')
 
+   def is_build(self):
       for f in os.listdir(repository_path):
-         if f.startswith(self.package.name + '-' + self.version + '-'):
+         if not output('git status . --porcelain | sed s/^...//'):
             return True
 
       for f in os.listdir(repository_path):
