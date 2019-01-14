@@ -60,6 +60,11 @@ def create(database):
       module = sys.modules[directory + '.package']
       package = Package(module, directory)
 
+      if not package.is_build():
+         package.commit()
+         package.build_package()
+         break
+
    os.chdir(repository_path)
    os.system('repo-add ./' + database + '.db.tar.gz ./*.pkg.tar.xz')
 
