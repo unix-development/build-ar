@@ -15,6 +15,12 @@ def html():
 
    for package in get_packages():
       module = packages_path + '/' + package
+
+      try:
+         file = open(module + '/PKGBUILD')
+      except FileNotFoundError:
+         continue
+
       description = extract(module, 'pkgdesc')
       version = extract(module, 'pkgver')
       name = extract(module, 'pkgname')
