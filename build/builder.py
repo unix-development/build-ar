@@ -64,13 +64,6 @@ def create(database):
    os.system('repo-add ./' + database + '.db.tar.gz ./*.pkg.tar.xz')
 
 def deploy():
-   for package in get_packages():
-      module = packages_path + '/' + package
-      if output('git status %s --porcelain | sed s/^...//' % module):
-         os.system(
-            'git add ' + module + ' && ' + \
-            'git commit -m "Bot: Add last update into ' + package + ' package ~ version ' + extract(module, 'pkgver') + '"')
-
    if is_travis():
       repository = git_repository()
       os.system('git push https://${GITHUB_TOKEN}@%s HEAD:master' % repository)
