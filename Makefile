@@ -25,6 +25,8 @@ prepare:
 	@ssh-add deploy_key
 	@ssh-keyscan -t rsa -H $(SSH_HOST) >> ~/.ssh/known_hosts
 	@python build/builder.py validate ssh
+	@git config user.email '$(GIT_EMAIL)'
+	@git config user.name '$(GIT_NAME)'
 
 docker:
 	@docker build \
@@ -41,8 +43,6 @@ deploy:
 	@rm -f repository/*.old
 	@rm -f repository/*.files
 	@rm -f repository/*.files.tar.gz
-	@git config user.email '$(GIT_EMAIL)'
-	@git config user.name '$(GIT_NAME)'
 	@rsync -avz --update --copy-links --progress -e 'ssh -p $(SSH_PORT)' \
 		repository/ $(SSH_USER)@$(SSH_HOST):$(SSH_PATH)
 	@python build/builder.py deploy
