@@ -22,10 +22,6 @@ class Package():
          if 'pre_build' in dir(self.package):
             self.package.pre_build()
 
-         if not self.is_build():
-            self.commit()
-            self.build_package()
-
    def commit(self):
          os.system(
             'git add . && ' + \
