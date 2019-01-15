@@ -24,26 +24,32 @@ packages_path = base_path + '/packages'
 with open(base_path + '/repository.json') as file:
    repository = json.load(file)
 
+
 def git_repository():
    return output('git remote get-url origin') \
       .replace('https://', '') \
       .replace('http://', '') \
       .replace('git://', '')
 
+
 def is_travis():
    return "TRAVIS" in os.environ
 
+
 def output(command):
    return subprocess.check_output(command, shell=True).decode(sys.stdout.encoding).strip()
+
 
 def replace_ending(find, replace, string):
    split = string.split(find, 1)
    return split[0] + replace
 
+
 def edit_file(filename):
    with fileinput.input(filename, inplace=1) as f:
        for line in f:
           yield line.rstrip('\n')
+
 
 def get_time_ago(date):
    formats = { \
@@ -71,6 +77,7 @@ def get_time_ago(date):
          else:
             return formats[key]
 
+
 def extract(module, name):
    with open(module + '/PKGBUILD') as f:
       for line in f.readlines():
@@ -83,6 +90,7 @@ def extract(module, name):
                string = string.replace(var, extract(module, name))
 
             return string
+
 
 def get_packages():
    packages = []
