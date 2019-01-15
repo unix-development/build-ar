@@ -51,33 +51,6 @@ def edit_file(filename):
           yield line.rstrip('\n')
 
 
-def get_time_ago(date):
-   formats = { \
-      31536000: '{time} year{s} ago', \
-      2592000: '{time} month{s} ago', \
-      604800: '{time} week{s} ago', \
-      86400: '{time} day{s} ago', \
-      3600: '{time} hour{s} ago', \
-      60: '{time} minute{s} ago', \
-      1: '{time} second{s} ago', \
-      0: 'Just now' \
-   }
-
-   now = datetime.datetime.now().strftime('%s')
-   source = date.strftime('%s')
-   diff = int(now) - int(source)
-
-   for key in formats:
-      if key <= diff:
-         if key > 0:
-            time = int(diff / key)
-            return formats[key] \
-               .replace('{time}', str(time)) \
-               .replace('{s}', 's' if time > 1 else '')
-         else:
-            return formats[key]
-
-
 def extract(module, name):
    with open(module + '/PKGBUILD') as f:
       for line in f.readlines():
