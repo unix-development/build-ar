@@ -9,16 +9,16 @@ import subprocess
 import fileinput
 
 # Base directory
-base_path = os.path.realpath(__file__).replace('/build/helper.py', '')
+base_path = os.path.realpath(__file__).replace('/src/helper.py', '')
 
 # Repository directory
 repository_path = base_path + '/repository'
 
 # Html directory
-html_path = base_path + '/html'
+html_path = base_path + '/www'
 
 # Packages directory
-packages_path = base_path + '/packages'
+packages_path = base_path + '/pkg'
 
 # Repository setting
 with open(base_path + '/repository.json') as file:
