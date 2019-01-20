@@ -47,10 +47,6 @@ deploy:
 		repository/ $(SSH_USER)@$(SSH_HOST):$(SSH_PATH)
 	@python build/builder.py deploy
 
-provision-packages:
-	@yes | pacman -Syu
-	@yes | pacman -S $(PACKAGES)
-
 provision-user:
 	@mkdir -p /home/builder/repository
 	@useradd -u $(USER_ID) -s /bin/bash -d /home/builder -G wheel builder
