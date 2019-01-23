@@ -1,138 +1,138 @@
 #!/usr/bin/env python
 
 import os
+import re
 import sys
 import json
 import time
-from package import *
-from helper import *
+import base64
 
-def html():
-   os.system('rm -rf ' + repository_path + '/{index.html,css,images}')
+from globals import *
+from helpers import *
 
-   table = ''
-   remote_path = 'https://' + git_repository().rstrip('.git')
+class Repository():
+   def build(self):
+      if not os.path.exists(repository_dir):
+         os.makedirs(repository_dir)
 
-   for package in get_packages():
-      module = packages_path + '/' + package
+      feedback = "  [ %s ] %s"
+      sys.path.append(pkg_dir)
 
-      try:
-         file = open(module + '/PKGBUILD')
-      except FileNotFoundError:
-         continue
+      for package in packages:
+         name = package.name
+         path = package.path
 
-      description = extract(module, 'pkgdesc')
-      version = extract(module, 'pkgver')
-      name = extract(module, 'pkgname')
+         if not os.path.isfile(path + "/package.py"):
+            print(feedback % ("X", name))
+            exit("No package.py was found in %s directory." % name)
+         else:
+            print(feedback % ("✓", name))
 
-      for path in os.listdir(repository_path):
-         if path.startswith(name + '-' + version + '-'):
-            date = time.strftime('%d %h %Y', \
-               time.gmtime(os.path.getmtime(repository_path + '/' + path)))
+         __import__(name + '.package')
+         os.chdir(path)
+         module = sys.modules[name + '.package']
 
-            content = \
-               '<tr>' + \
-                  '<td><a href="$path">$name</a></td>' + \
-                  '<td>$version</td>' + \
-                  '<td>$date</td>' + \
-                  '<td>$description</td>' + \
-               '</tr>'
+   def parameter(self, name):
+      value = repository
+      for key in name.split('.'):
+         value = value[key]
 
-            table += content \
-               .replace('$path', path) \
-               .replace('$name', name) \
-               .replace('$date', date) \
-               .replace('$version', version) \
-               .replace('$description', description)
+      return value
 
-      os.system('cp -r ' + html_path + '/{index.html,css,images} ' + repository_path)
+   def validate(self):
+      self.validate_files()
+      self.validate_config()
+      self.validate_ssh()
 
-      for line in edit_file(repository_path + '/index.html'):
-         line = line.replace('$database', repository['database'])
-         line = line.replace('$remote_path', remote_path)
-         line = line.replace('$path', repository['url'])
-         line = line.replace('$content', table)
-         print(line)
+   def prepare_git(self):
+      if is_travis():
+         email = self.parameter("git.email")
+         name = self.parameter("git.name")
+         scripts = [
+            "git config user.email '" + email + "'",
+            "git config user.name '" + name + "'"
+         ]
 
-def create(database):
-   if not os.path.exists(repository_path):
-      os.makedirs(repository_path)
+         for script in scripts:
+            os.system(script)
 
-   sys.path.append(packages_path)
+   def prepare_ssh(self):
+      if is_travis():
+         host = self.parameter("ssh.host")
+         scripts = [
+            "chmod 600 " + base_dir + "/deploy_key",
+            "ssh-add " + base_dir + "/deploy_key",
+            "ssh-keyscan -t rsa -H " + host + " >> ~/.ssh/known_hosts"
+         ]
 
-   for directory in get_packages():
-      __import__(directory + '.package')
-      os.chdir(packages_path + '/' + directory)
-      module = sys.modules[directory + '.package']
-      package = Package(module, directory)
+         for script in scripts:
+            os.system(script)
 
-      if not package.is_build():
-         package.commit()
-         package.build_package()
-         break
+   def validate_files(self):
+      if is_travis():
+         print("Validation files:")
 
-   os.chdir(repository_path)
-   os.system('repo-add ./' + database + '.db.tar.gz ./*.pkg.tar.xz')
+         validate({
+            "error"  : "deploy_key could not been found.",
+            "target" : "deploy_key",
+            "valid"  : os.path.isfile(base_dir + "/deploy_key")
+         })
 
-def deploy():
-   if is_travis():
-      repository = git_repository()
-      os.system('git push https://${GITHUB_TOKEN}@%s HEAD:master' % repository)
+   def validate_ssh(self):
+      print("Validating ssh connection:")
 
-def config(setting):
-   data = repository
-   keys = setting.split('.')
-   for key in keys:
-      data = data[key]
-   print(data)
+      self.prepare_ssh()
+      ssh = repository["ssh"]
 
-def validate(case):
-   if case == 'repository':
-      assert repository['database'], \
-         'Database must be defined.'
-      assert repository['url'], \
-         'Url must be defined.'
-      assert repository['git']['name'], \
-         'Git name must be defined.'
-      assert repository['git']['email'], \
-         'Git email must be defined.'
-      assert repository['ssh']['user'], \
-         'SSH user must be defined.'
-      assert repository['ssh']['host'], \
-         'SSH host must be defined.'
-      assert repository['ssh']['path'], \
-         'SSH path must be defined.'
-      assert repository['ssh']['port'], \
-         'SSH port must be defined.'
-      assert type(repository['ssh']['port']) is int, \
-         'SSH port must be an integer.'
+      validate({
+         "error"  : "ssh connection could not be established.",
+         "target" : "ssh connection",
+         "valid"  : output( \
+            "ssh -i ./deploy_key -p %i -q %s@%s [[ -d %s ]] && echo 1 || echo 0" % \
+            (ssh["port"], ssh["user"], ssh["host"], ssh["path"])) is "1"
+      })
 
-   elif case == 'ssh':
-      script = 'ssh -i ./deploy_key -p $port -q $user@$host [[ -d $path ]] && echo 1 || echo 0'
-      for key in repository['ssh']:
-         value = repository['ssh'][key]
-         script = script.replace(f'${key}', str(value))
+   def validate_config(self):
+      print("Validating repository.json:")
 
-      assert output(script) == '1', \
-         'SSH connection could not be established.'
+      requirements = {
+         "database"  : [ "not_blank" ],
+         "git.email" : [ "not_blank" ],
+         "git.name"  : [ "not_blank" ],
+         "ssh.host"  : [ "not_blank" ],
+         "ssh.path"  : [ "not_blank" ],
+         "ssh.port"  : [ "not_blank", "is_integer" ],
+         "ssh.user"  : [ "not_blank" ],
+         "url"       : [ "not_blank" ]
+      }
+
+      for name in requirements:
+         value = self.parameter(name)
+         target = name.replace(".", " ")
+
+         for validation in requirements[name]:
+            if validation == "not_blank":
+               validate({
+                  "valid"  : value,
+                  "target" : target,
+                  "error"  : "%s must be defined in repository.json" % target,
+               })
+
+            elif validation == "is_integer":
+               validate({
+                  "valid"  : type(value) is int,
+                  "target" : target,
+                  "error"  : "%s must be an integer in repository.json" % target
+               })
 
 def main(argv):
-   if len(argv) == 2:
-      if argv[0] == 'create':
-         create(argv[1])
-      elif argv[0] == 'config':
-         config(argv[1])
-      elif argv[0] == 'validate':
-         validate(argv[1])
-   elif len(argv) == 1:
-      if argv[0] == 'deploy':
-         deploy()
-      elif argv[0] == 'html':
-         html()
+   repository = Repository()
+   repository.validate()
+   repository.build()
 
-if __name__ == '__main__':
+if __name__ == "__main__":
    if os.getuid() == 0:
-      print('This file needs to be not execute as root.')
+      print("This file needs to be not execute as root.")
       sys.exit(2)
 
    main(sys.argv[1:])
