@@ -4,20 +4,20 @@ import os
 import json
 
 # Base directory
-base_dir = os.path.realpath(__file__).replace('/src/globals.py', '')
+path_base = os.path.realpath(__file__).replace('/src/globals.py', '')
 
 # Mirror directory
-mirror_dir = base_dir + '/mirror'
+path_mirror = path_base + '/mirror'
 
 # Html directory
-www_dir = base_dir + '/www'
+path_www = path_base + '/www'
 
 # Packages directory
-pkg_dir = base_dir + '/pkg'
+path_pkg = path_base + '/pkg'
 
 # Packages list
-packages = [ f for f in os.scandir(pkg_dir) if f.is_dir() ]
+packages = [ f for f in os.scandir(path_pkg) if f.is_dir() ]
 
 # Config list
-with open(base_dir + '/repository.json') as file:
+with open(path_base + '/repository.json') as file:
    config = json.load(file)
