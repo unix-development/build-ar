@@ -1,4 +1,4 @@
-FROM base/devel
+FROM archlinux/base
 
 ARG USER_ID=1000
 ADD Makefile /
