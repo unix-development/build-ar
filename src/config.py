@@ -1,15 +1,12 @@
 #!/usr/bin/env python
 
 import os
-import json
-
 from core import path_base
 from util import is_travis, output, validate
 
 class Config():
-   def __init__(self):
-      with open(path_base + '/repository.json') as file:
-         self.config = json.load(file)
+   def __init__(self, repository):
+      self.config = repository
 
    def get(self, name):
       value = self.config
