@@ -2,14 +2,16 @@
 
 import os
 
-# Base directory
-path_base = os.path.realpath(__file__).replace('/bot/core/contextual.py', '')
+class init():
+   def __init__(self, **parameters):
+      # Base directory
+      self.path_base = os.path.realpath(parameters['pwd']).replace('bot/__main__.py', '')
 
-# Mirror directory
-path_mirror = path_base + '/mirror'
+      # Mirror directory
+      self.path_mirror = self.path_base + '/mirror/'
 
-# Html directory
-path_www = path_base + '/www'
+      # Html directory
+      self.path_www = self.path_base + '/www/'
 
-# Packages directory
-path_pkg = path_base + '/pkg'
+      # Packages directory
+      self.path_pkg = self.path_base + '/pkg/'
