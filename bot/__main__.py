@@ -4,6 +4,7 @@ import os
 import sys
 import json
 import validator
+import environement
 
 from core import config
 from core import contextual
@@ -21,10 +22,16 @@ validate = validator.init(
    contextual = contextual
 )
 
+environement = environement.init(
+   config = config,
+   contextual = contextual
+)
+
 if __name__ == "__main__":
    if os.getuid() == 0:
       sys.exit("This file needs to be not execute as root.")
 
    validate.files()
    validate.repository()
+   environement.prepare_ssh()
    validate.ssh()
