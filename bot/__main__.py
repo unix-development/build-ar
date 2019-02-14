@@ -4,7 +4,7 @@ import os
 import sys
 import json
 import validator
-import environement
+import environment
 
 from core import config
 from core import contextual
@@ -22,7 +22,7 @@ validate = validator.init(
    contextual = contextual
 )
 
-environement = environement.init(
+environment = environment.init(
    config = config,
    contextual = contextual
 )
@@ -33,5 +33,5 @@ if __name__ == "__main__":
 
    validate.files()
    validate.repository()
-   environement.prepare_ssh()
+   environment.prepare_ssh()
    validate.ssh()
