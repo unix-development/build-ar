@@ -1,11 +1,10 @@
 #!/usr/bin/env python
 
 import os
+from utils.constructor import constructor
 
-class new():
-   def __init__(self, **parameters):
-      self.parameters = parameters
-
+class new(constructor):
+   def construct(self):
       self.set_paths_location()
       self.set_packages()
 
@@ -20,7 +19,7 @@ class new():
 
    def set_paths_location(self):
       # Base directory
-      self.path_base = os.path.realpath(self.parameters["pwd"]).replace("/bot/__main__.py", "")
+      self.path_base = os.path.realpath(self.pwd).replace("/bot/__main__.py", "")
 
       # Mirror directory
       self.path_mirror = self.path_base + "/mirror"
