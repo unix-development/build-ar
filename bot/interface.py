@@ -3,6 +3,7 @@
 import os
 import time
 
+from utils.git import git_remote_path
 from utils.editor import edit_file, extract
 from utils.interface import get_compressed_file, get_base64
 from utils.constructor import constructor
@@ -52,10 +53,13 @@ class new(constructor):
       os.system("cp " + self.path_www + "/index.html " + self.path_mirror)
 
    def replace_variables(self):
+      remote_path = 'https://' + git_remote_path().rstrip('.git')
+
       for line in edit_file(self.path_mirror + "/index.html"):
          line = line.replace("$content", self.table)
          line = line.replace("$path", self.config("url"))
          line = line.replace("$database", self.config("database"))
+         line = line.replace("$remote_path", remote_path)
          line = line.replace("images/logo.png", "data:image/png;base64," + get_base64(self.path_www + "/images/logo.png"))
 
          if line.strip() == "<link rel=\"stylesheet\" href=\"css/main.css\">":
