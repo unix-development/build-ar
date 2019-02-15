@@ -3,7 +3,7 @@
 import os
 import sys
 import json
-import deploy
+import mirror
 import packages
 import interface
 import validator
@@ -46,7 +46,7 @@ packages = packages.new(
    path_mirror = contextual.path_mirror
 )
 
-deploy = deploy.new(
+mirror = mirror.new(
    config = config.get,
    is_travis = environment.is_travis,
    path_mirror = contextual.path_mirror
@@ -66,6 +66,6 @@ runner.new(
       validate.ssh,
       packages.build,
       interface.build,
-      deploy.push
+      mirror.push
    ]
 )
