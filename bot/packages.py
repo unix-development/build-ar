@@ -6,13 +6,9 @@ import shutil
 
 from utils.editor import edit_file, replace_ending
 from utils.terminal import output
+from utils.constructor import constructor
 
-class new():
-   def __init__(self, **parameters):
-      self.packages = parameters["packages"]
-      self.path_pkg = parameters["path_pkg"]
-      self.path_mirror = parameters["path_mirror"]
-
+class new(constructor):
    def build(self):
       sys.path.append(self.path_pkg)
 
@@ -28,18 +24,13 @@ class new():
          module.make()
 
 
-class package():
-   def __init__(self, **parameters):
-      name = parameters["name"]
-      path_pkg = parameters["path_pkg"]
+class package(constructor):
+   def construct(self):
+      __import__(self.name + ".package")
+      os.chdir(self.path_pkg + "/" + self.name)
 
-      __import__(name + ".package")
-      os.chdir(path_pkg + "/" + name)
-
-      self.name = name
-      self.path = path_pkg + "/" + name
-      self.mirror = parameters["path_mirror"]
-      self.package = sys.modules[name + ".package"]
+      self.path = self.path_pkg + "/" + self.name
+      self.package = sys.modules[self.name + ".package"]
 
    def prepare(self):
       self.set_utils()
@@ -61,7 +52,7 @@ class package():
    def build(self):
       os.system(
          "makepkg -Asc && " \
-         "mv *.pkg.tar.xz " + self.mirror);
+         "mv *.pkg.tar.xz " + self.path_mirror);
 
    def pull(self):
       os.system(
