@@ -2,8 +2,8 @@
 
 import os
 import sys
-import bot
 import json
+import packages
 import interface
 import validator
 import environment
@@ -38,7 +38,7 @@ interface = interface.new(
    path_mirror = contextual.path_mirror
 )
 
-bot = bot.new(
+packages = packages.new(
    packages = contextual.packages,
    path_pkg = contextual.path_pkg,
    path_mirror = contextual.path_mirror
@@ -56,7 +56,7 @@ runner.new(
       validate.repository,
       environment.prepare_ssh,
       validate.ssh,
-      bot.build,
+      packages.build,
       interface.build
    ]
 )
