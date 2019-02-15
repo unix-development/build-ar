@@ -2,6 +2,7 @@
 
 import os
 import sys
+import bot
 import json
 import validator
 import environment
@@ -28,6 +29,12 @@ environment = environment.new(
    path_base = contextual.path_base
 )
 
+bot = bot.new(
+   packages = contextual.packages,
+   path_pkg = contextual.path_pkg,
+   path_mirror = contextual.path_mirror
+)
+
 runner.new(
    validate = [
       validate.files,
@@ -40,6 +47,6 @@ runner.new(
       validate.repository,
       environment.prepare_ssh,
       validate.ssh,
-      environment.prepare_git
+      bot.build
    ]
 )
