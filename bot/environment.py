@@ -4,8 +4,8 @@ import os
 
 class new():
    def __init__(self, **parameters):
-      self.config = parameters['config']
-      self.path_base = parameters['path_base']
+      self.config = parameters["config"]
+      self.path_base = parameters["path_base"]
 
    def is_travis(self):
       return "TRAVIS" in os.environ
