@@ -2,18 +2,18 @@
 
 import os
 
-class init():
+class new():
    def __init__(self, **parameters):
       self.config = parameters['config']
-      self.contextual = parameters['contextual']
+      self.path_base = parameters['path_base']
 
    def is_travis(self):
       return "TRAVIS" in os.environ
 
    def prepare_git(self):
       if self.is_travis():
-         email = self.config.get("git.email")
-         name = self.config.get("git.name")
+         email = self.config("git.email")
+         name = self.config("git.name")
          scripts = [
             "git config user.email '" + email + "'",
             "git config user.name '" + name + "'"
@@ -24,10 +24,10 @@ class init():
 
    def prepare_ssh(self):
       if self.is_travis():
-         host = self.config.get("ssh.host")
+         host = self.config("ssh.host")
          scripts = [
-            "chmod 600 " + self.contextual.path_base + "/deploy_key",
-            "ssh-add " + self.contextual.path_base + "/deploy_key",
+            "chmod 600 " + self.path_base + "/deploy_key",
+            "ssh-add " + self.path_base + "/deploy_key",
             "ssh-keyscan -t rsa -H " + host + " >> ~/.ssh/known_hosts"
          ]
 
