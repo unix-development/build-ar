@@ -6,10 +6,10 @@ import sys
 from utils.validator import validate
 from utils.terminal import output
 
-class init():
+class new():
    def __init__(self, **parameters):
       self.config = parameters['config']
-      self.contextual = parameters['contextual']
+      self.path_base = parameters['path_base']
 
    def files(self):
       print("Validating files:")
@@ -17,17 +17,17 @@ class init():
       validate(
          error = "deploy_key could not been found.",
          target = "deploy_key",
-         valid = os.path.isfile(self.contextual.path_base + "/deploy_key")
+         valid = os.path.isfile(self.path_base + "/deploy_key")
       )
 
    def ssh(self):
       print("Validating ssh connection:")
 
       script = "ssh -i ./deploy_key -p %i -q %s@%s [[ -d %s ]] && echo 1 || echo 0" % (
-         self.config.get("ssh.port"),
-         self.config.get("ssh.user"),
-         self.config.get("ssh.host"),
-         self.config.get("ssh.path")
+         self.config("ssh.port"),
+         self.config("ssh.user"),
+         self.config("ssh.host"),
+         self.config("ssh.path")
       )
 
       validate(
@@ -56,7 +56,7 @@ class init():
       }
 
       for name in requirements:
-         value = self.config.get(name)
+         value = self.config(name)
          target = name.replace(".", " ")
 
          for validation in requirements[name]:
