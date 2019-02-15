@@ -1,12 +1,9 @@
 #!/usr/bin/env python
 
 import os
+from utils.constructor import constructor
 
-class new():
-   def __init__(self, **parameters):
-      self.config = parameters["config"]
-      self.path_base = parameters["path_base"]
-
+class new(constructor):
    def is_travis(self):
       return "TRAVIS" in os.environ
 
