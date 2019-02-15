@@ -1,8 +1,7 @@
 @import url("https://fonts.googleapis.com/css?family=Montserrat");
-
 * {
   -webkit-box-sizing: border-box;
-          box-sizing: border-box; }
+  box-sizing: border-box; }
 
 body {
   background: #d0d0d0;
@@ -16,17 +15,16 @@ body {
     body {
       margin: 0; } }
 
-pre {
-  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+code {
   background: #F8F8F8;
+  color: #616161;
+  display: block;
+  padding: 20px;
+  max-width: 800px;
+  font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
   font-size: 14px;
   line-height: 22px;
-  max-width: 800px;
-  color: #616161;
   overflow-x: auto; }
-  pre code {
-    padding: 20px;
-    display: inline-block; }
 
 h1 {
   color: #252737;
@@ -115,6 +113,7 @@ p {
   text-decoration: none;
   font-size: 15px;
   -webkit-transition: all 0.3s cubic-bezier(0.37, 0, 0.21, 1.02);
+  -o-transition: all 0.3s cubic-bezier(0.37, 0, 0.21, 1.02);
   transition: all 0.3s cubic-bezier(0.37, 0, 0.21, 1.02); }
   @media screen and (max-width: 725px) {
     .button {
