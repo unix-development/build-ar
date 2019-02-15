@@ -5,4 +5,5 @@ class constructor():
       for name in parameters:
          setattr(self, name, parameters[name])
 
-      self.construct()
+      if "construct" in dir(self):
+         self.construct()
