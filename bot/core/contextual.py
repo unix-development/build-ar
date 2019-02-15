@@ -6,10 +6,10 @@ class new():
    def __init__(self, **parameters):
       self.parameters = parameters
 
-      self.setPathsLocation()
-      self.setPackages()
+      self.set_paths_location()
+      self.set_packages()
 
-   def setPackages(self):
+   def set_packages(self):
       packages = []
       for name in os.listdir(self.path_pkg):
          if os.path.isfile(self.path_pkg + '/' + name + '/package.py'):
@@ -18,7 +18,7 @@ class new():
       packages.sort()
       self.packages = packages
 
-   def setPathsLocation(self):
+   def set_paths_location(self):
       # Base directory
       self.path_base = os.path.realpath(self.parameters["pwd"]).replace("/bot/__main__.py", "")
 
