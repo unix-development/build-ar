@@ -3,14 +3,11 @@
 import os
 import sys
 
-from utils.validator import validate
 from utils.terminal import output
+from utils.validator import validate
+from utils.constructor import constructor
 
-class new():
-   def __init__(self, **parameters):
-      self.config = parameters["config"]
-      self.path_base = parameters["path_base"]
-
+class new(constructor):
    def uid(self):
       print("Validating environment:")
 
@@ -44,6 +41,43 @@ class new():
          target = "ssh connection",
          valid = output(script) is "1"
       )
+
+   def pkg(self):
+      print("Validating packages:")
+
+      #requirements = {
+      #   "name": [ "is_exists" ],
+      #   "source": [ "is_exists" ]
+      #}
+
+      #errors = {
+      #   "is_exists" : "No %s was found in %s package.py",
+      #   "is_git_repository" : "%s source in package.py does not appear to be a git repository",
+      #}
+
+      #sys.path.append(self.path_pkg)
+
+      #for module in self.packages:
+      #   __import__(module + ".package")
+      #   os.chdir(self.path_pkg + "/" + module)
+
+      #   package = sys.modules[module + ".package"]
+
+      #   for name in requirements:
+      #      for validation in requirements[name]:
+      #         if validation == "is_exists":
+      #            valid = True
+
+      #            try:
+      #               getattr(package, name)
+      #            except AttributeError:
+      #               valid = False
+
+      #            validate(
+      #               error = errors["is_exists"] % (name, module),
+      #               target = module,
+      #               valid = valid
+      #            )
 
    def repository(self):
       print("Validating repository.json:")
