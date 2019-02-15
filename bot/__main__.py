@@ -3,6 +3,7 @@
 import os
 import sys
 import json
+import deploy
 import packages
 import interface
 import validator
@@ -39,8 +40,15 @@ interface = interface.new(
 )
 
 packages = packages.new(
+   config = config.get,
    packages = contextual.packages,
    path_pkg = contextual.path_pkg,
+   path_mirror = contextual.path_mirror
+)
+
+deploy = deploy.new(
+   config = config.get,
+   is_travis = environment.is_travis,
    path_mirror = contextual.path_mirror
 )
 
@@ -57,6 +65,7 @@ runner.new(
       environment.prepare_ssh,
       validate.ssh,
       packages.build,
-      interface.build
+      interface.build,
+      deploy.push
    ]
 )
