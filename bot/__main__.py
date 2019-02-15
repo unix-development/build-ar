@@ -9,20 +9,20 @@ import environment
 from core import config
 from core import contextual
 
-contextual = contextual.init(
+contextual = contextual.new(
    pwd = __file__
 )
 
-config = config.init(
+config = config.new(
    path_base = contextual.path_base
 )
 
-validate = validator.init(
+validate = validator.new(
    config = config.get,
    path_base = contextual.path_base
 )
 
-environment = environment.init(
+environment = environment.new(
    config = config.get,
    path_base = contextual.path_base
 )
