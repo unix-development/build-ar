@@ -4,6 +4,7 @@ import os
 import sys
 import bot
 import json
+import interface
 import validator
 import environment
 
@@ -29,6 +30,14 @@ environment = environment.new(
    path_base = contextual.path_base
 )
 
+interface = interface.new(
+   config = config.get,
+   packages = contextual.packages,
+   path_pkg = contextual.path_pkg,
+   path_www = contextual.path_www,
+   path_mirror = contextual.path_mirror
+)
+
 bot = bot.new(
    packages = contextual.packages,
    path_pkg = contextual.path_pkg,
@@ -47,6 +56,7 @@ runner.new(
       validate.repository,
       environment.prepare_ssh,
       validate.ssh,
-      bot.build
+      bot.build,
+      interface.build
    ]
 )
