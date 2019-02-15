@@ -2,7 +2,7 @@
 
 import json
 
-class init():
+class new():
    def __init__(self, **parameters):
       with open(parameters['path_base'] + '/repository.json') as file:
          self.config = json.load(file)

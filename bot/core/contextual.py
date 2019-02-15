@@ -2,7 +2,7 @@
 
 import os
 
-class init():
+class new():
    def __init__(self, **parameters):
       # Base directory
       self.path_base = os.path.realpath(parameters['pwd']).replace('bot/__main__.py', '')
