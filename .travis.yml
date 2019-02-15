@@ -13,4 +13,4 @@ script:
   - make deploy
 cache:
   directories:
-    - repository
+    - mirror
