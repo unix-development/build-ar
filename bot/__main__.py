@@ -6,6 +6,7 @@ import json
 import validator
 import environment
 
+from core import runner
 from core import config
 from core import contextual
 
@@ -25,4 +26,20 @@ validate = validator.new(
 environment = environment.new(
    config = config.get,
    path_base = contextual.path_base
+)
+
+runner.new(
+   validate = [
+      validate.files,
+      validate.repository,
+      environment.prepare_ssh,
+      validate.ssh
+   ],
+   build = [
+      validate.files,
+      validate.repository,
+      environment.prepare_ssh,
+      validate.ssh,
+      environment.prepare_git
+   ]
 )
