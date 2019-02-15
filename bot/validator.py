@@ -8,8 +8,17 @@ from utils.terminal import output
 
 class new():
    def __init__(self, **parameters):
-      self.config = parameters['config']
-      self.path_base = parameters['path_base']
+      self.config = parameters["config"]
+      self.path_base = parameters["path_base"]
+
+   def uid(self):
+      print("Validating environment:")
+
+      validate(
+         error = "This file needs to be not execute as root.",
+         target = "user",
+         valid = os.getuid() != 0
+      )
 
    def files(self):
       print("Validating files:")
