@@ -16,7 +16,7 @@ class new(constructor):
       location = self.user + "@" + self.host + ":" + self.path
 
       os.system(
-         "rsync -avz --update --copy-links --progress -e '%s' %s %s"
+         "rsync -avz --update --copy-links --progress -e '%s' %s/ %s"
          % (ssh, self.path_mirror, location)
       )
 
