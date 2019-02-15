@@ -1,10 +1,11 @@
 #!/usr/bin/env python
 
 import json
+from utils.constructor import constructor
 
-class new():
-   def __init__(self, **parameters):
-      with open(parameters['path_base'] + '/repository.json') as file:
+class new(constructor):
+   def construct(self):
+      with open(self.path_base + '/repository.json') as file:
          self.config = json.load(file)
 
    def get(self, name):
