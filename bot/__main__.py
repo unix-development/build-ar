@@ -65,7 +65,8 @@ runner.new(
       environment.prepare_ssh,
       validate.ssh,
       packages.build,
+      mirror.build,
       interface.build,
-      mirror.push
+      mirror.deploy
    ]
 )
