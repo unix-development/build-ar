@@ -11,8 +11,8 @@ class new(constructor):
       self.host = self.config("ssh.host")
       self.path = self.config("ssh.path")
 
-   def push(self):
-      ssh = "ssh -p %i" % self.port
+   def deploy(self):
+      ssh = "ssh -p " + self.port
       location = self.user + "@" + self.host + ":" + self.path
 
       os.system(
