@@ -6,10 +6,37 @@ from utils.constructor import constructor
 
 class new(constructor):
    def construct(self):
-      self.port = self.config("ssh.port")
-      self.user = self.config("ssh.user")
-      self.host = self.config("ssh.host")
-      self.path = self.config("ssh.path")
+      self.database = self.config("database")
+
+      for name in [ "port", "user", "host", "path" ]:
+         setattr(self, name, self.config("ssh." + name))
+
+   def build(self):
+      os.chdir(self.path_mirror)
+
+      self.create_database()
+      self.clean_directory()
+
+   def clean_directory(self):
+      scripts = [
+         "rm -f ./%s.old" % self.database,
+         "rm -f ./%s.files" % self.database,
+         "rm -f ./%s.files.tar.gz" % self.database,
+         "rm -f ./%s.files.tar.gz.old" % self.database
+      ]
+
+      for script in scripts:
+         os.system(script)
+
+   def create_database(self):
+      scripts = [
+         "rm -f ./%s.db" % self.database,
+         "rm -f ./%s.db.tar.gz" % self.database,
+         "repo-add ./%s.db.tar.gz ./*.pkg.tar.xz" % self.database
+      ]
+
+      for script in scripts:
+         os.system(script)
 
    def deploy(self):
       ssh = "ssh -p " + self.port
