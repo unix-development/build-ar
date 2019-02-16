@@ -4,7 +4,7 @@ import os
 import sys
 import shutil
 
-from utils.editor import edit_file, replace_ending
+from utils.editor import edit_file, replace_ending, extract
 from utils.terminal import output
 from utils.constructor import constructor
 
@@ -36,11 +36,30 @@ class package(constructor):
       self.clean_directory()
 
    def make(self):
+      self.version = extract(self.path, "pkgver")
+
       if "pre_build" in dir(self.package):
          self.package.pre_build()
 
-      self.install_dependencies()
-      self.build()
+      if not self.is_builded():
+         self.commit()
+         self.install_dependencies()
+         self.build()
+
+   def commit(self):
+      os.system(
+         'git add . && ' + \
+         'git commit -m "Bot: Add last update into ' + self.package.name + ' package ~ version ' + self.version + '"')
+
+   def is_builded(self):
+      if not output("git status . --porcelain | sed s/^...//"):
+         return False
+
+      for f in os.listdir(self.path_mirror):
+         if f.startswith(self.name + '-' + self.version + '-'):
+            return False
+
+      return True
 
    def install_dependencies(self):
       packages = output("source ./PKGBUILD && echo ${makedepends[@]}")
