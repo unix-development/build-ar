@@ -1,3 +1,6 @@
+// Import fonts
+@import url('https://fonts.googleapis.com/css?family=Montserrat');
+
 // Interface colors
 $body-color: #d0d0d0;
 $link-color: #3e3e3e;
@@ -35,19 +38,16 @@ body {
 	}
 }
 
-pre {
-	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
+code {
 	background: #F8F8F8;
+	color: #616161;
+	display: block;
+	padding: 20px;
+	max-width: 800px;
+	font-family: Consolas, Monaco, 'Andale Mono', 'Ubuntu Mono', monospace;
 	font-size:14px;
 	line-height: 22px;
-	max-width: 800px;
-	color: #616161;
 	overflow-x: auto;
-
-	code {
-		padding: 20px;
-		display: inline-block;
-	}
 }
 
 h1 {

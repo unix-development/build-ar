@@ -8,10 +8,9 @@ before_install:
   - eval "$(ssh-agent -s)"
 install:
 script:
-  - make prepare
   - make docker
   - make run
   - make deploy
 cache:
   directories:
-    - repository
+    - mirror

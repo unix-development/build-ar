@@ -1,7 +1,7 @@
 __pycache__/
 node_modules/
 repository/
-pkg/
+mirror/
 pkgs/
 src/
 deploy_key
@@ -9,6 +9,7 @@ deploy_key.pub
 package-lock.json
 **/.*
 **/README.md
+*/pkg
 *.asc
 *.bz2
 *.deb
