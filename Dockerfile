@@ -1,4 +1,4 @@
-FROM archlinux/base
+FROM antergos/archlinux-base-devel
 
 ARG USER_ID=1000
 ADD Makefile /
