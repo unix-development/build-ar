@@ -10,7 +10,6 @@ install:
 script:
   - make docker
   - make run
-  - make deploy
 cache:
   directories:
     - mirror
