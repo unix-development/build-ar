@@ -14,7 +14,7 @@ docker:
 	@docker build \
 		--build-arg USER_ID="$(ID)" \
 		--tag=archlinux-repository \
-		--file=./build/Dockerfile ./
+		--file=./Dockerfile ./
 
 run:
 	@docker run \
