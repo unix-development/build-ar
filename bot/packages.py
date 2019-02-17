@@ -23,7 +23,12 @@ class new(constructor):
          module.pull()
          module.make()
 
+         if module.compiled == True:
+            return
+
 class package(constructor):
+   compiled = False
+
    def construct(self):
       __import__(self.name + ".package")
       os.chdir(self.path_pkg + "/" + self.name)
@@ -42,6 +47,7 @@ class package(constructor):
          self.package.pre_build()
 
       if not self.is_builded():
+         self.compiled = True
          self.commit()
          self.install_dependencies()
          self.build()
@@ -93,3 +99,4 @@ class package(constructor):
    def set_utils(self):
       self.package.edit_file = edit_file
       self.package.replace_ending = replace_ending
+
