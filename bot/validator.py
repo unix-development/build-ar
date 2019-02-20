@@ -2,19 +2,26 @@
 
 import os
 import sys
+import platform
 
 from utils.terminal import output
 from utils.validator import validate
 from utils.constructor import constructor
 
 class new(constructor):
-   def uid(self):
-      print("Validating environment:")
+   def requirements(self):
+      print("Validating requirements:")
 
       validate(
-         error = "This file needs to be not execute as root.",
-         target = "user",
+         error = "This program needs to be not execute as root.",
+         target = "user privileges",
          valid = os.getuid() != 0
+      )
+
+      validate(
+         error = "This program needs to be executed in Arch Linux",
+         target = "is Arch Linux",
+         valid = platform.dist()[0] == "arch"
       )
 
    def files(self):
