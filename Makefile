@@ -1,4 +1,4 @@
-PROGRAM = archlinux-repository
+PROGRAM = archlinux-repository-bot
 PACKAGES = python git
 
 ID  = $(shell id -u)
