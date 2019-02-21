@@ -3,6 +3,7 @@
 import os
 import sys
 import platform
+import socket
 
 from utils.terminal import output
 from utils.validator import validate
@@ -19,15 +20,27 @@ class new(constructor):
       )
 
       validate(
-         error = "This program needs to be executed in Arch Linux",
+         error = "This program needs to be executed in Arch Linux.",
          target = "arch linux",
          valid = platform.dist()[0] == "arch"
       )
 
+      try:
+         socket.create_connection(("www.github.com", 80))
+         connected = True
+      except OSError:
+         connected = False
+
       validate(
-         error = "This program needs to have ssh installed",
+         error = "This program needs to connect to internet.",
+         target = "internet",
+         valid = connected
+      )
+
+      validate(
+         error = "This program needs to have ssh installed.",
          target = "ssh",
-         valid = output("which ssh") == "/usr/bin/ssh"
+         valid = os.path.exists("/usr/bin/ssh")
       )
 
    def files(self):
