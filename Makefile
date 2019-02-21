@@ -13,13 +13,12 @@ valid:
 docker:
 	@docker build \
 		--build-arg USER_ID="$(ID)" \
-		--tag=archlinux-repository \
-		--file=./Dockerfile ./
+		--tag=${PROGRAM} ./
 
 run:
 	@docker run \
 		--volume="$(PWD)":/home/builder/repository \
-		archlinux-repository
+		${PROGRAM}
 
 provision-user:
 	@mkdir -p /home/builder/repository
