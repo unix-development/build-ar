@@ -20,7 +20,7 @@ class new(constructor):
 
       validate(
          error = "This program needs to be executed in Arch Linux",
-         target = "is Arch Linux",
+         target = "arch linux",
          valid = platform.dist()[0] == "arch"
       )
 
@@ -49,8 +49,25 @@ class new(constructor):
          valid = output(script) is "1"
       )
 
-   def pkg(self):
+   def container(self):
       print("Validating packages:")
+
+      validate(
+         error = "No package was found in pkg directory.",
+         target = "directory",
+         valid = len(self.packages) > 0
+      )
+
+      folders = [ f.name for f in os.scandir(self.path_pkg) if f.is_dir() ]
+      diff = set(folders) - set(self.packages)
+
+      validate(
+         error = "No package.py was found in pkg subdirectories: " + ", ".join(diff),
+         target = "package.py",
+         valid = len(diff) == 0
+      )
+
+      #print("\n─────────────────────────────────────\n")
 
       #requirements = {
       #   "name": [ "is_exists" ],
@@ -58,16 +75,17 @@ class new(constructor):
       #}
 
       #errors = {
-      #   "is_exists" : "No %s was found in %s package.py",
+      #   "is_exists" : "No %s variable was found in %s package.py",
       #   "is_git_repository" : "%s source in package.py does not appear to be a git repository",
       #}
 
       #sys.path.append(self.path_pkg)
 
       #for module in self.packages:
+      #   print("Validating %s:" % module)
       #   __import__(module + ".package")
-      #   os.chdir(self.path_pkg + "/" + module)
 
+      #   os.chdir(self.path_pkg + "/" + module)
       #   package = sys.modules[module + ".package"]
 
       #   for name in requirements:
@@ -82,7 +100,7 @@ class new(constructor):
 
       #            validate(
       #               error = errors["is_exists"] % (name, module),
-      #               target = module,
+      #               target = name,
       #               valid = valid
       #            )
 
