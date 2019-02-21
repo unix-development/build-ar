@@ -24,6 +24,12 @@ class new(constructor):
          valid = platform.dist()[0] == "arch"
       )
 
+      validate(
+         error = "This program needs to have ssh installed",
+         target = "ssh",
+         valid = output("which ssh") == "/usr/bin/ssh"
+      )
+
    def files(self):
       print("Validating files:")
 
