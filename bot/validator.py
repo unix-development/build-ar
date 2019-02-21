@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 
 import os
+import re
 import sys
-import platform
 import socket
+import platform
 
 from utils.terminal import output
 from utils.validator import validate
@@ -53,7 +54,23 @@ class new(constructor):
       )
 
    def ssh(self):
-      print("Validating ssh connection:")
+      print("Validating connection:")
+
+      regex = "(?:http.*://)?(?P<host>[^:/ ]+).?(?P<port>[0-9]*).*"
+      schema = re.search(regex, self.config("url"))
+      host = schema.group("host")
+
+      try:
+         socket.create_connection((host, 80))
+         connected = True
+      except OSError:
+         connected = False
+
+      validate(
+         error = "This program needs to connect to %s." % host,
+         target = host,
+         valid = connected
+      )
 
       script = "ssh -i ./deploy_key -p %i -q %s@%s [[ -d %s ]] && echo 1 || echo 0" % (
          self.config("ssh.port"),
