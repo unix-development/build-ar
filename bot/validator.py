@@ -4,7 +4,9 @@ import os
 import re
 import sys
 import socket
+import secrets
 import platform
+import requests
 
 from utils.terminal import output
 from utils.validator import validate
@@ -56,20 +58,31 @@ class new(constructor):
    def ssh(self):
       print("Validating connection:")
 
-      regex = "(?:http.*://)?(?P<host>[^:/ ]+).?(?P<port>[0-9]*).*"
-      schema = re.search(regex, self.config("url"))
-      host = schema.group("host")
+      for name in [ "port", "user", "host", "path" ]:
+         globals()[name] = self.config("ssh." + name)
+
+      url = self.config("url")
+      token = secrets.token_hex(15)
+      source = self.path_mirror + "/validation_token"
+
+      with open(source, "w") as f:
+         f.write(token)
+         f.close()
+
+      os.system(
+         "rsync -aqvz -e 'ssh -p %i' %s %s@%s:%s" %
+         (port, source, user, host, path))
 
       try:
-         socket.create_connection((host, 80))
-         connected = True
-      except OSError:
-         connected = False
+         response = requests.get(url + "/validation_token")
+         valid = True if response.status_code == 200 else False
+      except:
+         valid = False
 
       validate(
-         error = "This program needs to connect to %s." % host,
-         target = host,
-         valid = connected
+         error = "This program can't connect to %s." % url,
+         target = url,
+         valid = valid
       )
 
       script = "ssh -i ./deploy_key -p %i -q %s@%s [[ -d %s ]] && echo 1 || echo 0" % (
@@ -81,7 +94,10 @@ class new(constructor):
 
       validate(
          error = "ssh connection could not be established.",
-         target = "ssh connection",
+         target = "%s@%s" % (
+            self.config("ssh.user"),
+            self.config("ssh.host"),
+         ),
          valid = output(script) is "1"
       )
 
