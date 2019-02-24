@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+import yaml
 import socket
 import secrets
 import platform
@@ -56,6 +57,14 @@ class validator(constructor):
       validate(
          error = "deploy_key could not been found.",
          target = "deploy_key",
+         valid = os.path.isfile(self.path_base + "/deploy_key")
+      )
+
+   @fluent
+   def deploy_key_encrypted(self):
+      validate(
+         error = "deploy_key.enc could not been found.",
+         target = "deploy_key.enc",
          valid = os.path.isfile(self.path_base + "/deploy_key")
       )
 
@@ -170,6 +179,7 @@ class new(constructor):
       print("Validating files:")
 
       (self.validator
+         .deploy_key_encrypted()
          .deploy_key())
 
    def repository(self):
