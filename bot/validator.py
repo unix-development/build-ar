@@ -3,7 +3,6 @@
 import os
 import re
 import sys
-import yaml
 import socket
 import secrets
 import platform
@@ -13,7 +12,20 @@ from utils.terminal import output
 from utils.validator import validate
 from utils.constructor import constructor, fluent
 
+try:
+   import yaml
+except:
+   pass
+
 class validator(constructor):
+   @fluent
+   def yaml_imported(self):
+      validate(
+         error = "This program needs to has python module yaml. Use: pip install pyyaml",
+         target = "yaml",
+         valid = "yaml" in sys.modules
+      )
+
    @fluent
    def user_privileges(self):
       validate(
@@ -125,7 +137,7 @@ class validator(constructor):
 
       validate(
          error = "%s must be defined in repository.json" % name,
-         target = "is defined",
+         target = "content",
          valid = valid
       )
 
@@ -135,6 +147,54 @@ class validator(constructor):
          error = "port must be an interger in repository.json",
          target = "port",
          valid = type(self.config("ssh.port")) == int
+      )
+
+   @fluent
+   def travis_lint(self, content):
+      validate(
+         error = "An error occured while trying to parse your travis file.\nPlease make sure that the file is valid YAML.",
+         target = "lint",
+         valid = type(content) is dict
+      )
+
+   @fluent
+   def travis_openssl(self, content):
+      valid = False
+
+      if "before_install" in content:
+         for statement in content["before_install"]:
+            if statement.startswith("openssl"):
+               valid = True
+
+      validate(
+         error = "No openssl statement could be found in your travis file.\nPlease make sure to execute: travis encrypt-file ./deploy_key --add",
+         target = "openssl",
+         valid = valid
+      )
+
+   @fluent
+   def travis_variable(self, content):
+      valid = False
+      environement = None
+
+      if "env" in content and "global" in content["env"]:
+         environment = content["env"]["global"]
+
+      if environment != None:
+         if type(environment) is list:
+            for variable in environment:
+               if "secure" in variable:
+                  valid = True
+                  break
+
+         elif type(environment) is dict and "secure" in environment:
+               valid = True
+
+
+      validate(
+         error = "No encrypted environement variable could be found in your travis file.\nPlease make sure to execute: travis encrypt GITHUB_TOKEN=\"secretkey\" --add",
+         target = "github token",
+         valid = valid
       )
 
    @fluent
@@ -172,8 +232,23 @@ class new(constructor):
       (self.validator
          .user_privileges()
          .operating_system()
+         .yaml_imported()
          .openssh_installed()
          .internet_up())
+
+   def travis(self):
+      print("Validating travis:")
+
+      with open(".travis.yml", "r") as stream:
+         try:
+            content = yaml.load(stream)
+         except yaml.YAMLError as error:
+            content = error
+
+      (self.validator
+         .travis_lint(content)
+         .travis_variable(content)
+         .travis_openssl(content))
 
    def files(self):
       print("Validating files:")
@@ -183,7 +258,7 @@ class new(constructor):
          .deploy_key())
 
    def repository(self):
-      print("Validating repository.json:")
+      print("Validating repository:")
 
       (self.validator
          .repository()
