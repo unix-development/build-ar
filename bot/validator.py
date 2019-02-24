@@ -10,24 +10,35 @@ import requests
 
 from utils.terminal import output
 from utils.validator import validate
-from utils.constructor import constructor
+from utils.constructor import constructor, fluent
 
-class new(constructor):
-   def requirements(self):
-      print("Validating requirements:")
-
+class validator(constructor):
+   @fluent
+   def user_privileges(self):
       validate(
          error = "This program needs to be not execute as root.",
          target = "user privileges",
          valid = os.getuid() != 0
       )
 
+   @fluent
+   def operating_system(self):
       validate(
          error = "This program needs to be executed in Arch Linux.",
-         target = "arch linux",
+         target = "operating system",
          valid = platform.dist()[0] == "arch"
       )
 
+   @fluent
+   def openssh_installed(self):
+      validate(
+         error = "This program needs to have ssh installed.",
+         target = "openssh",
+         valid = os.path.exists("/usr/bin/ssh")
+      )
+
+   @fluent
+   def internet_up(self):
       try:
          socket.create_connection(("www.github.com", 80))
          connected = True
@@ -35,29 +46,36 @@ class new(constructor):
          connected = False
 
       validate(
-         error = "This program needs to connect to internet.",
+         error = "This program needs to be connected to internet.",
          target = "internet",
          valid = connected
       )
 
-      validate(
-         error = "This program needs to have ssh installed.",
-         target = "ssh",
-         valid = os.path.exists("/usr/bin/ssh")
-      )
-
-   def files(self):
-      print("Validating files:")
-
+   @fluent
+   def deploy_key(self):
       validate(
          error = "deploy_key could not been found.",
          target = "deploy_key",
          valid = os.path.isfile(self.path_base + "/deploy_key")
       )
 
-   def ssh(self):
-      print("Validating connection:")
+   @fluent
+   def ssh_connection(self):
+      script = "ssh -i ./deploy_key -p %i -q %s@%s [[ -d %s ]] && echo 1 || echo 0" % (
+         self.config("ssh.port"),
+         self.config("ssh.user"),
+         self.config("ssh.host"),
+         self.config("ssh.path")
+      )
 
+      validate(
+         error = "ssh connection could not be established.",
+         target = "ssh address",
+         valid = output(script) is "1"
+      )
+
+   @fluent
+   def mirror_connection(self):
       for name in [ "port", "user", "host", "path" ]:
          globals()[name] = self.config("ssh." + name)
 
@@ -81,115 +99,96 @@ class new(constructor):
 
       validate(
          error = "This program can't connect to %s." % url,
-         target = url,
+         target = "mirror host",
          valid = valid
       )
 
-      script = "ssh -i ./deploy_key -p %i -q %s@%s [[ -d %s ]] && echo 1 || echo 0" % (
-         self.config("ssh.port"),
-         self.config("ssh.user"),
-         self.config("ssh.host"),
-         self.config("ssh.path")
-      )
+   @fluent
+   def repository(self):
+      valid = True
+
+      for name in [ "database", "git.email", "git.name", "ssh.host", "ssh.path", "ssh.port", "url" ]:
+         if not self.config(name):
+            valid = False
+            break
+
+      name = name.replace(".", " ")
 
       validate(
-         error = "ssh connection could not be established.",
-         target = "%s@%s" % (
-            self.config("ssh.user"),
-            self.config("ssh.host"),
-         ),
-         valid = output(script) is "1"
+         error = "%s must be defined in repository.json" % name,
+         target = "is defined",
+         valid = valid
       )
 
-   def container(self):
-      print("Validating packages:")
+   @fluent
+   def port(self):
+      validate(
+         error = "port must be an interger in repository.json",
+         target = "port",
+         valid = type(self.config("ssh.port")) == int
+      )
 
+   @fluent
+   def pkg_directory(self):
       validate(
          error = "No package was found in pkg directory.",
          target = "directory",
          valid = len(self.packages) > 0
       )
 
+   @fluent
+   def pkg_content(self):
       folders = [ f.name for f in os.scandir(self.path_pkg) if f.is_dir() ]
       diff = set(folders) - set(self.packages)
 
       validate(
          error = "No package.py was found in pkg subdirectories: " + ", ".join(diff),
-         target = "package.py",
+         target = "content",
          valid = len(diff) == 0
       )
 
-      #print("\n─────────────────────────────────────\n")
+class new(constructor):
+   def construct(self):
+      self.validator = validator(
+         config = self.config,
+         packages = self.packages,
+         path_pkg = self.path_pkg,
+         path_base = self.path_base,
+         path_mirror = self.path_mirror
+      )
 
-      #requirements = {
-      #   "name": [ "is_exists" ],
-      #   "source": [ "is_exists" ]
-      #}
+   def requirements(self):
+      print("Validating requirements:")
 
-      #errors = {
-      #   "is_exists" : "No %s variable was found in %s package.py",
-      #   "is_git_repository" : "%s source in package.py does not appear to be a git repository",
-      #}
+      (self.validator
+         .user_privileges()
+         .operating_system()
+         .openssh_installed()
+         .internet_up())
 
-      #sys.path.append(self.path_pkg)
+   def files(self):
+      print("Validating files:")
 
-      #for module in self.packages:
-      #   print("Validating %s:" % module)
-      #   __import__(module + ".package")
-
-      #   os.chdir(self.path_pkg + "/" + module)
-      #   package = sys.modules[module + ".package"]
-
-      #   for name in requirements:
-      #      for validation in requirements[name]:
-      #         if validation == "is_exists":
-      #            valid = True
-
-      #            try:
-      #               getattr(package, name)
-      #            except AttributeError:
-      #               valid = False
-
-      #            validate(
-      #               error = errors["is_exists"] % (name, module),
-      #               target = name,
-      #               valid = valid
-      #            )
+      (self.validator
+         .deploy_key())
 
    def repository(self):
       print("Validating repository.json:")
 
-      requirements = {
-         "database"  : [ "not_blank" ],
-         "git.email" : [ "not_blank" ],
-         "git.name"  : [ "not_blank" ],
-         "ssh.host"  : [ "not_blank" ],
-         "ssh.path"  : [ "not_blank" ],
-         "ssh.port"  : [ "not_blank", "is_integer" ],
-         "ssh.user"  : [ "not_blank" ],
-         "url"       : [ "not_blank" ]
-      }
+      (self.validator
+         .repository()
+         .port())
 
-      errors = {
-         "not_blank"  : "%s must be defined in repository.json",
-         "is_integer" : "%s must be an integer in repository.json"
-      }
+   def ssh(self):
+      print("Validating connection:")
 
-      for name in requirements:
-         value = self.config(name)
-         target = name.replace(".", " ")
+      (self.validator
+         .mirror_connection()
+         .ssh_connection())
 
-         for validation in requirements[name]:
-            if validation == "not_blank":
-               validate(
-                  error = errors["not_blank"] % target,
-                  target = target,
-                  valid = value
-               )
+   def container(self):
+      print("Validating packages:")
 
-            elif validation == "is_integer":
-               validate(
-                  error = errors["is_integer"] % target,
-                  target = target,
-                  valid = type(value) is int
-               )
+      (self.validator
+         .pkg_directory()
+         .pkg_content())
