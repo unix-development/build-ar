@@ -23,6 +23,14 @@ class validator(constructor):
       )
 
    @fluent
+   def is_docker_image(self):
+      validate(
+         error = "This program needs to be executed in a docker image.",
+         target = "docker",
+         valid = os.environ.get("IS_DOCKER", False)
+      )
+
+   @fluent
    def operating_system(self):
       validate(
          error = "This program needs to be executed in Arch Linux.",
@@ -211,6 +219,7 @@ class new(constructor):
 
       (self.validator
          .user_privileges()
+         .is_docker_image()
          .operating_system()
          .internet_up())
 
