@@ -8,25 +8,23 @@ class new(constructor):
       return "TRAVIS" in os.environ
 
    def prepare_git(self):
-      if self.is_travis():
-         email = self.config("git.email")
-         name = self.config("git.name")
-         scripts = [
-            "git config user.email '" + email + "'",
-            "git config user.name '" + name + "'"
-         ]
+      email = self.config("git.email")
+      name = self.config("git.name")
+      scripts = [
+         "git config user.email '" + email + "'",
+         "git config user.name '" + name + "'"
+      ]
 
-         for script in scripts:
-            os.system(script)
+      for script in scripts:
+         os.system(script)
 
    def prepare_ssh(self):
-      if self.is_travis():
-         host = self.config("ssh.host")
-         scripts = [
-            "chmod 600 " + self.path_base + "/deploy_key",
-            "ssh-add " + self.path_base + "/deploy_key",
-            "ssh-keyscan -t rsa -H " + host + " >> ~/.ssh/known_hosts"
-         ]
+      host = self.config("ssh.host")
+      script = (
+         "eval $(ssh-agent); "
+         "chmod 600 " + self.path_base + "/deploy_key; "
+         "ssh-add -lf " + self.path_base + "/deploy_key; "
+         "ssh-keyscan -t rsa -H " + host + " >> ~/.ssh/known_hosts; "
+      )
 
-         for script in scripts:
-            os.system(script)
+      os.system("(" + script + ") &>/dev/null")
