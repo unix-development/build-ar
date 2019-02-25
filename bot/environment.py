@@ -28,3 +28,24 @@ class new(constructor):
          "ssh-add -lf %s/deploy_key; " % self.path_base +
          "ssh-keyscan -t rsa -H %s >> ~/.ssh/known_hosts; " % host
       )
+
+   def prepare_pacman(self):
+      database = self.config("database")
+
+      if os.path.exists(self.path_base + "/mirror/" + database + ".db") == False:
+         return
+
+      with open("/etc/pacman.conf", "r+") as file:
+         for line in file:
+            if line.strip() == "[%s]" % database:
+               break
+         else:
+            content = [
+               "[%s]" % database,
+               "SigLevel = Optional TrustedOnly",
+               "Server = file:///%s/mirror" % self.path_base
+            ]
+
+            file.write("\n".join(content))
+
+      self.execute("sudo pacman -Sy --noconfirm")
