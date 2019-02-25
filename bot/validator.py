@@ -3,6 +3,7 @@
 import os
 import re
 import sys
+import yaml
 import socket
 import secrets
 import platform
@@ -12,20 +13,7 @@ from utils.terminal import output
 from utils.validator import validate
 from utils.constructor import constructor, fluent
 
-try:
-   import yaml
-except:
-   pass
-
 class validator(constructor):
-   @fluent
-   def yaml_imported(self):
-      validate(
-         error = "This program needs to has python module yaml. Use: pip install pyyaml",
-         target = "yaml",
-         valid = "yaml" in sys.modules
-      )
-
    @fluent
    def user_privileges(self):
       validate(
@@ -40,14 +28,6 @@ class validator(constructor):
          error = "This program needs to be executed in Arch Linux.",
          target = "operating system",
          valid = platform.dist()[0] == "arch"
-      )
-
-   @fluent
-   def openssh_installed(self):
-      validate(
-         error = "This program needs to have ssh installed.",
-         target = "openssh",
-         valid = os.path.exists("/usr/bin/ssh")
       )
 
    @fluent
@@ -232,8 +212,6 @@ class new(constructor):
       (self.validator
          .user_privileges()
          .operating_system()
-         .yaml_imported()
-         .openssh_installed()
          .internet_up())
 
    def travis(self):
