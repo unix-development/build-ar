@@ -1,9 +1,14 @@
 FROM unixdevelopment/archlinux
 
-ENV IS_DOCKER Yes
+ARG USER_ID
+ARG TRAVIS
 
-VOLUME /home/docker
-WORKDIR /home/docker
+ENV IS_DOCKER=Yes
+ENV TRAVIS=$TRAVIS
+ENV USER_ID=$USER_ID
+
+VOLUME /home/docker/build
+WORKDIR /home/docker/build
 USER docker
 
 ADD Makefile /
