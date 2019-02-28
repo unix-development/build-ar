@@ -13,13 +13,21 @@ from utils.constructor import constructor
 
 builder = []
 
-def new_package(name, self):
-    return package(
+def execute(name, self):
+    builder.append(name)
+
+    module = package(
        name = name,
        packages = self.packages,
        path_pkg = self.path_pkg,
        path_mirror = self.path_mirror
     )
+
+    module.separator()
+    module.prepare()
+    module.pull()
+
+    return module.make()
 
 class new(constructor):
     def build(self):
@@ -27,31 +35,16 @@ class new(constructor):
 
         for name in self.packages:
             if name not in builder:
-                module = new_package(name, self)
-
-             #if module.compiled == True:
-             #   return
+                if execute(name, self) is True:
+                    return
 
 class package(constructor):
-    compiled = False
-
     def construct(self):
         __import__(self.name + ".package")
 
         self.path = self.path_pkg + "/" + self.name
         self.package = sys.modules[self.name + ".package"]
 
-        self.add_to_builder()
-        self.separator()
-        self.chdir()
-        self.prepare()
-        self.pull()
-        self.make()
-
-    def add_to_builder(self):
-        builder.append(self.name)
-
-    def chdir(self):
         os.chdir(self.path_pkg + "/" + self.name)
 
     def separator(self):
@@ -80,11 +73,9 @@ class package(constructor):
         if self.has_new_version():
             self.verify_dependencies()
             self.build()
+            #self.commit()
 
-        #if not self.is_builded():
-        #   self.compiled = True
-        #   self.commit()
-        #   self.install_dependencies()
+            return True
 
     def commit(self):
         os.system(
@@ -119,13 +110,9 @@ class package(constructor):
             if name not in self.packages:
                 exit("exeption")
 
-            redirect = True
-            module = package(
-                name = name,
-                packages = self.packages,
-                path_pkg = self.path_pkg,
-                path_mirror = self.path_mirror
-            )
+            if name not in builder:
+                redirect = True
+                execute(name, self)
 
         if redirect == True:
             self.separator()
