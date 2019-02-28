@@ -1,7 +1,8 @@
 PROGRAM = archlinux-repository-bot
 
-ID  = $(shell id -u)
+ID = $(shell id -u)
 PWD = $(shell pwd)
+TRAVIS = $(shell printenv TRAVIS)
 
 build:
 	@python bot build
@@ -11,7 +12,8 @@ valid:
 
 container:
 	@docker build \
-		--build-arg USER_ID="$(ID)" \
+		--build-arg USER_ID=$(ID) \
+		--build-arg TRAVIS=$(TRAVIS) \
 		--tag=${PROGRAM} ./
 
 run:
@@ -19,4 +21,9 @@ run:
 		--volume="$(PWD)":/home/docker \
 		${PROGRAM}
 
-.PHONY: build valid container run
+ssh:
+	@docker run \
+		--volume="$(PWD)":/home/docker \
+		-it ${PROGRAM} bash
+
+.PHONY: build valid container run ssh
