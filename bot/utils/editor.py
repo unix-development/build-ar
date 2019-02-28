@@ -26,6 +26,6 @@ def extract(module, name):
                 name = var.replace('${', '').replace('}', '')
                 string = string.replace(var, extract(module, name))
 
-        return string
+            return string
 
     return ""
