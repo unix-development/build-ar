@@ -97,7 +97,7 @@ class validator(constructor):
          f.close()
 
       os.system(
-         "rsync -aqvz -e 'ssh -p %i' %s %s@%s:%s" %
+         "rsync -aqvz -e 'ssh -i ./deploy_key -p %i' %s %s@%s:%s" %
          (port, source, user, host, path))
 
       try:
