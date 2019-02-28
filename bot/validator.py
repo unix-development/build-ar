@@ -168,8 +168,6 @@ class validator(constructor):
         if "env" in content and "global" in content["env"]:
             environment = content["env"]["global"]
 
-        print("secure" in environment)
-
         if environment is not None:
             if type(environment) is list:
                 for variable in environment:
