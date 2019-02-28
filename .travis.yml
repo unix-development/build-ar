@@ -8,7 +8,7 @@ before_install:
   - eval "$(ssh-agent -s)"
 install:
 script:
-  - make docker
+  - make container
   - make run
 cache:
   directories:
