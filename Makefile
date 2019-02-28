@@ -9,7 +9,7 @@ build:
 valid:
 	@python bot validate
 
-docker:
+container:
 	@docker build \
 		--build-arg USER_ID="$(ID)" \
 		--tag=${PROGRAM} ./
@@ -19,4 +19,4 @@ run:
 		--volume="$(PWD)":/home/docker \
 		${PROGRAM}
 
-.PHONY: build valid docker run
+.PHONY: build valid container run
