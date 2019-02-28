@@ -9,7 +9,7 @@ class new(constructor):
         os.system("(" + scripts + ") &>/dev/null")
 
     def is_travis(self):
-        return "TRAVIS" in os.environ
+        return "TRAVIS" in os.environ and os.environ["TRAVIS"] is not ""
 
     def prepare_git(self):
         email = self.config("git.email")
@@ -26,7 +26,9 @@ class new(constructor):
         self.execute(
             "eval $(ssh-agent); " +
             "chmod 600 %s/deploy_key; " % self.path_base +
-            "ssh-add -lf %s/deploy_key; " % self.path_base +
+            "ssh-add %s/deploy_key; " % self.path_base +
+            "mkdir -p ~/.ssh; " +
+            "chmod 0700 ~/.ssh; " +
             "ssh-keyscan -t rsa -H %s >> ~/.ssh/known_hosts; " % host
         )
 
