@@ -1,5 +1,4 @@
 PROGRAM = archlinux-repository-bot
-PACKAGES = python git
 
 ID  = $(shell id -u)
 PWD = $(shell pwd)
@@ -17,18 +16,7 @@ docker:
 
 run:
 	@docker run \
-		--volume="$(PWD)":/home/builder/repository \
+		--volume="$(PWD)":/home/docker \
 		${PROGRAM}
 
-provision-user:
-	@mkdir -p /home/builder/repository
-	@useradd -u $(USER_ID) -s /bin/bash -d /home/builder -G wheel builder
-	@chmod -R 777 /home/builder
-	@chown -R builder /home/builder
-	@echo '%wheel ALL=(ALL) NOPASSWD: ALL' >> /etc/sudoers
-
-provision-packages:
-	@yes | pacman -Sy
-	@yes | pacman -S $(PACKAGES)
-
-.PHONY: build valid docker run provision-packages provision-user
+.PHONY: build valid docker run
