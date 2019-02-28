@@ -18,12 +18,12 @@ container:
 
 run:
 	@docker run \
-		--volume="$(PWD)":/home/docker \
+		--volume="$(PWD)":/home/docker/build \
 		${PROGRAM}
 
 ssh:
 	@docker run \
-		--volume="$(PWD)":/home/docker \
+		--volume="$(PWD)":/home/docker/build \
 		-it ${PROGRAM} bash
 
 .PHONY: build valid container run ssh
