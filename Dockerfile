@@ -1,13 +1,10 @@
-FROM antergos/archlinux-base-devel
+FROM unixdevelopment/archlinux
 
-ARG USER_ID=1000
+ENV IS_DOCKER Yes
+
+VOLUME /home/docker
+WORKDIR /home/docker
+USER docker
+
 ADD Makefile /
-
-RUN make provision-user
-RUN make provision-packages
-
-VOLUME /home/builder/repository
-WORKDIR /home/builder/repository
-USER builder
-
 CMD make build
