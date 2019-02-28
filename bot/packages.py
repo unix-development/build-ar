@@ -14,20 +14,22 @@ from utils.constructor import constructor
 builder = []
 
 def execute(name, self):
-    builder.append(name)
-
     module = package(
-       name = name,
-       packages = self.packages,
-       path_pkg = self.path_pkg,
-       path_mirror = self.path_mirror
+       name=name,
+       packages=self.packages,
+       path_pkg=self.path_pkg,
+       path_mirror=self.path_mirror,
+       is_travis=self.is_travis
     )
 
     module.separator()
     module.prepare()
     module.pull()
 
-    return module.make()
+    if module.make() is True:
+        builder.append(name)
+        return True
+
 
 class new(constructor):
     def build(self):
@@ -35,8 +37,9 @@ class new(constructor):
 
         for name in self.packages:
             if name not in builder:
-                if execute(name, self) is True:
+                if execute(name, self) is True and self.is_travis() is True:
                     return
+
 
 class package(constructor):
     def construct(self):
@@ -72,6 +75,10 @@ class package(constructor):
 
         if self.has_new_version():
             self.verify_dependencies()
+
+            if len(builder) > 0 and self.is_travis() is True:
+                return True
+
             self.build()
             #self.commit()
 
@@ -83,7 +90,6 @@ class package(constructor):
             "git commit -m \"Bot: Add last update into " + self.package.name + " package ~ version " + self.version + "\"")
 
     def has_new_version(self):
-
         if output("git status . --porcelain | sed s/^...//") is None:
             return False
 
@@ -114,7 +120,7 @@ class package(constructor):
                 redirect = True
                 execute(name, self)
 
-        if redirect == True:
+        if redirect is True and self.is_travis() is False:
             self.separator()
 
         os.chdir(self.path_pkg + "/" + self.name)
