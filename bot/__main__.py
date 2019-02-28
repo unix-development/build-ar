@@ -32,48 +32,48 @@ environment = environment.new(
 )
 
 interface = interface.new(
-   config=config.get,
-   packages=contextual.packages,
-   path_pkg=contextual.path_pkg,
-   path_www=contextual.path_www,
-   path_mirror=contextual.path_mirror
+    config=config.get,
+    packages=contextual.packages,
+    path_pkg=contextual.path_pkg,
+    path_www=contextual.path_www,
+    path_mirror=contextual.path_mirror
 )
 
 packages = packages.new(
-   config=config.get,
-   packages=contextual.packages,
-   path_pkg=contextual.path_pkg,
-   path_mirror=contextual.path_mirror
+    config=config.get,
+    packages=contextual.packages,
+    path_pkg=contextual.path_pkg,
+    path_mirror=contextual.path_mirror
 )
 
 mirror = mirror.new(
-   config=config.get,
-   is_travis=environment.is_travis,
-   path_mirror=contextual.path_mirror
+    config=config.get,
+    is_travis=environment.is_travis,
+    path_mirror=contextual.path_mirror
 )
 
 runner.new(
-   validate=[
-      validate.requirements,
-      validate.files,
-      validate.repository,
-      environment.prepare_ssh,
-      validate.ssh,
-      validate.container
-   ],
-   build=[
-      validate.requirements,
-      validate.files,
-      validate.travis,
-      validate.repository,
-      environment.prepare_ssh,
-      validate.ssh,
-      validate.container,
-      environment.prepare_git,
-      environment.prepare_pacman,
-      packages.build,
-      mirror.build,
-      interface.build,
-      mirror.deploy
-   ]
+    validate=[
+        validate.requirements,
+        validate.files,
+        validate.repository,
+        environment.prepare_ssh,
+        validate.ssh,
+        validate.container
+    ],
+    build=[
+        validate.requirements,
+        validate.files,
+        validate.travis,
+        validate.repository,
+        environment.prepare_ssh,
+        validate.ssh,
+        validate.container,
+        environment.prepare_git,
+        environment.prepare_pacman,
+        packages.build,
+        mirror.build,
+        interface.build,
+        mirror.deploy
+    ]
 )
