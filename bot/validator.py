@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+# -*- coding:utf-8 -*-
 
 import os
 import re
@@ -251,12 +252,12 @@ class new(constructor):
             .repository()
             .port())
 
-    def ssh(self):
+    def connection(self):
         print("Validating connection:")
 
         (self.validator
-            .mirror_connection()
-            .ssh_connection())
+            .ssh_connection()
+            .mirror_connection())
 
     def container(self):
         print("Validating packages:")
