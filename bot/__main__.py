@@ -41,9 +41,10 @@ interface = interface.new(
 
 packages = packages.new(
     config=config.get,
+    is_travis=environment.is_travis,
     packages=contextual.packages,
-    path_pkg=contextual.path_pkg,
-    path_mirror=contextual.path_mirror
+    path_mirror=contextual.path_mirror,
+    path_pkg=contextual.path_pkg
 )
 
 mirror = mirror.new(
@@ -58,7 +59,7 @@ runner.new(
         validate.files,
         validate.repository,
         environment.prepare_ssh,
-        validate.ssh,
+        validate.connection,
         validate.container
     ],
     build=[
@@ -67,7 +68,7 @@ runner.new(
         validate.travis,
         validate.repository,
         environment.prepare_ssh,
-        validate.ssh,
+        validate.connection,
         validate.container,
         environment.prepare_git,
         environment.prepare_pacman,
