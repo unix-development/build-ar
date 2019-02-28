@@ -3,12 +3,12 @@
 import sys
 
 class validate():
-   def __init__(self, **parameters):
-      target = parameters["target"]
-      feedback = "  [ %s ] %s"
+    def __init__(self, **parameters):
+        target = parameters["target"]
+        feedback = "  [ %s ] %s"
 
-      if not parameters["valid"]:
-         print(feedback % ("X", parameters["target"]))
-         sys.exit("\nError: " + parameters["error"])
+        if not parameters["valid"]:
+            print(feedback % ("X", parameters["target"]))
+            sys.exit("\nError: " + parameters["error"])
 
-      print(feedback % ("✓", parameters["target"]))
+        print(feedback % ("✓", parameters["target"]))
