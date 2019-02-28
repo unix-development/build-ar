@@ -56,11 +56,12 @@ class new(constructor):
         remote_path = 'https://' + git_remote_path().rstrip('.git')
 
         for line in edit_file(self.path_mirror + "/index.html"):
-            line = line.replace("$content", self.table)
-            line = line.replace("$path", self.config("url"))
-            line = line.replace("$database", self.config("database"))
-            line = line.replace("$remote_path", remote_path)
-            line = line.replace("images/logo.png", "data:image/png;base64," + get_base64(self.path_www + "/images/logo.png"))
+            line = (line
+                .replace("$content", self.table)
+                .replace("$path", self.config("url"))
+                .replace("$database", self.config("database"))
+                .replace("$remote_path", remote_path)
+                .replace("images/logo.png", "data:image/png;base64," + get_base64(self.path_www + "/images/logo.png")))
 
             if line.strip() == "<link rel=\"stylesheet\" href=\"css/main.css\">":
                 line = "<style type=\"text/css\">"
