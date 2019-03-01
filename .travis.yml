@@ -4,8 +4,6 @@ python:
   - '3.6'
 services:
   - docker
-before_install:
-  - eval "$(ssh-agent -s)"
 install:
 script:
   - make container
