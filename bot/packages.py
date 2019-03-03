@@ -114,7 +114,7 @@ class package(constructor):
 
         for name in aur:
             if name not in self.packages:
-                exit("exeption")
+                sys.exit("\nError: %s is not part of the official package and can't be found in pkg directory." % name)
 
             if name not in builder:
                 redirect = True
