@@ -1,15 +1,26 @@
 FROM unixdevelopment/archlinux
 
-ARG USER_ID
 ARG TRAVIS
+ARG USER_ID
 
 ENV IS_DOCKER=Yes
 ENV TRAVIS=$TRAVIS
-ENV USER_ID=$USER_ID
 
-VOLUME /home/docker/build
-WORKDIR /home/docker/build
-USER docker
+RUN mkdir \
+    --parents /home/bot
+
+RUN useradd \
+    --uid $USER_ID \
+    --shell /bin/bash \
+    --home-dir /home/bot \
+    --groups wheel bot
+
+RUN chown \
+    --recursive bot /home/bot
+
+VOLUME /home/bot/remote
+WORKDIR /home/bot/remote
+USER bot
 
 ADD Makefile /
 CMD make build
