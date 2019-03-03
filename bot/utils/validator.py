@@ -9,7 +9,6 @@ class validate():
 
         if not parameters["valid"]:
             print(feedback % ("x", parameters["target"]))
-            print("\nError: " + parameters["error"])
-            sys.exit(-1)
+            sys.exit("\nError: " + parameters["error"])
 
         print(feedback % ("✓", parameters["target"]))
