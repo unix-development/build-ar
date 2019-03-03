@@ -8,7 +8,8 @@ class validate():
         feedback = "  [ %s ] %s"
 
         if not parameters["valid"]:
-            print(feedback % ("X", parameters["target"]))
-            sys.exit("\nError: " + parameters["error"])
+            print(feedback % ("x", parameters["target"]))
+            print("\nError: " + parameters["error"])
+            sys.exit(-1)
 
         print(feedback % ("✓", parameters["target"]))
