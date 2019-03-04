@@ -1,4 +1,4 @@
-PROGRAM = archlinux-repository-bot
+PROGRAM = repository-bot
 
 ID = $(shell id -u)
 PWD = $(shell pwd)
