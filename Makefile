@@ -2,30 +2,24 @@ PROGRAM = repository-bot
 
 ID = $(shell id -u)
 PWD = $(shell pwd)
-TRAVIS = $(shell printenv TRAVIS)
-TOKEN = $(shell printenv GITHUB_TOKEN)
-
-build:
-	@python bot build
-
-valid:
-	@python bot validate
 
 container:
-	@docker build \
+	@echo docker build \
 		--build-arg USER_ID=$(ID) \
 		--build-arg TRAVIS=$(TRAVIS) \
-		--build-arg TOKEN=$(TOKEN) \
-		--tag=${PROGRAM} ./
+		--build-arg GITHUB_TOKEN=$(GITHUB_TOKEN) \
+		--tag=$(PROGRAM) ./
 
 run:
-	@docker run \
-		--volume="$(PWD)":/home/docker/build \
-		${PROGRAM}
+	@docker run
+		--volume="$(PWD)":/home/bot/remote \
+		--init --tty $(PROGRAM) \
+		python bot build
 
-ssh:
+test:
 	@docker run \
-		--volume="$(PWD)":/home/docker/build \
-		-it ${PROGRAM} bash
+		--volume="$(PWD)":/home/bot/remote \
+		--init --tty $(PROGRAM) \
+		python bot validate
 
-.PHONY: build valid container run ssh
+.PHONY: container test run
