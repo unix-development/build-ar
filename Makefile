@@ -4,7 +4,7 @@ ID = $(shell id -u)
 PWD = $(shell pwd)
 
 container:
-	@echo docker build \
+	@docker build \
 		--build-arg USER_ID=$(ID) \
 		--build-arg TRAVIS=$(TRAVIS) \
 		--build-arg GITHUB_TOKEN=$(GITHUB_TOKEN) \
