@@ -3,6 +3,7 @@ PROGRAM = archlinux-repository-bot
 ID = $(shell id -u)
 PWD = $(shell pwd)
 TRAVIS = $(shell printenv TRAVIS)
+TOKEN = $(shell printenv GITHUB_TOKEN)
 
 build:
 	@python bot build
@@ -14,6 +15,7 @@ container:
 	@docker build \
 		--build-arg USER_ID=$(ID) \
 		--build-arg TRAVIS=$(TRAVIS) \
+		--build-arg GITHUB_TOKEN=$(TOKEN) \
 		--tag=${PROGRAM} ./
 
 run:
