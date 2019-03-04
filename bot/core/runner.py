@@ -1,17 +1,18 @@
 #!/usr/bin/env python
+# -*- coding:utf-8 -*-
 
 import sys
 
-class new():
-    def __init__(self, **commands):
-        self.commands = commands
+class Runner():
+    commands = dict()
 
+    def set(self, abstract, runners):
+        self.commands[abstract] = runners
+
+    def get(self):
         for index, arg in enumerate(sys.argv):
-            for name in commands:
+            for name in self.commands:
                 if name == arg:
-                    self.execute(name)
-                    break;
+                    return self.commands[name]
 
-    def execute(self, name):
-        for function in self.commands[name]:
-            function()
+runner = Runner()
