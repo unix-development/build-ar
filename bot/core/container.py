@@ -3,13 +3,14 @@
 
 import sys
 
-class Container(object):
+class Container():
     instances = dict()
 
     def register(self, abstract, instance):
         self.instances[abstract] = instance
 
-    def run(self, functions):
+    def run(self):
+        functions = self.get("runner").get()
         for name in functions:
             self.get(name)()
 
