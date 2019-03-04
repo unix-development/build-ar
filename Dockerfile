@@ -23,6 +23,3 @@ RUN chown \
 VOLUME /home/bot/remote
 WORKDIR /home/bot/remote
 USER bot
-
-ADD Makefile /
-CMD make build
