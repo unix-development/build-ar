@@ -1,31 +1,44 @@
 #!/usr/bin/env python
+# -*- coding:utf-8 -*-
 
 import os
-from utils.constructor import constructor
+import json
 
-class new(constructor):
-    def construct(self):
-        self.set_paths_location()
-        self.set_packages()
+def register(container):
+    set_contextual_paths(container)
+    set_packages(container)
+    set_repository(container)
+    set_is_travis(container)
 
-    def set_packages(self):
-        packages = []
-        for name in os.listdir(self.path_pkg):
-            if os.path.isfile(self.path_pkg + '/' + name + '/package.py'):
-                packages.append(name)
+def get_base_path():
+    return os.path.realpath(__file__).replace("/bot/core/contextual.py", "")
 
-        packages.sort()
-        self.packages = packages
+def set_is_travis(container):
+    is_travis = "TRAVIS" in os.environ and os.environ["TRAVIS"] is not ""
 
-    def set_paths_location(self):
-        # Base directory
-        self.path_base = os.path.realpath(self.pwd).replace("/bot/__main__.py", "")
+    container.register("is_travis", is_travis)
 
-        # Mirror directory
-        self.path_mirror = self.path_base + "/mirror"
+def set_contextual_paths(container):
+    path_base = get_base_path()
 
-        # Html directory
-        self.path_www = self.path_base + "/www"
+    container.register("path.base", path_base)
+    container.register("path.mirror", path_base + "/mirror")
+    container.register("path.www", path_base + "/www")
+    container.register("path.pkg", path_base + "/pkg")
 
-        # Packages directory
-        self.path_pkg = self.path_base + "/pkg"
+def set_packages(container):
+    packages = []
+    path_pkg = path("pkg")
+
+    for name in os.listdir(path_pkg):
+        if os.path.isfile(path_pkg + '/' + name + '/package.py'):
+            packages.append(name)
+
+    packages.sort()
+    container.register("packages", packages)
+
+def set_repository(container):
+    with open(path("base") + '/repository.json') as f:
+        repository = json.load(f)
+
+    container.register("repository", repository)
