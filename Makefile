@@ -11,7 +11,7 @@ container:
 		--tag=$(PROGRAM) ./
 
 run:
-	@docker run
+	@docker run \
 		--volume="$(PWD)":/home/bot/remote \
 		--init --tty $(PROGRAM) \
 		python bot build
