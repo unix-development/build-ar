@@ -80,7 +80,7 @@ class package(constructor):
                 return True
 
             self.build()
-            #self.commit()
+            self.commit()
 
             return True
 
@@ -127,7 +127,14 @@ class package(constructor):
 
     def build(self):
         os.system(
-            "makepkg --clean --syncdeps --skipinteg --noconfirm --nocheck --install && " \
+            "makepkg \
+                --clean \
+                --install \
+                --nocheck \
+                --nocolor \
+                --noconfirm \
+                --skipinteg \
+                --syncdeps; " \
             "mv *.pkg.tar.xz " + self.path_mirror);
 
     def pull(self):
