@@ -18,14 +18,14 @@ def extract(module, name):
         for line in f.readlines():
             line = line.strip()
 
-        if line.startswith(name + '='):
-            string = line.split('=', 1)[1].strip('\n\r\"\' ')
-            pattern = re.compile('\${\w+}')
+            if line.startswith(name + '='):
+                string = line.split('=', 1)[1].strip('\n\r\"\' ')
+                pattern = re.compile('\${\w+}')
 
-            for var in re.findall(pattern, string):
-                name = var.replace('${', '').replace('}', '')
-                string = string.replace(var, extract(module, name))
+                for var in re.findall(pattern, string):
+                    name = var.replace('${', '').replace('}', '')
+                    string = string.replace(var, extract(module, name))
 
-            return string
+                return string
 
     return ""
