@@ -7,7 +7,6 @@ import time
 from utils.git import git_remote_path
 from utils.editor import edit_file, extract
 from utils.interface import get_compressed_file, get_base64
-from utils.constructor import constructor
 
 def register(container):
     container.register("interface.build", build)

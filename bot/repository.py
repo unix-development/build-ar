@@ -10,7 +10,6 @@ import subprocess
 from utils.git import git_remote_path
 from utils.editor import edit_file, replace_ending, extract
 from utils.terminal import output, title, bold
-from utils.constructor import constructor
 
 builder = []
 
