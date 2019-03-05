@@ -1,7 +1,7 @@
-# Arch Linux Repository Autobuilder
+# Build Your Own Arch Linux Repository
 This project is an easy-to-use program that provides functionalities to build a custom repository for Arch Linux. *Travis-ci* is used as a continuous integration service to automatically check if a new version of software has been released, build packages and deploy them into a server.
 
-## Build Your Own Repository
+## Getting Started
 You can build an unofficial repository by yourself with the following procedure:
 
 #### 1. Fork the repository
