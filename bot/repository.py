@@ -139,7 +139,7 @@ class package():
 
         for dependency in self.read():
             try:
-                output("pacman -Ssq %s | grep '^%s$'" % (dependency, dependency))
+                output("pacman -Ssq %s" % (dependency, dependency))
                 official.append(dependency)
             except:
                 aur.append(dependency)
