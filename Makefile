@@ -8,7 +8,7 @@ container:
 		--build-arg USER_ID=$(ID) \
 		--build-arg TRAVIS=$(TRAVIS) \
 		--build-arg TOKEN=$(GITHUB_TOKEN) \
-		--tag=$(PROGRAM) ./
+		--quiet --tag=$(PROGRAM) ./
 
 run:
 	@docker run \
