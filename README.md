@@ -80,7 +80,7 @@ Define your repository configuration into `repository.json`. Git parameters will
 }
 ```
 #### 6. Add packages that you want to be in your repository
-To add a new package, it needs to have a Git repositoy in order to verify if there are any updates. If you want to add the latest version of a package, you shoul create its directory in `packages`. Let's have a look at an exemple with dwm:
+To add a new package, it needs to have a Git repositoy in order to verify if there are any updates. If you want to add the latest version of a package, you shoul create its directory in `pkg`. Let's have a look at an exemple with dwm:
 
 ```
 $ cd packages
