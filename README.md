@@ -5,7 +5,7 @@ This project is an easy-to-use program that provides functionalities to build a 
 You can build an unofficial repository by yourself with the following procedure:
 
 #### 1. Fork the repository
-Fork the [Arch Linux Repository](https://github.com/archlinux-repository/archlinux-repository) by clicking on the fork button at the top of the page.
+Fork the [Repository Bot](https://github.com/unix-development/build-your-own-archlinux-repository) by clicking on the fork button at the top of the page.
 
 #### 2. Integrate your fork into Travis-ci
 Go to [travis-ci.org](https://travis-ci.org) and sign up with your GitHub account. Click on your name at the upper right corner to open your profile. Toggle the switch on your fork project. Click on settings button to configure a cron job [<sup>[1]</sup>](#footnote-01) that will build and deploy your repository.
