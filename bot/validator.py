@@ -5,16 +5,26 @@ import os
 import re
 import sys
 import yaml
+import json
 import socket
 import secrets
 import platform
 import requests
 
+from utils.git import git_remote_path
 from utils.terminal import output
 from utils.validator import validate
 from utils.constructor import constructor, fluent
 
-class validator(constructor):
+def register(container):
+    container.register("validator.requirements", requirements)
+    container.register("validator.repository", repository)
+    container.register("validator.content", content)
+    container.register("validator.travis", travis)
+    container.register("validator.connection", connection)
+    container.register("validator.files", files)
+
+class validator():
     @fluent
     def user_privileges(self):
         validate(
@@ -58,7 +68,7 @@ class validator(constructor):
         validate(
             error="deploy_key could not been found.",
             target="deploy_key",
-            valid=os.path.isfile(self.path_base + "/deploy_key")
+            valid=os.path.isfile(path("base") + "/deploy_key")
         )
 
     @fluent
@@ -66,16 +76,16 @@ class validator(constructor):
         validate(
             error="deploy_key.enc could not been found.",
             target="deploy_key.enc",
-            valid=os.path.isfile(self.path_base + "/deploy_key.enc")
+            valid=os.path.isfile(path("base") + "/deploy_key.enc")
         )
 
     @fluent
     def ssh_connection(self):
         script = "ssh -i ./deploy_key -p %i -q %s@%s [[ -d %s ]] && echo 1 || echo 0" % (
-            self.config("ssh.port"),
-            self.config("ssh.user"),
-            self.config("ssh.host"),
-            self.config("ssh.path")
+            repo("ssh.port"),
+            repo("ssh.user"),
+            repo("ssh.host"),
+            repo("ssh.path")
         )
 
         validate(
@@ -86,20 +96,16 @@ class validator(constructor):
 
     @fluent
     def mirror_connection(self):
-        for name in ["port", "user", "host", "path"]:
-            globals()[name] = self.config("ssh." + name)
-
-        url = self.config("url")
+        url = repo("url")
         token = secrets.token_hex(15)
-        source = self.path_mirror + "/validation_token"
+        source = path("mirror") + "/validation_token"
 
         with open(source, "w") as f:
             f.write(token)
             f.close()
 
-        os.system(
-            "rsync -aqvz -e 'ssh -i ./deploy_key -p %i' %s %s@%s:%s" %
-            (port, source, user, host, path))
+        os.system("rsync -aqvz -e 'ssh -i ./deploy_key -p %i' %s %s@%s:%s" % (
+            repo("ssh.port"), source, repo("ssh.user"), repo("ssh.host"), repo("ssh.path")))
 
         try:
             response = requests.get(url + "/validation_token")
@@ -118,9 +124,9 @@ class validator(constructor):
         valid = True
 
         for name in ["database", "git.email", "git.name", "ssh.host", "ssh.path", "ssh.port", "url"]:
-            if not self.config(name):
+            if not repo(name):
                 valid = False
-            break
+                break
 
         name = name.replace(".", " ")
 
@@ -135,7 +141,26 @@ class validator(constructor):
         validate(
             error="port must be an interger in repository.json",
             target="port",
-            valid=type(self.config("ssh.port")) == int
+            valid=type(repo("ssh.port")) == int
+        )
+
+    @fluent
+    def travis_github_token(self):
+        if app("is_travis") is False:
+            return
+
+        valid = False
+        user = git_remote_path().split("/")[1]
+        response = output("curl -su %s:${GITHUB_TOKEN} https://api.github.com/user" % user)
+        content = json.loads(response)
+
+        if "login" in content:
+            valid = True
+
+        validate(
+            error="An error occured while trying to connect to your github repository with your encrypted token.\nPlease make sure that your token is working.",
+            target="github token api",
+            valid=valid
         )
 
     @fluent
@@ -190,13 +215,13 @@ class validator(constructor):
         validate(
             error="No package was found in pkg directory.",
             target="directory",
-            valid=len(self.packages) > 0
+            valid=len(app("packages")) > 0
         )
 
     @fluent
     def pkg_content(self):
-        folders = [f.name for f in os.scandir(self.path_pkg) if f.is_dir()]
-        diff = set(folders) - set(self.packages)
+        folders = [f.name for f in os.scandir(path("pkg")) if f.is_dir()]
+        diff = set(folders) - set(app("packages"))
 
         validate(
             error="No package.py was found in pkg subdirectories: " + ", ".join(diff),
@@ -205,63 +230,54 @@ class validator(constructor):
         )
 
 
-class new(constructor):
-    def construct(self):
-        self.validator = validator(
-            config=self.config,
-            packages=self.packages,
-            path_pkg=self.path_pkg,
-            path_base=self.path_base,
-            path_mirror=self.path_mirror
-        )
+def requirements():
+    print("Validating requirements:")
 
-    def requirements(self):
-        print("Validating requirements:")
+    (validator()
+        .user_privileges()
+        .is_docker_image()
+        .operating_system()
+        .internet_up())
 
-        (self.validator
-            .user_privileges()
-            .is_docker_image()
-            .operating_system()
-            .internet_up())
+def files():
+    print("Validating files:")
 
-    def travis(self):
-        print("Validating travis:")
+    (validator()
+        .deploy_key_encrypted()
+        .deploy_key())
 
-        with open(".travis.yml", "r") as stream:
-            try:
-                content = yaml.load(stream)
-            except yaml.YAMLError as error:
-                content = error
+def repository():
+   print("Validating repository:")
 
-        (self.validator
-            .travis_lint(content)
-            .travis_variable(content)
-            .travis_openssl(content))
+   (validator()
+       .repository()
+       .port())
 
-    def files(self):
-        print("Validating files:")
+def connection():
+    print("Validating connection:")
 
-        (self.validator
-            .deploy_key_encrypted()
-            .deploy_key())
+    (validator()
+        .ssh_connection()
+        .mirror_connection()
+        .travis_github_token())
 
-    def repository(self):
-        print("Validating repository:")
+def content():
+    print("Validating packages:")
 
-        (self.validator
-            .repository()
-            .port())
+    (validator()
+        .pkg_directory()
+        .pkg_content())
 
-    def connection(self):
-        print("Validating connection:")
+def travis():
+    print("Validating travis:")
 
-        (self.validator
-            .ssh_connection()
-            .mirror_connection())
+    with open(".travis.yml", "r") as stream:
+        try:
+            content = yaml.load(stream)
+        except yaml.YAMLError as error:
+            content = error
 
-    def container(self):
-        print("Validating packages:")
-
-        (self.validator
-            .pkg_directory()
-            .pkg_content())
+    (validator()
+        .travis_lint(content)
+        .travis_variable(content)
+        .travis_openssl(content))
