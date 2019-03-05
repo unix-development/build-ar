@@ -10,11 +10,11 @@ import socket
 import secrets
 import platform
 import requests
+import functools
 
 from utils.git import git_remote_path
 from utils.terminal import output
 from utils.validator import validate
-from utils.constructor import constructor, fluent
 
 def register(container):
     container.register("validator.requirements", requirements)
@@ -23,6 +23,15 @@ def register(container):
     container.register("validator.travis", travis)
     container.register("validator.connection", connection)
     container.register("validator.files", files)
+
+def fluent(func):
+    @functools.wraps(func)
+    def wrapped(*args, **kwargs):
+        self = args[0]
+        func(*args, **kwargs)
+        return self
+
+    return wrapped
 
 class validator():
     @fluent
