@@ -28,6 +28,9 @@ def synchronize():
                 return
 
 def deploy():
+    if len(builder) == 0:
+        return
+
     print(title("Deploy to host remote") + "\n")
 
     os.chdir(path("base"))
@@ -42,6 +45,9 @@ def deploy():
         os.system("git push https://${GITHUB_TOKEN}@%s HEAD:master" % git_remote_path())
 
 def create_database():
+    if len(builder) == 0:
+        return
+
     print(title("Create database") + "\n")
 
     database = repo("database")
@@ -86,9 +92,9 @@ class package():
 
         os.chdir(self.path_pkg + "/" + self.name)
 
-    def is_exists_in_package(self, attribute):
+    def is_exists_in_package(self, name):
         try:
-            getattr(self.package, attribute)
+            getattr(self.package, name)
             return True
         except AttributeError:
             return False
