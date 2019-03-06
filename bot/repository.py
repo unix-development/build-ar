@@ -139,10 +139,10 @@ class package():
 
         for dependency in self.read():
             try:
-                output("pacman -Ssq %s" % (dependency, dependency))
-                official.append(dependency)
-            except:
+                output("pacman -T '%s'" % dependency)
                 aur.append(dependency)
+            except:
+                official.append(dependency)
                 pass
 
         for name in aur:
