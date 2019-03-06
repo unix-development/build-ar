@@ -10,6 +10,7 @@ import subprocess
 from utils.git import git_remote_path
 from utils.editor import edit_file, replace_ending, extract
 from utils.terminal import output, title, bold
+from utils.validator import validate
 
 builder = []
 
@@ -64,6 +65,7 @@ def execute(name):
     module = package(name)
     module.separator()
     module.prepare()
+    module.validate()
     module.pull()
 
     if module.make() is True:
@@ -83,6 +85,43 @@ class package():
         self.package = sys.modules[self.name + ".package"]
 
         os.chdir(self.path_pkg + "/" + self.name)
+
+    def is_exists_in_package(self, attribute):
+        try:
+            getattr(self.package, attribute)
+            return True
+        except AttributeError:
+            return False
+
+    def validate(self):
+        print(bold("Validating package.py:"))
+
+        error = {
+            "undefined": "No %s variable is defined in " + self.name + " package.py",
+            "name": "The directory name and the name variable defined in package.py is the not the same."
+        }
+
+        validate(
+            error=error["undefined"] % "source",
+            target="source",
+            valid=self.is_exists_in_package("source")
+        )
+
+        valid = True
+        exception = ""
+
+        if self.is_exists_in_package("name") is False:
+            exception = error["undefined"] % "name"
+            valid = False
+        elif self.name != self.package.name:
+            exception = error["name"]
+            valid = False
+
+        validate(
+            error=exception,
+            target="name",
+            valid=valid
+        )
 
     def separator(self):
         print(title(self.name))
@@ -127,7 +166,7 @@ class package():
             return False
 
         for f in os.listdir(self.path_mirror):
-            if f.startswith(self.name + '-' + self.version + '-'):
+            if f.startswith(self.package.name + '-' + self.version + '-'):
                 return False
 
         return True
