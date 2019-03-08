@@ -211,7 +211,7 @@ class Package():
             self.build()
 
     def commit(self):
-        if output("git status . --porcelain | sed s/^...//"):
+        if output("git status . --porcelain | sed s/^...//") and app("is_travis"):
             print(bold("Commit changes:"))
 
             execute([
