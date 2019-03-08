@@ -207,8 +207,8 @@ class Package():
             if len(repository.packages_updated) > 0 and \
                app("is_travis"): return
 
-            self.build()
             self.commit()
+            self.build()
 
     def commit(self):
         if output("git status . --porcelain | sed s/^...//"):
