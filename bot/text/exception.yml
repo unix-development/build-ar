@@ -1,0 +1,51 @@
+validator.root: |-
+  This program needs to be not execute as root.
+
+validator.docker: |-
+  This program needs to be executed in a docker image.
+
+validator.os: |-
+  This program needs to be executed in Arch Linux.
+
+validator.internet: |-
+  This program needs to be connected to internet.
+
+validator.deploy_key: |-
+  deploy_key could not been found.
+
+validator.deploy_key.enc: |-
+  deploy_key.enc could not been found.
+
+validator.ssh.connection: |-
+  ssh connection could not be established.
+
+validator.mirror.connection: |-
+  This program can't connect to %s.
+
+validator.repository: |-
+  %s must be defined in repository.json
+
+validator.pkg.directory: |-
+  No package was found in pkg directory.
+
+validator.pkg.content: |-
+  No package.py was found in pkg subdirectories: %s
+
+validator.ssh.port: |-
+  port must be an interger in repository.json
+
+validator.travis.github.token: |-
+  An error occured while trying to connect to your github repository with your encrypted token.
+  Please make sure that your token is working.
+
+validator.travis.lint: |-
+  An error occured while trying to parse your travis file.
+  Please make sure that the file is valid YAML.
+
+validator.travis.openssl: |-
+  No openssl statement could be found in your travis file.
+  Please make sure to execute: travis encrypt-file ./deploy_key --add
+
+validator.travis.variable: |-
+  No encrypted environement variable could be found in your travis file.
+  Please make sure to execute: travis encrypt GITHUB_TOKEN="secretkey" --add
