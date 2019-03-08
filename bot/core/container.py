@@ -25,8 +25,15 @@ class Container():
             module.app = app
             module.path = path
             module.repo = repo
+            module._ = text
 
             module.register(self)
+
+def text(abstract):
+    keys = abstract.split(".", 1)
+    texts = container.get("text")
+
+    return texts[keys[0]][keys[1]]
 
 def app(abstract):
     return container.get(abstract)
