@@ -7,6 +7,15 @@ import subprocess
 def output(command):
     return subprocess.check_output(command, shell=True).decode(sys.stdout.encoding).strip()
 
+def execute(commands):
+    for command in commands:
+        try:
+            process = subprocess.check_call(command, shell=True)
+        except subprocess.CalledProcessError as error:
+            sys.exit(error)
+        except OSError as error:
+            sys.exit(error)
+
 def title(text):
     column = int(output("tput cols")) - 4
     line = "── %s " % text.capitalize()
