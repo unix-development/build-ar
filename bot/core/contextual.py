@@ -3,15 +3,28 @@
 
 import os
 import json
+import yaml
 
 def register(container):
     set_contextual_paths(container)
     set_packages(container)
     set_repository(container)
     set_is_travis(container)
+    set_texts(container)
+
+def get_text(abstract):
+    with open(path("base") + "/bot/text/" + abstract + ".yml", "r") as stream:
+        return yaml.load(stream)
 
 def get_base_path():
     return os.path.realpath(__file__).replace("/bot/core/contextual.py", "")
+
+def set_texts(container):
+    text = dict()
+    text["exception"] = get_text("exception")
+    text["content"] = get_text("content")
+
+    container.register("text", text)
 
 def set_is_travis(container):
     is_travis = "TRAVIS" in os.environ and os.environ["TRAVIS"] is not ""
