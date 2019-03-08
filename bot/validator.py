@@ -33,28 +33,28 @@ def fluent(func):
 
     return wrapped
 
-class validator():
+class Validator():
     @fluent
     def user_privileges(self):
         validate(
-            error="This program needs to be not execute as root.",
-            target="user privileges",
+            error=_("exception.validator.root"),
+            target=_("content.validator.root"),
             valid=os.getuid() != 0
         )
 
     @fluent
     def is_docker_image(self):
         validate(
-            error="This program needs to be executed in a docker image.",
-            target="docker",
+            error=_("exception.validator.docker"),
+            target=_("content.validator.docker"),
             valid=os.environ.get("IS_DOCKER", False)
         )
 
     @fluent
     def operating_system(self):
         validate(
-            error="This program needs to be executed in Arch Linux.",
-            target="operating system",
+            error=_("exception.validator.os"),
+            target=_("content.validator.os"),
             valid=platform.dist()[0] == "arch"
         )
 
@@ -67,15 +67,15 @@ class validator():
             connected = False
 
         validate(
-            error="This program needs to be connected to internet.",
-            target="internet",
+            error=_("exception.validator.internet"),
+            target=_("content.validator.internet"),
             valid=connected
         )
 
     @fluent
     def deploy_key(self):
         validate(
-            error="deploy_key could not been found.",
+            error=_("exception.validator.deploy_key"),
             target="deploy_key",
             valid=os.path.isfile(path("base") + "/deploy_key")
         )
@@ -83,7 +83,7 @@ class validator():
     @fluent
     def deploy_key_encrypted(self):
         validate(
-            error="deploy_key.enc could not been found.",
+            error=_("exception.validator.deploy_key.enc"),
             target="deploy_key.enc",
             valid=os.path.isfile(path("base") + "/deploy_key.enc")
         )
@@ -98,8 +98,8 @@ class validator():
         )
 
         validate(
-            error="ssh connection could not be established.",
-            target="ssh address",
+            error=_("exception.validator.ssh.connection"),
+            target=_("content.validator.ssh.connection"),
             valid=output(script) is "1"
         )
 
@@ -123,8 +123,8 @@ class validator():
             valid = False
 
         validate(
-            error="This program can't connect to %s." % url,
-            target="mirror host",
+            error=_("exception.validator.mirror.connection") % url,
+            target=_("content.validator.mirror.connection"),
             valid=valid
         )
 
@@ -140,16 +140,16 @@ class validator():
         name = name.replace(".", " ")
 
         validate(
-            error="%s must be defined in repository.json" % name,
-            target="content",
+            error=_("exception.validator.repository") % name,
+            target=_("content.validator.repository"),
             valid=valid
         )
 
     @fluent
     def port(self):
         validate(
-            error="port must be an interger in repository.json",
-            target="port",
+            error=_("exception.validator.ssh.port"),
+            target=_("content.validator.ssh.port"),
             valid=type(repo("ssh.port")) == int
         )
 
@@ -167,16 +167,16 @@ class validator():
             valid = True
 
         validate(
-            error="An error occured while trying to connect to your github repository with your encrypted token.\nPlease make sure that your token is working.",
-            target="github token api",
+            error=_("exception.validator.travis.github.token"),
+            target=_("content.validator.travis.github.token"),
             valid=valid
         )
 
     @fluent
     def travis_lint(self, content):
         validate(
-            error="An error occured while trying to parse your travis file.\nPlease make sure that the file is valid YAML.",
-            target="lint",
+            error=_("exception.validator.travis.lint"),
+            target=_("content.validator.travis.lint"),
             valid=type(content) is dict
         )
 
@@ -190,8 +190,8 @@ class validator():
                     valid = True
 
         validate(
-            error="No openssl statement could be found in your travis file.\nPlease make sure to execute: travis encrypt-file ./deploy_key --add",
-            target="openssl",
+            error=_("exception.validator.travis.openssl"),
+            target=_("content.validator.travis.openssl"),
             valid=valid
         )
 
@@ -214,16 +214,16 @@ class validator():
                 valid = True
 
         validate(
-            error="No encrypted environement variable could be found in your travis file.\nPlease make sure to execute: travis encrypt GITHUB_TOKEN=\"secretkey\" --add",
-            target="github token",
+            error=_("exception.validator.travis.variable"),
+            target=_("content.validator.travis.variable"),
             valid=valid
         )
 
     @fluent
     def pkg_directory(self):
         validate(
-            error="No package was found in pkg directory.",
-            target="directory",
+            error=_("exception.validator.pkg.directory"),
+            target=_("content.validator.pkg.directory"),
             valid=len(app("packages")) > 0
         )
 
@@ -233,52 +233,52 @@ class validator():
         diff = set(folders) - set(app("packages"))
 
         validate(
-            error="No package.py was found in pkg subdirectories: " + ", ".join(diff),
-            target="content",
+            error=_("exception.validator.pkg.content") % (", ".join(diff)),
+            target=_("content.validator.pkg.content"),
             valid=len(diff) == 0
         )
 
 
 def requirements():
-    print("Validating requirements:")
+    print(_("content.validator.title.requirements"))
 
-    (validator()
+    (validator
         .user_privileges()
         .is_docker_image()
         .operating_system()
         .internet_up())
 
 def files():
-    print("Validating files:")
+    print(_("content.validator.title.files"))
 
-    (validator()
+    (validator
         .deploy_key_encrypted()
         .deploy_key())
 
 def repository():
-   print("Validating repository:")
+    print(_("content.validator.title.repository"))
 
-   (validator()
+    (validator
        .repository()
        .port())
 
 def connection():
-    print("Validating connection:")
+    print(_("content.validator.title.connection"))
 
-    (validator()
+    (validator
         .ssh_connection()
         .mirror_connection()
         .travis_github_token())
 
 def content():
-    print("Validating packages:")
+    print(_("content.validator.title.packages"))
 
-    (validator()
+    (validator
         .pkg_directory()
         .pkg_content())
 
 def travis():
-    print("Validating travis:")
+    print(_("content.validator.title.travis"))
 
     with open(".travis.yml", "r") as stream:
         try:
@@ -286,7 +286,10 @@ def travis():
         except yaml.YAMLError as error:
             content = error
 
-    (validator()
+    (validator
         .travis_lint(content)
         .travis_variable(content)
         .travis_openssl(content))
+
+
+validator = Validator()
