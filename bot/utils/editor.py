@@ -3,6 +3,7 @@
 
 import re
 import fileinput
+import subprocess
 
 def replace_ending(find, replace, string):
     split = string.split(find, 1)
@@ -15,18 +16,8 @@ def edit_file(filename):
             yield line.rstrip('\n')
 
 def extract(module, name):
-    with open(module + '/PKGBUILD') as f:
-        for line in f.readlines():
-            line = line.strip()
+    command = "echo $(source %s; echo ${%s[@]})" % (module + "/PKGBUILD", name)
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, executable="/bin/bash")
+    output, error = process.communicate()
 
-            if line.startswith(name + '='):
-                string = line.split('=', 1)[1].strip('\n\r\"\' ')
-                pattern = re.compile('\${\w+}')
-
-                for var in re.findall(pattern, string):
-                    name = var.replace('${', '').replace('}', '')
-                    string = string.replace(var, extract(module, name))
-
-                return string
-
-    return ""
+    return output.strip().decode("UTF-8")
