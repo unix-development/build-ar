@@ -68,8 +68,9 @@ class Repository():
         package = Package(name, is_dependency)
         package.separator()
         package.prepare()
-        package.validate()
+        package.check_config()
         package.pull()
+        package.check_build()
         package.make()
 
         self.append_to_packages_checked(name)
@@ -150,12 +151,50 @@ class Package():
         except AttributeError:
             return False
 
-    def validate(self):
+    def check_build(self):
+        print(bold("Validating PKGBUILD:"))
+
+        error = {
+            "not_exists": "PKGBUILD does not exists.",
+            "undefined": "No %s variable is defined in PKGBUILD",
+            "name": "The name defined in package.py is the not the same in PKGBUILD."
+        }
+
+        validate(
+            error=error["not_exists"],
+            target="is exists",
+            valid=os.path.isfile("PKGBUILD")
+        )
+
+        validate(
+            error=error["undefined"] % "pkgver",
+            target="version",
+            valid=self.pkgbuild["version"]
+        )
+
+        valid = True
+        exception = ""
+
+        if not self.pkgbuild["name"]:
+            exception = error["undefined"] % "pkgname"
+            valid = False
+
+        elif self.name not in self.pkgbuild["name"].split(" "):
+            exception = error["name"]
+            valid = False
+
+        validate(
+            error=exception,
+            target="name",
+            valid=valid
+        )
+
+    def check_config(self):
         print(bold("Validating package.py:"))
 
         error = {
             "undefined": "No %s variable is defined in " + self.name + " package.py",
-            "name": "The directory name and the name variable defined in package.py is the not the same."
+            "name": "The directory name and the name defined in package.py is the not the same."
         }
 
         validate(
@@ -184,8 +223,17 @@ class Package():
         print(title(self.name))
 
     def prepare(self):
+        self.set_values()
         self.set_utils()
         self.clean_directory()
+
+    def set_values(self):
+        self.pkgbuild = {
+            "version": extract(self.path, "pkgver"),
+            "name": extract(self.path, "pkgname"),
+            "depends": extract(self.path, "depends").split(" "),
+            "makedepends": extract(self.path, "makedepends").split(" ")
+        }
 
     def read(self):
         command = "echo $(source ./PKGBUILD && echo ${depends[@]} ${makedepends[@]})"
