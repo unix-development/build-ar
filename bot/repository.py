@@ -30,6 +30,10 @@ class Repository():
         packages_list = app("packages")
         status_path = path("mirror") + "/packages_checked"
 
+        if app("is_travis") is False:
+            self.packages_to_check = packages_list
+            return
+
         if not os.path.exists(status_path):
             os.mknod(status_path)
         else:
@@ -50,6 +54,9 @@ class Repository():
         if len(self.packages_to_check) == 0:
             self.packages_to_check = packages_list
             with open(status_path, 'w'): pass
+        else:
+            self.packages_to_check.sort()
+            self.packages_to_check = self.packages_to_check + packages_already_checked
 
     def append_to_packages_checked(self, name):
         with open(path("mirror") + "/packages_checked", "a+") as f:
@@ -58,7 +65,7 @@ class Repository():
     def synchronize(self):
         sys.path.append(path("pkg"))
 
-        for name in [ "pipman-git" ]:
+        for name in self.packages_to_check:
             if self.update_package(name):
                 self.packages_updated.append(name)
 
@@ -242,7 +249,7 @@ class Package():
 
     def remove_overwriting_function(self):
         try:
-            output("source ./PKGBUILD; type pkgver >/dev/null 2>&1;")
+            output("source ./PKGBUILD; type pkgvers &> /dev/null")
 
             search = False
             for line in edit_file("PKGBUILD"):
