@@ -1,0 +1,17 @@
+validator.requirements: |-
+  Validating requirements:
+
+validator.files: |-
+  Validating files:
+
+validator.repository: |-
+  Validating repository:
+
+validator.connection: |-
+  Validating connection:
+
+validator.packages: |-
+  Validating packages:
+
+validator.travis: |-
+  Validating travis:
