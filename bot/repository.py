@@ -58,7 +58,7 @@ class Repository():
     def synchronize(self):
         sys.path.append(path("pkg"))
 
-        for name in self.packages_to_check:
+        for name in [ "pipman-git" ]:
             if self.update_package(name):
                 self.packages_updated.append(name)
 
@@ -169,17 +169,17 @@ class Package():
         validate(
             error=error["undefined"] % "pkgver",
             target="version",
-            valid=self.pkgbuild["version"]
+            valid=self._version
         )
 
         valid = True
         exception = ""
 
-        if not self.pkgbuild["name"]:
+        if not self._name:
             exception = error["undefined"] % "pkgname"
             valid = False
 
-        elif self.name not in self.pkgbuild["name"].split(" "):
+        elif self.name not in self._name.split(" "):
             exception = error["name"]
             valid = False
 
@@ -228,12 +228,10 @@ class Package():
         self.clean_directory()
 
     def set_values(self):
-        self.pkgbuild = {
-            "version": extract(self.path, "pkgver"),
-            "name": extract(self.path, "pkgname"),
-            "depends": extract(self.path, "depends").split(" "),
-            "makedepends": extract(self.path, "makedepends").split(" ")
-        }
+        self._version = extract(self.path, "pkgver")
+        self._name = extract(self.path, "pkgname")
+        self._depends = extract(self.path, "depends").split(" ")
+        self._makedepends = extract(self.path, "makedepends").split(" ")
 
     def read(self):
         command = "echo $(source ./PKGBUILD && echo ${depends[@]} ${makedepends[@]})"
@@ -242,8 +240,26 @@ class Package():
 
         return line.strip().decode("UTF-8").split(" ")
 
+    def remove_overwriting_function(self):
+        try:
+            output("source ./PKGBUILD; type pkgver >/dev/null 2>&1;")
+
+            search = False
+            for line in edit_file("PKGBUILD"):
+                if line.startswith("pkgver() {"):
+                    search = True
+                    continue
+                elif search is True:
+                    if line.startswith("}"):
+                        search = False
+                    continue
+
+                print(line)
+        except:
+            pass
+
     def make(self):
-        self.version = extract(self.path, "pkgver")
+        self.remove_overwriting_function()
 
         if "pre_build" in dir(self.package):
             self.package.pre_build()
@@ -264,7 +280,7 @@ class Package():
 
             execute([
                 "git add .",
-                "git commit -m \"Bot: Add last update into " + self.package.name + " package ~ version " + self.version + "\""
+                "git commit -m \"Bot: Add last update into " + self.package.name + " package ~ version " + self._version + "\""
             ])
 
     def has_new_version(self):
@@ -272,7 +288,7 @@ class Package():
             return True
 
         for f in os.listdir(self.path_mirror):
-            if f.startswith(self.package.name + '-' + self.version + '-'):
+            if f.startswith(self.package.name + '-' + self._version + '-'):
                 return False
 
         return True
