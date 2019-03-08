@@ -11,7 +11,7 @@ import subprocess
 from datetime import datetime
 from utils.git import git_remote_path
 from utils.editor import edit_file, replace_ending, extract
-from utils.terminal import output, title, bold
+from utils.terminal import output, title, bold, execute
 from utils.validator import validate
 
 def register(container):
@@ -64,8 +64,8 @@ class Repository():
 
                 if app("is_travis"): return
 
-    def update_package(self, name):
-        package = Package(name)
+    def update_package(self, name, is_dependency = False):
+        package = Package(name, is_dependency)
         package.separator()
         package.prepare()
         package.validate()
@@ -85,14 +85,27 @@ class Repository():
 
         os.chdir(path("base"))
 
-        os.system(
-            "rsync -avz --update --copy-links --progress -e 'ssh -i ./deploy_key -p %i' %s/* %s@%s:%s" %
-            (repo("ssh.port"), path("mirror"), repo("ssh.user"), repo("ssh.host"), repo("ssh.path")))
+        execute([
+            "rsync \
+                -avz \
+                --update \
+                --copy-links \
+                --progress -e 'ssh -i ./deploy_key -p %i' \
+                %s/* %s@%s:%s" % (
+                repo("ssh.port"),
+                path("mirror"),
+                repo("ssh.user"),
+                repo("ssh.host"),
+                repo("ssh.path")
+            )
+        ])
 
         if app("is_travis"):
             print(title("Deploy to git remote") + "\n")
 
-            os.system("git push https://${GITHUB_TOKEN}@%s HEAD:master" % git_remote_path())
+            execute([
+                "git push https://${GITHUB_TOKEN}@%s HEAD:master" % git_remote_path()
+            ])
 
     def create_database(self):
         if len(self.packages_updated) == 0: return
@@ -103,7 +116,7 @@ class Repository():
         path_mirror = path("mirror")
         os.chdir(path_mirror)
 
-        scripts = [
+        execute([
             "rm -f ./%s.db" % database,
             "rm -f ./%s.old" % database,
             "rm -f ./%s.files" % database,
@@ -111,19 +124,17 @@ class Repository():
             "rm -f ./%s.files.tar.gz" % database,
             "rm -f ./%s.files.tar.gz.old" % database,
             "repo-add --nocolor ./%s.db.tar.gz ./*.pkg.tar.xz" % database
-        ]
-
-        for script in scripts:
-            os.system(script)
+        ])
 
 
 class Package():
     updated = False
 
-    def __init__(self, name):
+    def __init__(self, name, is_dependency):
         __import__(name + ".package")
 
         self.name = name
+        self.is_dependency = is_dependency
         self.path_pkg = path("pkg")
         self.path_mirror = path("mirror")
 
@@ -189,7 +200,7 @@ class Package():
         if "pre_build" in dir(self.package):
             self.package.pre_build()
 
-        if self.has_new_version():
+        if self.has_new_version() or self.is_dependency:
             self.updated = True
             self.verify_dependencies()
 
@@ -200,11 +211,13 @@ class Package():
             self.commit()
 
     def commit(self):
-        print(bold("Commit changes:"))
+        if output("git status . --porcelain | sed s/^...//"):
+            print(bold("Commit changes:"))
 
-        os.system(
-            "git add . && " + \
-            "git commit -m \"Bot: Add last update into " + self.package.name + " package ~ version " + self.version + "\"")
+            execute([
+                "git add .",
+                "git commit -m \"Bot: Add last update into " + self.package.name + " package ~ version " + self.version + "\""
+            ])
 
     def has_new_version(self):
         if output("git status . --porcelain | sed s/^...//"):
@@ -228,7 +241,7 @@ class Package():
 
                 if dependency not in repository.packages_updated:
                     redirect = True
-                    repository.update_package(dependency)
+                    repository.update_package(dependency, True)
 
         if redirect is True and app("is_travis") is False:
             self.separator()
@@ -238,7 +251,7 @@ class Package():
     def build(self):
         print(bold("Build package:"))
 
-        os.system(
+        execute([
             "makepkg \
                 --clean \
                 --install \
@@ -246,17 +259,19 @@ class Package():
                 --nocolor \
                 --noconfirm \
                 --skipinteg \
-                --syncdeps; " \
-            "mv *.pkg.tar.xz " + self.path_mirror);
+                --syncdeps",
+            "mv *.pkg.tar.xz " + self.path_mirror
+        ]);
 
     def pull(self):
         print(bold("Clone repository:"))
 
-        os.system(
-            "git init --quiet; "
-            "git remote add origin " + self.package.source + "; "
-            "git pull origin master; "
-            "rm -rf .git;")
+        execute([
+            "git init --quiet",
+            "git remote add origin " + self.package.source,
+            "git pull origin master",
+            "rm -rf .git"
+        ])
 
         if os.path.isfile(".SRCINFO"):
             os.remove(".SRCINFO")
