@@ -1,17 +1,59 @@
-validator.requirements: |-
+validator.title.requirements: |-
   Validating requirements:
 
-validator.files: |-
+validator.title.files: |-
   Validating files:
 
-validator.repository: |-
+validator.title.repository: |-
   Validating repository:
 
-validator.connection: |-
+validator.title.connection: |-
   Validating connection:
 
-validator.packages: |-
+validator.title.packages: |-
   Validating packages:
 
-validator.travis: |-
+validator.title.travis: |-
   Validating travis:
+
+validator.root: |-
+  user privileges
+
+validator.docker: |-
+  docker
+
+validator.os: |-
+  operating system
+
+validator.internet: |-
+  internet
+
+validator.ssh.connection: |-
+  ssh address
+
+validator.mirror.connection: |-
+  mirror host
+
+validator.repository: |-
+  content
+
+validator.ssh.port: |-
+  port
+
+validator.travis.github.token: |-
+  github token api
+
+validator.travis.lint: |-
+  lint
+
+validator.travis.openssl: |-
+  openssl
+
+validator.travis.variable: |-
+  github token
+
+validator.pkg.directory: |-
+  directory
+
+validator.pkg.content: |-
+  content
