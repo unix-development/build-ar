@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 
 import sys
+import functools
 
 class Container():
     instances = dict()
@@ -34,6 +35,15 @@ def text(abstract):
     texts = container.get("text")
 
     return texts[keys[0]][keys[1]]
+
+def fluent(func):
+    @functools.wraps(func)
+    def wrapped(*args, **kwargs):
+        self = args[0]
+        func(*args, **kwargs)
+        return self
+
+    return wrapped
 
 def app(abstract):
     return container.get(abstract)
