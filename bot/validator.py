@@ -10,8 +10,8 @@ import socket
 import secrets
 import platform
 import requests
-import functools
 
+from core.container import fluent
 from utils.git import git_remote_path
 from utils.terminal import output
 from utils.validator import validate
@@ -24,14 +24,6 @@ def register(container):
     container.register("validator.connection", connection)
     container.register("validator.files", files)
 
-def fluent(func):
-    @functools.wraps(func)
-    def wrapped(*args, **kwargs):
-        self = args[0]
-        func(*args, **kwargs)
-        return self
-
-    return wrapped
 
 class Validator():
     @fluent
