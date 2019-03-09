@@ -125,10 +125,8 @@ class Repository():
         os.chdir(path_mirror)
 
         execute([
-            "rm -f ./%s.db" % database,
             "rm -f ./%s.old" % database,
             "rm -f ./%s.files" % database,
-            "rm -f ./%s.db.tar.gz" % database,
             "rm -f ./%s.files.tar.gz" % database,
             "rm -f ./%s.files.tar.gz.old" % database,
             "repo-add --nocolor ./%s.db.tar.gz ./*.pkg.tar.xz" % database
@@ -249,11 +247,11 @@ class Package():
 
     def remove_overwriting_function(self):
         try:
-            output("source ./PKGBUILD; type pkgvers &> /dev/null")
+            output("source ./PKGBUILD; type pkgver &> /dev/null")
 
             search = False
             for line in edit_file("PKGBUILD"):
-                if line.startswith("pkgver() {"):
+                if line.startswith("pkgver()"):
                     search = True
                     continue
                 elif search is True:
