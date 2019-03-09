@@ -31,28 +31,44 @@ def build():
         try:
             open(module + "/PKGBUILD")
         except FileNotFoundError:
-            continue
+            return
 
         description = extract(module, "pkgdesc")
         version = extract(module, "pkgver")
         name = extract(module, "pkgname")
 
-        for location in os.listdir(path_mirror):
-            if location.startswith(package + "-" + version + "-"):
-                date = time.strftime("%d %h %Y",
-                    time.gmtime(os.path.getmtime(path_mirror + "/" + location)))
+        for name in name.split(" "):
+            for location in os.listdir(path_mirror):
+                if location.startswith(package + "-" + version + "-"):
+                    date = time.strftime("%d %h %Y",
+                        time.gmtime(os.path.getmtime(path_mirror + "/" + location)))
 
-                table += (content
-                    .replace("$path", location)
-                    .replace("$name", package)
-                    .replace("$date", date)
-                    .replace("$version", version)
-                    .replace("$description", description))
+                    table += (content
+                        .replace("$path", location)
+                        .replace("$name", name)
+                        .replace("$date", date)
+                        .replace("$version", version)
+                        .replace("$description",
+                            description if description != "" else get_description(module, name)
+                        ))
 
     move_to_mirror()
     replace_variables(table)
     compress()
 
+def get_description(module, name):
+    with open(module + "/PKGBUILD") as f:
+        search = False
+        for cnt, line in enumerate(f):
+            line = line.strip()
+
+            if line.startswith("package_" + name + "()"):
+                search = True
+
+            if search and line.startswith("pkgdesc="):
+                return line.replace("pkgdesc=", "")[1:-1]
+
+    return ""
 
 def move_to_mirror():
     os.system("cp " + path("www") + "/index.html " + path("mirror"))
