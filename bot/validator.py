@@ -11,7 +11,7 @@ import secrets
 import platform
 import requests
 
-from core.container import fluent
+from core.container import return_self
 from utils.git import git_remote_path
 from utils.terminal import output
 from utils.validator import validate
@@ -26,7 +26,7 @@ def register(container):
 
 
 class Validator():
-    @fluent
+    @return_self
     def user_privileges(self):
         validate(
             error=_("exception.validator.root"),
@@ -34,7 +34,7 @@ class Validator():
             valid=os.getuid() != 0
         )
 
-    @fluent
+    @return_self
     def is_docker_image(self):
         validate(
             error=_("exception.validator.docker"),
@@ -42,7 +42,7 @@ class Validator():
             valid=os.environ.get("IS_DOCKER", False)
         )
 
-    @fluent
+    @return_self
     def operating_system(self):
         validate(
             error=_("exception.validator.os"),
@@ -50,7 +50,7 @@ class Validator():
             valid=platform.dist()[0] == "arch"
         )
 
-    @fluent
+    @return_self
     def internet_up(self):
         try:
             socket.create_connection(("www.github.com", 80))
@@ -64,7 +64,7 @@ class Validator():
             valid=connected
         )
 
-    @fluent
+    @return_self
     def deploy_key(self):
         validate(
             error=_("exception.validator.deploy_key"),
@@ -72,7 +72,7 @@ class Validator():
             valid=os.path.isfile(path("base") + "/deploy_key")
         )
 
-    @fluent
+    @return_self
     def deploy_key_encrypted(self):
         validate(
             error=_("exception.validator.deploy_key.enc"),
@@ -80,7 +80,7 @@ class Validator():
             valid=os.path.isfile(path("base") + "/deploy_key.enc")
         )
 
-    @fluent
+    @return_self
     def ssh_connection(self):
         script = "ssh -i ./deploy_key -p %i -q %s@%s [[ -d %s ]] && echo 1 || echo 0" % (
             repo("ssh.port"),
@@ -95,7 +95,7 @@ class Validator():
             valid=output(script) is "1"
         )
 
-    @fluent
+    @return_self
     def mirror_connection(self):
         url = repo("url")
         token = secrets.token_hex(15)
@@ -120,7 +120,7 @@ class Validator():
             valid=valid
         )
 
-    @fluent
+    @return_self
     def repository(self):
         valid = True
 
@@ -137,7 +137,7 @@ class Validator():
             valid=valid
         )
 
-    @fluent
+    @return_self
     def port(self):
         validate(
             error=_("exception.validator.ssh.port"),
@@ -145,7 +145,7 @@ class Validator():
             valid=type(repo("ssh.port")) == int
         )
 
-    @fluent
+    @return_self
     def travis_github_token(self):
         if app("is_travis") is False:
             return
@@ -164,7 +164,7 @@ class Validator():
             valid=valid
         )
 
-    @fluent
+    @return_self
     def travis_lint(self, content):
         validate(
             error=_("exception.validator.travis.lint"),
@@ -172,7 +172,7 @@ class Validator():
             valid=type(content) is dict
         )
 
-    @fluent
+    @return_self
     def travis_openssl(self, content):
         valid = False
 
@@ -187,7 +187,7 @@ class Validator():
             valid=valid
         )
 
-    @fluent
+    @return_self
     def travis_variable(self, content):
         valid = False
         environment = None
@@ -211,7 +211,7 @@ class Validator():
             valid=valid
         )
 
-    @fluent
+    @return_self
     def pkg_directory(self):
         validate(
             error=_("exception.validator.pkg.directory"),
@@ -219,7 +219,7 @@ class Validator():
             valid=len(app("packages")) > 0
         )
 
-    @fluent
+    @return_self
     def pkg_content(self):
         folders = [f.name for f in os.scandir(path("pkg")) if f.is_dir()]
         diff = set(folders) - set(app("packages"))
