@@ -25,6 +25,9 @@ validator.mirror.connection: |-
 validator.repository: |-
   %s must be defined in repository.json
 
+validator.database: |-
+  Database must be different than core, community and extra.
+
 validator.pkg.directory: |-
   No package was found in pkg directory.
 

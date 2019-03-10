@@ -40,6 +40,9 @@ validator.repository: |-
 validator.ssh.port: |-
   port
 
+validator.database: |-
+  database
+
 validator.travis.github.token: |-
   github token api
 
