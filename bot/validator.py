@@ -133,6 +133,14 @@ class Validator():
         )
 
     @return_self
+    def database(self):
+        validate(
+            error=text("exception.validator.database"),
+            target=text("content.validator.database"),
+            valid=repo("database") not in [ "core", "extra", "community" ]
+        )
+
+    @return_self
     def port(self):
         validate(
             error=text("exception.validator.ssh.port"),
@@ -255,6 +263,7 @@ def repository():
 
     (validator
        .repository()
+       .database()
        .port())
 
 def connection():
