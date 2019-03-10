@@ -2,56 +2,59 @@
 # -*- coding:utf-8 -*-
 
 import os
+import textwrap
+import subprocess
 
-def register(container):
-    container.register("environment.prepare_git", prepare_git)
-    container.register("environment.prepare_mirror", prepare_mirror)
-    container.register("environment.prepare_pacman", prepare_pacman)
-    container.register("environment.prepare_ssh", prepare_ssh)
+from core.container import container, get, config
 
-def execute(scripts):
-    os.system("(" + scripts + ") &>/dev/null")
+def register():
+    (container
+        .register("environment.prepare_git", prepare_git)
+        .register("environment.prepare_mirror", prepare_mirror)
+        .register("environment.prepare_pacman", prepare_pacman)
+        .register("environment.prepare_ssh", prepare_ssh))
+
+def execute(commands):
+    subprocess.Popen(commands, stderr=subprocess.PIPE, shell=True)
 
 def prepare_mirror():
-    execute("chmod 777 %s/mirror" % path("base"))
+    execute("chmod 777" + get("path.mirror"))
 
 def prepare_git():
-    email = repo("git.email")
-    name = repo("git.name")
-
-    execute(
-        "git config user.email '%s'; " % email +
-        "git config user.name '%s';" % name)
+    execute("""
+    git config user.email '{email}';
+    git config user.name '{name}';
+    """.format(
+        email=config("git.email"),
+        name=config("git.name")
+    ))
 
 def prepare_ssh():
-    host = repo("ssh.host")
-    path_base = path("base")
-
-    execute(
-        "eval $(ssh-agent); " +
-        "chmod 600 %s/deploy_key; " % path_base +
-        "ssh-add %s/deploy_key; " % path_base +
-        "mkdir -p ~/.ssh; " +
-        "chmod 0700 ~/.ssh; " +
-        "ssh-keyscan -t rsa -H %s >> ~/.ssh/known_hosts; " % host
-    )
+    execute("""
+    eval $(ssh-agent);
+    chmod 600 {base}/deploy_key;
+    ssh-add {base}/deploy_key;
+    mkdir -p ~/.ssh;
+    chmod 0700 ~/.ssh;
+    ssh-keyscan -t rsa -H {host} >> ~/.ssh/known_hosts;
+    """.format(
+        base=get("path.base"),
+        host=config("ssh.host")
+    ))
 
 def prepare_pacman():
-    database = repo("database")
-    path_base = path("base")
+    database = config("database")
+    mirror = get("path.mirror")
 
-    if os.path.exists(path_base + "/mirror/" + database + ".db"):
-        with open("/etc/pacman.conf", "r+") as file:
-            for line in file:
-                if line.strip() == "[%s]" % database:
-                   break
-                else:
-                    content = [
-                        "[%s]" % database,
-                        "SigLevel = Optional TrustedOnly",
-                        "Server = file:///%s/mirror" % path_base
-                    ]
+    if os.path.exists(mirror + "/" + database + ".db"):
+        with open("/etc/pacman.conf", "a+") as fp:
+            fp.write(textwrap.dedent("""
+            [{database}]
+            SigLevel = Optional TrustedOnly
+            Server = file:///{mirror}
+            """.format(
+                database=database,
+                mirror=mirror
+            )))
 
-                    file.write("\n".join(content))
-
-    execute("sudo pacman -Sy --noconfirm")
+    execute("sudo pacman -Sy")
