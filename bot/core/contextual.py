@@ -5,53 +5,62 @@ import os
 import json
 import yaml
 
-def register(container):
-    set_contextual_paths(container)
-    set_packages(container)
-    set_repository(container)
-    set_is_travis(container)
-    set_texts(container)
+from core.container import (
+    app, container
+)
 
-def get_text(abstract):
-    with open(path("base") + "/bot/text/" + abstract + ".yml", "r") as stream:
-        return yaml.load(stream)
 
-def get_base_path():
-    return os.path.realpath(__file__).replace("/bot/core/contextual.py", "")
+def register():
+    set_contextual_paths()
+    set_packages()
+    set_repository()
+    set_is_travis()
+    set_texts()
 
-def set_texts(container):
-    text = dict()
-    text["exception"] = get_text("exception")
-    text["content"] = get_text("content")
+def set_texts():
+    container.register("text", {
+        "exception": get_text("exception"),
+        "content": get_text("content")
+    })
 
-    container.register("text", text)
+def set_is_travis():
+    container.register("is_travis",
+        "TRAVIS" in os.environ and os.environ["TRAVIS"] != "")
 
-def set_is_travis(container):
-    is_travis = "TRAVIS" in os.environ and os.environ["TRAVIS"] is not ""
+def set_contextual_paths():
+    base = get_base_path()
 
-    container.register("is_travis", is_travis)
+    (container
+        .register("path.base", base)
+        .register("path.mirror", base + "/mirror")
+        .register("path.pkg", base + "/pkg")
+        .register("path.www", base + "/www"))
 
-def set_contextual_paths(container):
-    path_base = get_base_path()
-
-    container.register("path.base", path_base)
-    container.register("path.mirror", path_base + "/mirror")
-    container.register("path.www", path_base + "/www")
-    container.register("path.pkg", path_base + "/pkg")
-
-def set_packages(container):
+def set_packages():
     packages = []
-    path_pkg = path("pkg")
+    path = app("path.pkg")
 
-    for name in os.listdir(path_pkg):
-        if os.path.isfile(path_pkg + '/' + name + '/package.py'):
+    for name in os.listdir(path):
+        if os.path.isfile(path + "/" + name + "/package.py"):
             packages.append(name)
 
     packages.sort()
     container.register("packages", packages)
 
-def set_repository(container):
-    with open(path("base") + '/repository.json') as f:
-        repository = json.load(f)
+def set_repository():
+    with open(app("path.base") + '/repository.json') as fp:
+        repository = json.load(fp)
 
     container.register("repository", repository)
+
+def get_text(abstract):
+    path = "{base}/bot/text/{name}.yml".format(
+        base=app("path.base"),
+        name=abstract
+    )
+
+    with open(path, "r") as fp:
+        return yaml.load(fp)
+
+def get_base_path():
+    return os.path.realpath(__file__).replace("/bot/core/contextual.py", "")
