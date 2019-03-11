@@ -14,10 +14,7 @@ import requests
 from utils.git import git_remote_path
 from utils.terminal import output
 from utils.validator import validate
-
-from core.container import (
-    app, container, repo, return_self, text
-)
+from core.container import return_self
 
 
 class Validator():
@@ -64,7 +61,7 @@ class Validator():
         validate(
             error=text("exception.validator.deploy_key"),
             target="deploy_key",
-            valid=os.path.isfile(app("path.base") + "/deploy_key")
+            valid=os.path.isfile(app.base + "/deploy_key")
         )
 
     @return_self
@@ -72,16 +69,16 @@ class Validator():
         validate(
             error=text("exception.validator.deploy_key.enc"),
             target="deploy_key.enc",
-            valid=os.path.isfile(app("path.base") + "/deploy_key.enc")
+            valid=os.path.isfile(app.base + "/deploy_key.enc")
         )
 
     @return_self
     def ssh_connection(self):
         script = "ssh -i ./deploy_key -p %i -q %s@%s [[ -d %s ]] && echo 1 || echo 0" % (
-            repo("ssh.port"),
-            repo("ssh.user"),
-            repo("ssh.host"),
-            repo("ssh.path")
+            config.ssh.port,
+            config.ssh.user,
+            config.ssh.host,
+            config.ssh.path
         )
 
         validate(
@@ -92,25 +89,26 @@ class Validator():
 
     @return_self
     def mirror_connection(self):
-        url = repo("url")
+        ssh = config.ssh
         token = secrets.token_hex(15)
-        source = app("path.mirror") + "/validation_token"
+        source = f"{app.mirror}/validation_token"
 
         with open(source, "w") as f:
             f.write(token)
             f.close()
 
         os.system("rsync -aqvz -e 'ssh -i ./deploy_key -p %i' %s %s@%s:%s" % (
-            repo("ssh.port"), source, repo("ssh.user"), repo("ssh.host"), repo("ssh.path")))
+            ssh.port, source, ssh.user, ssh.host, ssh.path)
+        )
 
         try:
-            response = requests.get(url + "/validation_token")
+            response = requests.get(config.url + "/validation_token")
             valid = True if response.status_code == 200 else False
         except:
             valid = False
 
         validate(
-            error=text("exception.validator.mirror.connection") % url,
+            error=text("exception.validator.mirror.connection") % config.url,
             target=text("content.validator.mirror.connection"),
             valid=valid
         )
@@ -118,13 +116,20 @@ class Validator():
     @return_self
     def repository(self):
         valid = True
+        repository = {
+            "url": config.url,
+            "database": config.database,
+            "git email": config.git.email,
+            "git name": config.git.name,
+            "ssh host": config.ssh.host,
+            "ssh path": config.ssh.path,
+            "ssh port": config.ssh.port
+        }
 
-        for name in ["database", "git.email", "git.name", "ssh.host", "ssh.path", "ssh.port", "url"]:
-            if not repo(name):
+        for name in repository:
+            if not repository[name]:
                 valid = False
                 break
-
-        name = name.replace(".", " ")
 
         validate(
             error=text("exception.validator.repository") % name,
@@ -137,7 +142,7 @@ class Validator():
         validate(
             error=text("exception.validator.database"),
             target=text("content.validator.database"),
-            valid=repo("database") not in [ "core", "extra", "community" ]
+            valid=config.database not in [ "core", "extra", "community" ]
         )
 
     @return_self
@@ -145,12 +150,12 @@ class Validator():
         validate(
             error=text("exception.validator.ssh.port"),
             target=text("content.validator.ssh.port"),
-            valid=type(repo("ssh.port")) == int
+            valid=type(config.ssh.port) == int
         )
 
     @return_self
     def travis_github_token(self):
-        if app("is_travis") is False:
+        if app.is_travis is False:
             return
 
         valid = False
@@ -219,13 +224,13 @@ class Validator():
         validate(
             error=text("exception.validator.pkg.directory"),
             target=text("content.validator.pkg.directory"),
-            valid=len(app("packages")) > 0
+            valid=len(app.packages) > 0
         )
 
     @return_self
     def pkg_content(self):
-        folders = [f.name for f in os.scandir(app("path.pkg")) if f.is_dir()]
-        diff = set(folders) - set(app("packages"))
+        folders = [f.name for f in os.scandir(app.pkg) if f.is_dir()]
+        diff = set(folders) - set(app.packages)
 
         validate(
             error=text("exception.validator.pkg.content") % (", ".join(diff)),
@@ -235,12 +240,12 @@ class Validator():
 
 
 def register():
-    (container.register("validator.requirements", requirements)
-        .register("validator.repository", repository)
-        .register("validator.content", content)
-        .register("validator.travis", travis)
-        .register("validator.connection", connection)
-        .register("validator.files", files))
+    container.register("validator.requirements", requirements)
+    container.register("validator.repository", repository)
+    container.register("validator.content", content)
+    container.register("validator.travis", travis)
+    container.register("validator.connection", connection)
+    container.register("validator.files", files)
 
 def requirements():
     print(text("content.validator.title.requirements"))
