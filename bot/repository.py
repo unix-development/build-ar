@@ -39,7 +39,7 @@ class Repository():
 
         print(title(text("content.repository.database")) + "\n")
 
-        os.system("""
+        execute("""
         rm -f {path}/{database}.db
         rm -f {path}/{database}.old
         rm -f {path}/{database}.files
@@ -57,7 +57,7 @@ class Repository():
 
         print(title(text("content.repository.deploy.ssh")) + "\n")
 
-        os.system(f"""
+        execute(f"""
         rsync \
             -avz \
             --update \
@@ -69,7 +69,7 @@ class Repository():
 
         if app.is_travis:
             print(title(text("content.repository.deploy.git")) + "\n")
-            os.system("git push https://${GITHUB_TOKEN}@%s HEAD:master" % git_remote_path())
+            execute("git push https://${GITHUB_TOKEN}@%s HEAD:master" % git_remote_path())
 
     def set_package_checked(self, name):
         with open(f"{app.mirror}/packages_checked", "a+") as f:
