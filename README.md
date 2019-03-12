@@ -128,9 +128,7 @@ Server = http://mirror.yourdomain.org
 Make sure to always be up to date by running this:
 
 ```
-$ git remote add upstream https://github.com/archlinux-repository/archlinux-repository
-$ git fetch upstream
-$ git pull upstream master
+$ make update
 ```
 
 ## Footnotes
