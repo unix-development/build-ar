@@ -24,15 +24,14 @@ class Repository():
         sys.path.append(app.pkg)
 
         for name in app.packages:
-            self.verify_package(name)
+            if self.verify_package(name):
+                if app.is_travis: return
 
     def verify_package(self, name, is_dependency = False):
         package = Package(name, is_dependency)
         package.run()
 
-        self._set_package_checked(name)
         if package.updated:
-            self.packages_updated.append(name)
             return True
 
     def create_database(self):
@@ -72,7 +71,7 @@ class Repository():
             print(title(text("content.repository.deploy.git")) + "\n")
             os.system("git push https://${GITHUB_TOKEN}@%s HEAD:master" % git_remote_path())
 
-    def _set_package_checked(self, name):
+    def set_package_checked(self, name):
         with open(f"{app.mirror}/packages_checked", "a+") as f:
             f.write(name + "\n")
 
@@ -186,6 +185,9 @@ class Package():
 
             self._commit()
             self._build()
+
+            repository.set_package_checked(name)
+            repository.packages_updated.append(name)
 
     def _build(self):
         print(bold(text("content.repository.build")))
