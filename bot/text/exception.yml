@@ -52,3 +52,21 @@ validator.travis.openssl: |-
 validator.travis.variable: |-
   No encrypted environement variable could be found in your travis file.
   Please make sure to execute: travis encrypt GITHUB_TOKEN="secretkey" --add
+
+repository.dependency: |-
+  Error: %s is not part of the official package and can't be found in pkg directory.
+
+repository.build.not.exists: |-
+  PKGBUILD does not exists.
+
+repository.build.undefined: |-
+  No %s variable is defined in PKGBUILD.
+
+repository.build.different.name: |-
+  The name defined in package.py is the not the same in PKGBUILD.
+
+repository.config.undefined: |-
+  No %s variable is defined in %s package.py.
+
+repository.config.different.name: |-
+  The directory name and the name defined in package.py is the not the same.

@@ -60,3 +60,30 @@ validator.pkg.directory: |-
 
 validator.pkg.content: |-
   content
+
+repository.database: |-
+  Create database
+
+repository.deploy.ssh: |-
+  Deploy to host remote
+
+repository.deploy.git: |-
+  Deploy to git remote
+
+repository.build: |-
+  Build package:
+
+repository.commit: |-
+  Commit changes:
+
+repository.pull: |-
+  Clone repository:
+
+repository.validate.config: |-
+  Validating package.py:
+
+repository.validate.build: |-
+  Validating PKGBUILD:
+
+repository.validate.config: |-
+  Validating package.py:
