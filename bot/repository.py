@@ -38,7 +38,7 @@ class Repository():
     def create_database(self):
         if len(self.packages_updated) == 0: return
 
-        print(title("Create database") + "\n")
+        print(title(text("content.repository.database")) + "\n")
 
         os.system("""
         rm -f {path}/{database}.db
@@ -56,7 +56,7 @@ class Repository():
     def deploy(self):
         if len(self.packages_updated) == 0: return
 
-        print(title("Deploy to host remote") + "\n")
+        print(title(text("content.repository.deploy.ssh")) + "\n")
 
         os.system(f"""
         rsync \
@@ -69,7 +69,7 @@ class Repository():
         """)
 
         if app.is_travis:
-            print(title("Deploy to git remote") + "\n")
+            print(title(text("content.repository.deploy.git")) + "\n")
             os.system("git push https://${GITHUB_TOKEN}@%s HEAD:master" % git_remote_path())
 
     def _set_package_checked(self, name):
@@ -81,7 +81,7 @@ class Validator():
     @return_self
     def module_source(self, package):
         validate(
-            error="No source variable is defined in " + package.name + " package.py",
+            error=text("exception.repository.config.undefined") % ("source", package.name),
             target="source",
             valid=self._attribute_exists(package.module, "source")
         )
@@ -92,10 +92,10 @@ class Validator():
         exception = ""
 
         if self._attribute_exists(package.module, "name") is False:
-            exception = "a"
+            exception = text("exception.repository.config.undefined") % ("name", package.name)
             valid = False
         elif package.name != package.module.name:
-            exception = "b"
+            exception = text("exception.repository.config.different.name")
             valid = False
 
         validate(
@@ -107,7 +107,7 @@ class Validator():
     @return_self
     def build_exists(self):
         validate(
-            error="PKGBUILD does not exists.",
+            error=text("exception.repository.build.not.exists"),
             target="is exists",
             valid=os.path.isfile("PKGBUILD")
         )
@@ -115,7 +115,7 @@ class Validator():
     @return_self
     def build_version(self, version):
         validate(
-            error="No version variable is defined in PKGBUILD",
+            error=text("exception.repository.build.undefined") % "version",
             target="version",
             valid=version
         )
@@ -126,10 +126,10 @@ class Validator():
         exception = ""
 
         if not name:
-            exception = "a"
+            exception = text("exception.repository.build.undefined") % "name",
             valid = False
         elif module.name not in name.split(" "):
-            exception = "b"
+            exception = text("exception.repository.build.different.name")
             valid = False
 
         validate(
@@ -188,7 +188,7 @@ class Package():
             self._build()
 
     def _build(self):
-        print(bold("Build package:"))
+        print(bold(text("content.repository.build")))
 
         execute([
             "makepkg \
@@ -204,7 +204,7 @@ class Package():
 
     def _commit(self):
         if output("git status . --porcelain | sed s/^...//") and app.is_travis:
-            print(bold("Commit changes:"))
+            print(bold(text("content.repository.commit")))
 
             execute([
                 "git add .",
@@ -220,7 +220,7 @@ class Package():
                 continue
             except:
                 if dependency not in app.packages:
-                    sys.exit("\nError: %s is not part of the official package and can't be found in pkg directory." % dependency)
+                    sys.exit("\n" + text("exception.repository.dependency") % dependency)
 
                 if dependency not in repository.packages_updated:
                     redirect = True
@@ -260,7 +260,7 @@ class Package():
             pass
 
     def _pull(self):
-        print(bold("Clone repository:"))
+        print(bold(text("content.repository.pull")))
 
         execute([
             "git init --quiet",
@@ -280,14 +280,14 @@ class Package():
         self._dependencies = (self.depends + " " + self.makedepends).strip()
 
     def _validate_config(self):
-        print(bold("Validating package.py:"))
+        print(bold(text("content.repository.validate.config")))
 
         (validator
             .module_source(self)
             .module_name(self))
 
     def _validate_build(self):
-        print(bold("Validating PKGBUILD:"))
+        print(bold(text("content.repository.validate.build")))
 
         (validator
             .build_exists()
@@ -317,4 +317,3 @@ def register():
     container.register("repository.synchronize", repository.synchronize)
     container.register("repository.create_database", repository.create_database)
     container.register("repository.deploy", repository.deploy)
-
