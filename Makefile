@@ -22,4 +22,9 @@ test:
 		--init --tty $(PROGRAM) \
 		python bot validate
 
-.PHONY: container test run
+update:
+	@git remote add upstream https://github.com/unix-development/build-your-own-archlinux-repository
+	@git fetch upstream
+	@git pull upstream master
+
+.PHONY: container test update run
