@@ -63,7 +63,7 @@ class Repository():
             -avz \
             --update \
             --copy-links \
-            --progress -e 'ssh -i ./deploy_key -p {config.ssh.port}' \
+            --progress -e 'ssh -i {app.base}/deploy_key -p {config.ssh.port}' \
             {app.mirror}/* \
             {config.ssh.user}@{config.ssh.host}:{config.ssh.path}
         """)
@@ -243,11 +243,11 @@ class Package():
 
     def _remove_overwriting_verion(self):
         try:
-            output("source ./PKGBUILD; type pkgvers &> /dev/null")
+            output("source ./PKGBUILD; type pkgver &> /dev/null")
 
             search = False
             for line in edit_file("PKGBUILD"):
-                if line.startswith("pkgver() {"):
+                if line.startswith("pkgver()"):
                     search = True
                     continue
                 elif search is True:
@@ -317,3 +317,4 @@ def register():
     container.register("repository.synchronize", repository.synchronize)
     container.register("repository.create_database", repository.create_database)
     container.register("repository.deploy", repository.deploy)
+
