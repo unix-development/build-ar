@@ -22,3 +22,10 @@ def git_remote_path():
         .replace('https://', '') \
         .replace('http://', '') \
         .replace('git://', '')
+
+def extract(module, name):
+    command = "echo $(source %s; echo ${%s[@]})" % (module + "/PKGBUILD", name)
+    process = subprocess.Popen(command, stdout=subprocess.PIPE, shell=True, executable="/bin/bash")
+    output, error = process.communicate()
+
+    return output.strip().decode("UTF-8")
