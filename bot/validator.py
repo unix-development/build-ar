@@ -11,10 +11,9 @@ import secrets
 import platform
 import requests
 
-from utils.git import git_remote_path
-from utils.terminal import output
-from utils.validator import validate
 from core.container import return_self
+from utils.process import output, git_remote_path
+from utils.validator import validate
 
 
 class Validator():

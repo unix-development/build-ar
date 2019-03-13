@@ -9,11 +9,11 @@ import shutil
 import subprocess
 
 from datetime import datetime
-from utils.git import git_remote_path
-from utils.editor import edit_file, replace_ending, extract
-from utils.terminal import output, title, bold, execute
-from utils.validator import validate
 from core.container import return_self
+from utils.editor import edit_file, replace_ending
+from utils.process import output, execute, git_remote_path, extract
+from utils.style import title, bold
+from utils.validator import validate
 
 
 class Repository():

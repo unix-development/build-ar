@@ -5,8 +5,8 @@ import os
 import base64
 
 from time import strftime, gmtime
-from utils.git import git_remote_path
-from utils.editor import edit_file, extract
+from utils.editor import edit_file
+from utils.process import git_remote_path, extract
 
 
 class Interface():
