@@ -2,11 +2,11 @@
 # -*- coding:utf-8 -*-
 
 import os
+import base64
 
 from time import strftime, gmtime
 from utils.git import git_remote_path
 from utils.editor import edit_file, extract
-from utils.interface import get_compressed_file, get_base64
 
 
 class Interface():
@@ -111,3 +111,11 @@ class Interface():
 def register():
     interface = Interface()
     container.register("interface.create", interface.create)
+
+def get_base64(path):
+    with open(path, 'rb') as f:
+        return base64.b64encode(f.read()).decode('utf8')
+
+def get_compressed_file(path):
+    with open(path) as f:
+        return " ".join(f.read().split())
