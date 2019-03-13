@@ -16,6 +16,12 @@ def execute(commands):
         except OSError as error:
             sys.exit(error)
 
+def git_remote_path():
+    return output('git remote get-url origin') \
+        .replace('https://', '') \
+        .replace('http://', '') \
+        .replace('git://', '')
+
 def title(text):
     column = int(output("tput cols")) - 4
     line = "── %s " % text.capitalize()
