@@ -11,7 +11,7 @@ import subprocess
 from datetime import datetime
 from core.container import return_self
 from utils.editor import edit_file, replace_ending
-from utils.process import output, execute, git_remote_path, extract
+from utils.process import output, strict_execute, git_remote_path, extract
 from utils.style import title, bold
 from utils.validator import validate
 
@@ -39,14 +39,14 @@ class Repository():
 
         print(title(text("content.repository.database")) + "\n")
 
-        execute("""
-        rm -f {path}/{database}.db
-        rm -f {path}/{database}.old
-        rm -f {path}/{database}.files
-        rm -f {path}/{database}.db.tar.gz
-        rm -f {path}/{database}.files.tar.gz
-        rm -f {path}/{database}.files.tar.gz.old
-        repo-add --nocolor {path}/{database}.db.tar.gz {path}/*.pkg.tar.xz
+        strict_execute("""
+        rm -f {path}/{database}.db;
+        rm -f {path}/{database}.old;
+        rm -f {path}/{database}.files;
+        rm -f {path}/{database}.db.tar.gz;
+        rm -f {path}/{database}.files.tar.gz;
+        rm -f {path}/{database}.files.tar.gz.old;
+        repo-add --nocolor {path}/{database}.db.tar.gz {path}/*.pkg.tar.xz;
         """.format(
             database=config.database,
             path=app.mirror
@@ -57,7 +57,7 @@ class Repository():
 
         print(title(text("content.repository.deploy.ssh")) + "\n")
 
-        execute(f"""
+        strict_execute(f"""
         rsync \
             -avz \
             --update \
@@ -69,7 +69,7 @@ class Repository():
 
         if app.is_travis:
             print(title(text("content.repository.deploy.git")) + "\n")
-            execute("git push https://${GITHUB_TOKEN}@%s HEAD:master" % git_remote_path())
+            strict_execute("git push https://${GITHUB_TOKEN}@%s HEAD:master" % git_remote_path())
 
     def set_package_checked(self, name):
         with open(f"{app.mirror}/packages_checked", "a+") as f:
@@ -192,26 +192,26 @@ class Package():
     def _build(self):
         print(bold(text("content.repository.build")))
 
-        execute([
-            "makepkg \
-                --clean \
-                --install \
-                --nocheck \
-                --nocolor \
-                --noconfirm \
-                --skipinteg \
-                --syncdeps",
-            "mv *.pkg.tar.xz " + app.mirror
-        ]);
+        strict_execute(f"""
+        makepkg \
+            --clean \
+            --install \
+            --nocheck \
+            --nocolor \
+            --noconfirm \
+            --skipinteg \
+            --syncdeps;
+        mv *.pkg.tar.xz {app.mirror}
+        """);
 
     def _commit(self):
         if output("git status . --porcelain | sed s/^...//") and app.is_travis:
             print(bold(text("content.repository.commit")))
 
-            execute([
-                "git add .",
-                "git commit -m \"Bot: Add last update into " + self.name + " package ~ version " + self._version + "\""
-            ])
+            strict_execute(f"""
+            git add .;
+            git commit -m "Bot: Add last update into {self.name} package ~ version {self._version}";
+            """)
 
     def _verify_dependencies(self):
         redirect = False
@@ -264,12 +264,12 @@ class Package():
     def _pull(self):
         print(bold(text("content.repository.pull")))
 
-        execute([
-            "git init --quiet",
-            "git remote add origin " + self.module.source,
-            "git pull origin master",
-            "rm -rf .git"
-        ])
+        strict_execute("""
+        git init --quiet;
+        git remote add origin {self.module.source};
+        git pull origin master;
+        rm -rf .git;
+        """)
 
         if os.path.isfile(".SRCINFO"):
             os.remove(".SRCINFO")
