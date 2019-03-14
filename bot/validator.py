@@ -11,46 +11,37 @@ import secrets
 import platform
 import requests
 
-from core.container import fluent
-from utils.git import git_remote_path
-from utils.terminal import output
+from core.container import return_self
+from utils.process import output, git_remote_path
 from utils.validator import validate
-
-def register(container):
-    container.register("validator.requirements", requirements)
-    container.register("validator.repository", repository)
-    container.register("validator.content", content)
-    container.register("validator.travis", travis)
-    container.register("validator.connection", connection)
-    container.register("validator.files", files)
 
 
 class Validator():
-    @fluent
+    @return_self
     def user_privileges(self):
         validate(
-            error=_("exception.validator.root"),
-            target=_("content.validator.root"),
+            error=text("exception.validator.root"),
+            target=text("content.validator.root"),
             valid=os.getuid() != 0
         )
 
-    @fluent
+    @return_self
     def is_docker_image(self):
         validate(
-            error=_("exception.validator.docker"),
-            target=_("content.validator.docker"),
+            error=text("exception.validator.docker"),
+            target=text("content.validator.docker"),
             valid=os.environ.get("IS_DOCKER", False)
         )
 
-    @fluent
+    @return_self
     def operating_system(self):
         validate(
-            error=_("exception.validator.os"),
-            target=_("content.validator.os"),
+            error=text("exception.validator.os"),
+            target=text("content.validator.os"),
             valid=platform.dist()[0] == "arch"
         )
 
-    @fluent
+    @return_self
     def internet_up(self):
         try:
             socket.create_connection(("www.github.com", 80))
@@ -59,95 +50,111 @@ class Validator():
             connected = False
 
         validate(
-            error=_("exception.validator.internet"),
-            target=_("content.validator.internet"),
+            error=text("exception.validator.internet"),
+            target=text("content.validator.internet"),
             valid=connected
         )
 
-    @fluent
+    @return_self
     def deploy_key(self):
         validate(
-            error=_("exception.validator.deploy_key"),
+            error=text("exception.validator.deploy_key"),
             target="deploy_key",
-            valid=os.path.isfile(path("base") + "/deploy_key")
+            valid=os.path.isfile(app.base + "/deploy_key")
         )
 
-    @fluent
+    @return_self
     def deploy_key_encrypted(self):
         validate(
-            error=_("exception.validator.deploy_key.enc"),
+            error=text("exception.validator.deploy_key.enc"),
             target="deploy_key.enc",
-            valid=os.path.isfile(path("base") + "/deploy_key.enc")
+            valid=os.path.isfile(app.base + "/deploy_key.enc")
         )
 
-    @fluent
+    @return_self
     def ssh_connection(self):
         script = "ssh -i ./deploy_key -p %i -q %s@%s [[ -d %s ]] && echo 1 || echo 0" % (
-            repo("ssh.port"),
-            repo("ssh.user"),
-            repo("ssh.host"),
-            repo("ssh.path")
+            config.ssh.port,
+            config.ssh.user,
+            config.ssh.host,
+            config.ssh.path
         )
 
         validate(
-            error=_("exception.validator.ssh.connection"),
-            target=_("content.validator.ssh.connection"),
+            error=text("exception.validator.ssh.connection"),
+            target=text("content.validator.ssh.connection"),
             valid=output(script) is "1"
         )
 
-    @fluent
+    @return_self
     def mirror_connection(self):
-        url = repo("url")
+        ssh = config.ssh
         token = secrets.token_hex(15)
-        source = path("mirror") + "/validation_token"
+        source = f"{app.mirror}/validation_token"
 
         with open(source, "w") as f:
             f.write(token)
             f.close()
 
         os.system("rsync -aqvz -e 'ssh -i ./deploy_key -p %i' %s %s@%s:%s" % (
-            repo("ssh.port"), source, repo("ssh.user"), repo("ssh.host"), repo("ssh.path")))
+            ssh.port, source, ssh.user, ssh.host, ssh.path)
+        )
 
         try:
-            response = requests.get(url + "/validation_token")
+            response = requests.get(config.url + "/validation_token")
             valid = True if response.status_code == 200 else False
         except:
             valid = False
 
         validate(
-            error=_("exception.validator.mirror.connection") % url,
-            target=_("content.validator.mirror.connection"),
+            error=text("exception.validator.mirror.connection") % config.url,
+            target=text("content.validator.mirror.connection"),
             valid=valid
         )
 
-    @fluent
+    @return_self
     def repository(self):
         valid = True
+        repository = {
+            "url": config.url,
+            "database": config.database,
+            "git email": config.git.email,
+            "git name": config.git.name,
+            "ssh host": config.ssh.host,
+            "ssh path": config.ssh.path,
+            "ssh port": config.ssh.port
+        }
 
-        for name in ["database", "git.email", "git.name", "ssh.host", "ssh.path", "ssh.port", "url"]:
-            if not repo(name):
+        for name in repository:
+            if not repository[name]:
                 valid = False
                 break
 
-        name = name.replace(".", " ")
-
         validate(
-            error=_("exception.validator.repository") % name,
-            target=_("content.validator.repository"),
+            error=text("exception.validator.repository") % name,
+            target=text("content.validator.repository"),
             valid=valid
         )
 
-    @fluent
-    def port(self):
+    @return_self
+    def database(self):
         validate(
-            error=_("exception.validator.ssh.port"),
-            target=_("content.validator.ssh.port"),
-            valid=type(repo("ssh.port")) == int
+            error=text("exception.validator.database"),
+            target=text("content.validator.database"),
+            valid=config.database not in [ "core", "extra", "community" ]
         )
 
-    @fluent
+    @return_self
+    def port(self):
+        validate(
+            error=text("exception.validator.ssh.port"),
+            target=text("content.validator.ssh.port"),
+            valid=type(config.ssh.port) == int
+        )
+
+    @return_self
     def travis_github_token(self):
-        if app("is_travis") is False:
+        if app.is_travis is False:
             return
 
         valid = False
@@ -159,20 +166,20 @@ class Validator():
             valid = True
 
         validate(
-            error=_("exception.validator.travis.github.token"),
-            target=_("content.validator.travis.github.token"),
+            error=text("exception.validator.travis.github.token"),
+            target=text("content.validator.travis.github.token"),
             valid=valid
         )
 
-    @fluent
+    @return_self
     def travis_lint(self, content):
         validate(
-            error=_("exception.validator.travis.lint"),
-            target=_("content.validator.travis.lint"),
+            error=text("exception.validator.travis.lint"),
+            target=text("content.validator.travis.lint"),
             valid=type(content) is dict
         )
 
-    @fluent
+    @return_self
     def travis_openssl(self, content):
         valid = False
 
@@ -182,12 +189,12 @@ class Validator():
                     valid = True
 
         validate(
-            error=_("exception.validator.travis.openssl"),
-            target=_("content.validator.travis.openssl"),
+            error=text("exception.validator.travis.openssl"),
+            target=text("content.validator.travis.openssl"),
             valid=valid
         )
 
-    @fluent
+    @return_self
     def travis_variable(self, content):
         valid = False
         environment = None
@@ -206,33 +213,41 @@ class Validator():
                 valid = True
 
         validate(
-            error=_("exception.validator.travis.variable"),
-            target=_("content.validator.travis.variable"),
+            error=text("exception.validator.travis.variable"),
+            target=text("content.validator.travis.variable"),
             valid=valid
         )
 
-    @fluent
+    @return_self
     def pkg_directory(self):
         validate(
-            error=_("exception.validator.pkg.directory"),
-            target=_("content.validator.pkg.directory"),
-            valid=len(app("packages")) > 0
+            error=text("exception.validator.pkg.directory"),
+            target=text("content.validator.pkg.directory"),
+            valid=len(app.packages) > 0
         )
 
-    @fluent
+    @return_self
     def pkg_content(self):
-        folders = [f.name for f in os.scandir(path("pkg")) if f.is_dir()]
-        diff = set(folders) - set(app("packages"))
+        folders = [f.name for f in os.scandir(app.pkg) if f.is_dir()]
+        diff = set(folders) - set(app.packages)
 
         validate(
-            error=_("exception.validator.pkg.content") % (", ".join(diff)),
-            target=_("content.validator.pkg.content"),
+            error=text("exception.validator.pkg.content") % (", ".join(diff)),
+            target=text("content.validator.pkg.content"),
             valid=len(diff) == 0
         )
 
 
+def register():
+    container.register("validator.requirements", requirements)
+    container.register("validator.repository", repository)
+    container.register("validator.content", content)
+    container.register("validator.travis", travis)
+    container.register("validator.connection", connection)
+    container.register("validator.files", files)
+
 def requirements():
-    print(_("content.validator.title.requirements"))
+    print(text("content.validator.title.requirements"))
 
     (validator
         .user_privileges()
@@ -241,21 +256,22 @@ def requirements():
         .internet_up())
 
 def files():
-    print(_("content.validator.title.files"))
+    print(text("content.validator.title.files"))
 
     (validator
         .deploy_key_encrypted()
         .deploy_key())
 
 def repository():
-    print(_("content.validator.title.repository"))
+    print(text("content.validator.title.repository"))
 
     (validator
        .repository()
+       .database()
        .port())
 
 def connection():
-    print(_("content.validator.title.connection"))
+    print(text("content.validator.title.connection"))
 
     (validator
         .ssh_connection()
@@ -263,14 +279,14 @@ def connection():
         .travis_github_token())
 
 def content():
-    print(_("content.validator.title.packages"))
+    print(text("content.validator.title.packages"))
 
     (validator
         .pkg_directory()
         .pkg_content())
 
 def travis():
-    print(_("content.validator.title.travis"))
+    print(text("content.validator.title.travis"))
 
     with open(".travis.yml", "r") as stream:
         try:

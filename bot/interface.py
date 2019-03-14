@@ -2,97 +2,120 @@
 # -*- coding:utf-8 -*-
 
 import os
-import time
+import base64
 
-from utils.git import git_remote_path
-from utils.editor import edit_file, extract
-from utils.interface import get_compressed_file, get_base64
+from time import strftime, gmtime
+from utils.editor import edit_file
+from utils.process import git_remote_path, extract
 
-def register(container):
-    container.register("interface.build", build)
 
-def build():
-    path_mirror = path("mirror")
-    path_pkg = path("pkg")
-
+class Interface():
     table = ""
-    content = (
-        "<tr>"
-            "<td><a href=\"$path\">$name</a></td>"
-            "<td>$version</td>"
-            "<td>$date</td>"
-            "<td>$description</td>"
-        "</tr>"
-    )
+    content = """
+    <tr>
+        <td><a href="$path">$name</a></td>
+        <td>$version</td>
+        <td>$date</td>
+        <td>$description</td>
+    </tr>
+    """
 
-    for package in app("packages"):
-        module = path_pkg + "/" + package
+    def create(self):
+        for package in app.packages:
+            module = app.pkg + "/" + package
+            schema = self.get_schema(module)
+            build = self.get_package_file(package, schema)
 
-        try:
-            open(module + "/PKGBUILD")
-        except FileNotFoundError:
-            return
+            if build:
+                date = self.get_time_file(build)
+                version = schema["version"]
+                description = schema["description"]
 
-        description = extract(module, "pkgdesc")
-        version = extract(module, "pkgver")
-        name = extract(module, "pkgname")
-
-        for name in name.split(" "):
-            for location in os.listdir(path_mirror):
-                if location.startswith(package + "-" + version + "-"):
-                    date = time.strftime("%d %h %Y",
-                        time.gmtime(os.path.getmtime(path_mirror + "/" + location)))
-
-                    table += (content
-                        .replace("$path", location)
+                for name in schema["name"].split(" "):
+                    description = self.get_description(package, name, description)
+                    self.table += (self.content
+                        .replace("$path", build)
                         .replace("$name", name)
                         .replace("$date", date)
                         .replace("$version", version)
-                        .replace("$description",
-                            description if description != "" else get_description(module, name)
-                        ))
+                        .replace("$description", description)
+                    )
 
-    move_to_mirror()
-    replace_variables(table)
-    compress()
+        self.move_to_mirror()
+        self.replace_variables()
+        self.compress()
 
-def get_description(module, name):
-    with open(module + "/PKGBUILD") as f:
+    def get_time_file(self, name):
+        path = app.mirror + "/" + name
+        return strftime("%d %h %Y", gmtime(os.path.getmtime(path)))
+
+    def get_schema(self, path):
+        if not os.path.isfile(path + "/PKGBUILD"):
+            return
+
+        return dict(
+            description=extract(path, "pkgdesc"),
+            version=extract(path, "pkgver"),
+            name=extract(path, "pkgname")
+        )
+
+    def get_package_file(self, name, schema):
+        path = name + "-" + schema["version"] + "-"
+
+        for location in os.listdir(app.mirror):
+            if location.startswith(path):
+                return location
+
+    def get_description(self, package, name, default):
         search = False
-        for cnt, line in enumerate(f):
-            line = line.strip()
+        description = default
 
+        for line in open(f"{app.pkg}/{package}/PKGBUILD"):
+            line = line.strip()
             if line.startswith("package_" + name + "()"):
                 search = True
+            elif line.startswith("pkgdesc=") and search:
+                description = line.replace("pkgdesc=", "")[1:-1]
+                break
 
-            if search and line.startswith("pkgdesc="):
-                return line.replace("pkgdesc=", "")[1:-1]
+        return description
 
-    return ""
+    def move_to_mirror(self):
+        os.system(f"cp {app.www}/index.html {app.mirror}")
 
-def move_to_mirror():
-    os.system("cp " + path("www") + "/index.html " + path("mirror"))
+    def replace_variables(self):
+        remote_path = 'https://' + git_remote_path().rstrip('.git')
 
-def replace_variables(table):
-    remote_path = 'https://' + git_remote_path().rstrip('.git')
+        for line in edit_file(app.mirror + "/index.html"):
+            line = (line
+                .replace("$content", self.table)
+                .replace("$path", config.url)
+                .replace("$database", config.database)
+                .replace("$remote_path", remote_path)
+                .replace("images/logo.png", "data:image/png;base64," + get_base64(app.www + "/images/logo.png")))
 
-    for line in edit_file(path("mirror") + "/index.html"):
-        line = (line
-            .replace("$content", table)
-            .replace("$path", repo("url"))
-            .replace("$database", repo("database"))
-            .replace("$remote_path", remote_path)
-            .replace("images/logo.png", "data:image/png;base64," + get_base64(path("www") + "/images/logo.png")))
+            if line.strip() == "<link rel=\"stylesheet\" href=\"css/main.css\">":
+                line = "<style type=\"text/css\">"
+                line += get_compressed_file(app.www + "/css/main.css")
+                line += "</style>"
 
-        if line.strip() == "<link rel=\"stylesheet\" href=\"css/main.css\">":
-            line = "<style type=\"text/css\">"
-            line += get_compressed_file(path("www") + "/css/main.css")
-            line += "</style>"
+            print(line)
 
-        print(line)
+    def compress(self):
+        content = get_compressed_file(app.mirror + "/index.html")
 
-def compress():
-    content = get_compressed_file(path("mirror") + "/index.html")
+        with open(app.mirror + "/index.html", "w") as f:
+            f.write(content)
 
-    with open(path("mirror") + "/index.html", "w") as f:
-        f.write(content)
+
+def register():
+    interface = Interface()
+    container.register("interface.create", interface.create)
+
+def get_base64(path):
+    with open(path, 'rb') as f:
+        return base64.b64encode(f.read()).decode('utf8')
+
+def get_compressed_file(path):
+    with open(path) as f:
+        return " ".join(f.read().split())

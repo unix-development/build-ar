@@ -1,8 +1,14 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-from core.container import container
 from core.runner import runner
+from core.container import container
+
+import core.contextual
+import environment
+import interface
+import repository
+import validator
 
 container.bootstrap([
     "core.contextual",
@@ -32,9 +38,10 @@ runner.set("build", [
     "validator.content",
     "environment.prepare_git",
     "environment.prepare_pacman",
+    "environment.clean_mirror",
     "repository.synchronize",
     "repository.create_database",
-    "interface.build",
+    "interface.create",
     "repository.deploy"
 ])
 

@@ -3,59 +3,58 @@
 
 import sys
 import functools
+import collections
 
-class Container():
-    instances = dict()
 
-    def register(self, abstract, instance):
-        self.instances[abstract] = instance
+class Instances(collections.defaultdict):
+    def __init__(self):
+        super(Instances, self).__init__(Instances)
+
+    def __getattr__(self, abstract):
+        try:
+            return self[abstract]
+        except KeyError:
+            raise AttributeError(abstract)
+
+    def __setattr__(self, abstract, value):
+        self[abstract] = value
+
+
+class Container(object):
+    def __init__(self):
+        self.bindings = dict()
+        self.instances = Instances()
 
     def run(self):
-        functions = self.get("runner").get()
+        functions = self.bindings["runner"].get()
         for name in functions:
-            self.get(name)()
+            self.bindings[name]()
 
-    def get(self, abstract):
-        return self.instances[abstract]
+    def register(self, abstract, value):
+        self.bindings[abstract] = value
 
     def bootstrap(self, bootstrappers):
         for bootstrap in bootstrappers:
             __import__(bootstrap)
-
             module = sys.modules[bootstrap]
-            module.app = app
-            module.path = path
-            module.repo = repo
-            module._ = text
+            module.app = self.instances
+            module.config = self.instances.config
+            module.text = self._text
+            module.container = self
+            module.register()
 
-            module.register(self)
+    def _text(self, abstract):
+        keys = abstract.split(".", 1)
+        return self.instances.text[keys[0]][keys[1]]
 
-def text(abstract):
-    keys = abstract.split(".", 1)
-    texts = container.get("text")
 
-    return texts[keys[0]][keys[1]]
-
-def fluent(func):
-    @functools.wraps(func)
-    def wrapped(*args, **kwargs):
+def return_self(method):
+    @functools.wraps(method)
+    def enforced_method(*args, **kwargs):
         self = args[0]
-        func(*args, **kwargs)
+        method(*args, **kwargs)
         return self
 
-    return wrapped
-
-def app(abstract):
-    return container.get(abstract)
-
-def path(abstract):
-    return container.get("path." + abstract)
-
-def repo(abstract):
-    value = container.get("repository")
-    for key in abstract.split('.'):
-        value = value[key]
-
-    return value
+    return enforced_method
 
 container = Container()

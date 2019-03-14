@@ -2,56 +2,94 @@
 # -*- coding:utf-8 -*-
 
 import os
+import textwrap
+import subprocess
 
-def register(container):
-    container.register("environment.prepare_git", prepare_git)
-    container.register("environment.prepare_mirror", prepare_mirror)
-    container.register("environment.prepare_pacman", prepare_pacman)
-    container.register("environment.prepare_ssh", prepare_ssh)
+from utils.process import output
 
-def execute(scripts):
-    os.system("(" + scripts + ") &>/dev/null")
 
-def prepare_mirror():
-    execute("chmod 777 %s/mirror" % path("base"))
+class Environment(object):
+    def prepare_mirror(self):
+        self._execute("chmod 777 " + app.mirror)
 
-def prepare_git():
-    email = repo("git.email")
-    name = repo("git.name")
+    def prepare_git(self):
+        self._execute(
+            "git config user.email '%s'; " % config.git.email +
+            "git config user.name '%s'" % config.git.name
+        )
 
-    execute(
-        "git config user.email '%s'; " % email +
-        "git config user.name '%s';" % name)
+    def prepare_ssh(self):
+        self._execute(
+            "eval $(ssh-agent); " +
+            "chmod 600 ./deploy_key; " +
+            "ssh-add ./deploy_key; " +
+            "mkdir -p ~/.ssh; " +
+            "chmod 0700 ~/.ssh; " +
+            "ssh-keyscan -t rsa -H %s >> ~/.ssh/known_hosts; "
+            % config.ssh.host
+        )
 
-def prepare_ssh():
-    host = repo("ssh.host")
-    path_base = path("base")
+    def prepare_pacman(self):
+        content = (f"""
+        [{config.database}]
+        SigLevel = Optional TrustedOnly
+        Server = file:///{app.mirror}
+        """)
 
-    execute(
-        "eval $(ssh-agent); " +
-        "chmod 600 %s/deploy_key; " % path_base +
-        "ssh-add %s/deploy_key; " % path_base +
-        "mkdir -p ~/.ssh; " +
-        "chmod 0700 ~/.ssh; " +
-        "ssh-keyscan -t rsa -H %s >> ~/.ssh/known_hosts; " % host
-    )
+        if os.path.exists(f"{app.mirror}/{config.database}.db"):
+            with open("/etc/pacman.conf", "a+") as fp:
+                fp.write(textwrap.dedent(content))
 
-def prepare_pacman():
-    database = repo("database")
-    path_base = path("base")
+        self._execute("sudo pacman -Sy")
 
-    if os.path.exists(path_base + "/mirror/" + database + ".db"):
-        with open("/etc/pacman.conf", "r+") as file:
-            for line in file:
-                if line.strip() == "[%s]" % database:
-                   break
-                else:
-                    content = [
-                        "[%s]" % database,
-                        "SigLevel = Optional TrustedOnly",
-                        "Server = file:///%s/mirror" % path_base
-                    ]
+    def clean_mirror(self):
+        if not os.path.exists(f"{app.mirror}/{config.database}.db"):
+            return
 
-                    file.write("\n".join(content))
+        database = output(f"pacman -Sl {config.database}")
+        files = self._get_mirror_packages()
+        packages = []
 
-    execute("sudo pacman -Sy --noconfirm")
+        for package in database.split("\n"):
+            split = package.split(" ")
+            packages.append(split[1] + "-" + split[2] + "-")
+
+        for fp in files:
+            if self._in_mirror(packages, fp) is False:
+                os.remove(app.mirror + "/" + fp)
+
+    def _in_mirror(self, packages, fp):
+        for package in packages:
+            if fp.startswith(package):
+                return True
+
+        return False
+
+    def _get_mirror_packages(self):
+        packages = []
+        for root, dirs, files in os.walk(app.mirror):
+            for fp in files:
+                if not fp.endswith(".tar.xz"):
+                    continue
+
+                packages.append(fp)
+
+        return packages
+
+    def _execute(self, commands):
+        subprocess.run(
+            commands,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True
+        )
+
+
+def register():
+    environment = Environment()
+
+    container.register("environment.prepare_git", environment.prepare_git)
+    container.register("environment.prepare_mirror", environment.prepare_mirror)
+    container.register("environment.prepare_pacman", environment.prepare_pacman)
+    container.register("environment.prepare_ssh", environment.prepare_ssh)
+    container.register("environment.clean_mirror", environment.clean_mirror)
