@@ -187,8 +187,9 @@ class Package():
             self._commit()
             self._build()
 
-            repository.set_package_checked(self.name)
             repository.packages_updated.append(self.name)
+
+        repository.set_package_checked(self.name)
 
     def _build(self):
         print(bold(text("content.repository.build")))
