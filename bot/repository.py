@@ -194,7 +194,7 @@ class Package():
             self._commit()
             self._build()
 
-            repository.packages_updated.append(self.name)
+            repository.packages_updated += self._name.split(" ")
 
         repository.set_package_checked(self.name)
 
