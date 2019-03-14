@@ -21,6 +21,8 @@ class Interface():
     """
 
     def create(self):
+        app.packages.sort()
+
         for package in app.packages:
             module = app.pkg + "/" + package
 
