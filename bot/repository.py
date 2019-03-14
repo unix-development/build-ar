@@ -66,11 +66,12 @@ class Repository():
             --archive \
             --compress \
             --copy-links \
-            --delete-after \
+            --delete \
+            --recursive \
             --update \
             --verbose \
             --progress -e 'ssh -i {app.base}/deploy_key -p {config.ssh.port}' \
-            {app.mirror}/* \
+            {app.mirror}/ \
             {config.ssh.user}@{config.ssh.host}:{config.ssh.path}
         """)
 
