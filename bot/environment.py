@@ -40,7 +40,7 @@ class Environment(object):
             with open("/etc/pacman.conf", "a+") as fp:
                 fp.write(textwrap.dedent(content))
 
-        os.system("sudo pacman -Sy")
+        self._execute("sudo pacman -Sy")
 
     def clean_mirror(self):
         if not os.path.exists(f"{app.mirror}/{config.database}.db"):
