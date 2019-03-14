@@ -56,16 +56,16 @@ class Repository():
         print(title(text("content.repository.deploy.ssh")) + "\n")
 
         strict_execute(f"""
-        rsync
-            --archive
-            --compress
-            --copy-links
-            --delete
-            --ignore-existing
-            --verbose
-            --progress -e 'ssh -i {app.base}/deploy_key -p {config.ssh.port}'
-        {app.mirror}/*
-        {config.ssh.user}@{config.ssh.host}:{config.ssh.path}
+        rsync \
+            --archive \
+            --compress \
+            --copy-links \
+            --delete \
+            --ignore-existing \
+            --verbose \
+            --progress -e 'ssh -i {app.base}/deploy_key -p {config.ssh.port}' \
+            {app.mirror}/* \
+            {config.ssh.user}@{config.ssh.host}:{config.ssh.path}
         """)
 
         if app.is_travis:
