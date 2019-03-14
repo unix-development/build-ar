@@ -1,4 +1,3 @@
-
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
@@ -39,6 +38,7 @@ runner.set("build", [
     "validator.content",
     "environment.prepare_git",
     "environment.prepare_pacman",
+    "environment.clean_mirror",
     "repository.synchronize",
     "repository.create_database",
     "interface.create",
