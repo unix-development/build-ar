@@ -23,6 +23,12 @@ class Interface():
     def create(self):
         for package in app.packages:
             module = app.pkg + "/" + package
+
+            try:
+                open(module + "/PKGBUILD")
+            except FileNotFoundError:
+                continue
+
             schema = self.get_schema(module)
             build = self.get_package_file(package, schema)
 
