@@ -224,6 +224,10 @@ class Package():
     def _verify_dependencies(self):
         redirect = False
 
+        self.depends = extract(self._location, "depends")
+        self.makedepends = extract(self._location, "makedepends")
+        self._dependencies = (self.depends + " " + self.makedepends).strip()
+
         if self._dependencies == "":
             return
 
@@ -288,8 +292,6 @@ class Package():
     def _set_variables(self):
         self._version = extract(self._location, "pkgver")
         self._name = extract(self._location, "pkgname")
-        self.depends = extract(self._location, "depends")
-        self.makedepends = extract(self._location, "makedepends")
 
     def _validate_config(self):
         print(bold(text("content.repository.validate.config")))
