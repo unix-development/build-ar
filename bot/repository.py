@@ -264,7 +264,7 @@ class Package():
     def _pull(self):
         print(bold(text("content.repository.pull")))
 
-        strict_execute("""
+        strict_execute(f"""
         git init --quiet;
         git remote add origin {self.module.source};
         git pull origin master;
