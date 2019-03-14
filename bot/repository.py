@@ -224,6 +224,9 @@ class Package():
     def _verify_dependencies(self):
         redirect = False
 
+        if self._dependencies == "":
+            return
+
         for dependency in self._dependencies.split(" "):
             try:
                 output("pacman -Sp " + dependency + " &>/dev/null")
@@ -287,7 +290,6 @@ class Package():
         self._name = extract(self._location, "pkgname")
         self.depends = extract(self._location, "depends")
         self.makedepends = extract(self._location, "makedepends")
-        self._dependencies = (self.depends + " " + self.makedepends).strip()
 
     def _validate_config(self):
         print(bold(text("content.repository.validate.config")))
