@@ -3,6 +3,7 @@
 
 import sys
 
+
 class validate():
     def __init__(self, **parameters):
         target = parameters["target"]
