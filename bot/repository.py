@@ -60,7 +60,7 @@ class Repository():
             --archive \
             --compress \
             --copy-links \
-            --delete \
+            --delete-after \
             --update \
             --verbose \
             --progress -e 'ssh -i {app.base}/deploy_key -p {config.ssh.port}' \
