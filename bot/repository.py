@@ -40,13 +40,11 @@ class Repository():
         print(title(text("content.repository.database")) + "\n")
 
         strict_execute("""
-        rm -f {path}/{database}.db;
         rm -f {path}/{database}.old;
         rm -f {path}/{database}.files;
-        rm -f {path}/{database}.db.tar.gz;
         rm -f {path}/{database}.files.tar.gz;
         rm -f {path}/{database}.files.tar.gz.old;
-        repo-add --nocolor {path}/{database}.db.tar.gz {path}/*.pkg.tar.xz;
+        repo-add --nocolor --new {path}/{database}.db.tar.gz {path}/*.pkg.tar.xz;
         """.format(
             database=config.database,
             path=app.mirror
