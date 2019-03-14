@@ -5,6 +5,8 @@ import os
 import textwrap
 import subprocess
 
+from utils.process import output
+
 
 class Environment(object):
     def prepare_mirror(self):
@@ -38,7 +40,41 @@ class Environment(object):
             with open("/etc/pacman.conf", "a+") as fp:
                 fp.write(textwrap.dedent(content))
 
-        self._execute("sudo pacman -Sy")
+        os.system("sudo pacman -Sy")
+
+    def clean_mirror(self):
+        if not os.path.exists(f"{app.mirror}/{config.database}.db"):
+            return
+
+        database = output(f"pacman -Sl {config.database}")
+        files = self._get_mirror_packages()
+        packages = []
+
+        for package in database.split("\n"):
+            split = package.split(" ")
+            packages.append(split[1] + "-" + split[2] + "-")
+
+        for fp in files:
+            if self._in_mirror(packages, fp) is False:
+                os.remove(app.mirror + "/" + fp)
+
+    def _in_mirror(self, packages, fp):
+        for package in packages:
+            if fp.startswith(package):
+                return True
+
+        return False
+
+    def _get_mirror_packages(self):
+        packages = []
+        for root, dirs, files in os.walk(app.mirror):
+            for fp in files:
+                if not fp.endswith(".tar.xz"):
+                    continue
+
+                packages.append(fp)
+
+        return packages
 
     def _execute(self, commands):
         subprocess.run(
@@ -56,3 +92,4 @@ def register():
     container.register("environment.prepare_mirror", environment.prepare_mirror)
     container.register("environment.prepare_pacman", environment.prepare_pacman)
     container.register("environment.prepare_ssh", environment.prepare_ssh)
+    container.register("environment.clean_mirror", environment.clean_mirror)
