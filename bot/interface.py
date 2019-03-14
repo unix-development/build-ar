@@ -30,15 +30,16 @@ class Interface():
                 continue
 
             schema = self.get_schema(module)
-            build = self.get_package_file(package, schema)
+            version = schema["version"]
+            description = schema["description"]
 
-            if build:
-                date = self.get_time_file(build)
-                version = schema["version"]
-                description = schema["description"]
+            for name in schema["name"].split(" "):
+                build = self.get_package_file(name, schema)
 
-                for name in schema["name"].split(" "):
+                if build:
+                    date = self.get_time_file(build)
                     description = self.get_description(package, name, description)
+
                     self.table += (self.content
                         .replace("$path", build)
                         .replace("$name", name)
