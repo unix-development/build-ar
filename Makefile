@@ -23,6 +23,7 @@ test:
 		python bot validate
 
 update:
+	@git remote rm upstream
 	@git remote add upstream https://github.com/unix-development/build-your-own-archlinux-repository
 	@git fetch upstream
 	@git pull upstream master
