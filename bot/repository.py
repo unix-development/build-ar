@@ -51,7 +51,7 @@ class Repository():
 
         for package in self.packages_updated:
             strict_execute(f"""
-            repo-add --nocolor --new \
+            repo-add --nocolor \
                 {app.mirror}/{config.database}.db.tar.gz \
                 {app.mirror}/{package}-*.pkg.tar.xz
             """)
