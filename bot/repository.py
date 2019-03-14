@@ -61,7 +61,7 @@ class Repository():
             --compress \
             --copy-links \
             --delete \
-            --ignore-existing \
+            --update \
             --verbose \
             --progress -e 'ssh -i {app.base}/deploy_key -p {config.ssh.port}' \
             {app.mirror}/* \
