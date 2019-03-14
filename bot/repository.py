@@ -44,11 +44,17 @@ class Repository():
         rm -f {path}/{database}.files;
         rm -f {path}/{database}.files.tar.gz;
         rm -f {path}/{database}.files.tar.gz.old;
-        repo-add --nocolor --new {path}/{database}.db.tar.gz {path}/*.pkg.tar.xz;
         """.format(
             database=config.database,
             path=app.mirror
         ))
+
+        for package in self.packages_updated:
+            strict_execute(f"""
+            repo-add --nocolor --new \
+                {app.mirror}/{config.database}.db.tar.gz \
+                {app.mirror}/{package}-*.pkg.tar.xz
+            """)
 
     def deploy(self):
         if len(self.packages_updated) == 0: return
