@@ -175,14 +175,15 @@ class Package():
         self._validate_config()
         self._pull()
         self._set_variables()
+
+        if "pre_build" in dir(self.module):
+            self.module.pre_build()
+
         self._validate_build()
         self._make()
 
     def _make(self):
         self._remove_overwriting_verion()
-
-        if "pre_build" in dir(self.module):
-            self.module.pre_build()
 
         if self._has_new_version() or self._is_dependency:
             self.updated = True
