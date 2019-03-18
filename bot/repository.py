@@ -217,9 +217,9 @@ class Package():
         if app.is_travis is False:
             return
 
-        if output("git status . --porcelain | sed s/^...//"):
-            print(bold(text("content.repository.commit")))
+        print(bold(text("content.repository.commit")))
 
+        if output("git status . --porcelain | sed s/^...//"):
             strict_execute(f"""
             git add .;
             git commit -m "Bot: Add last update into {self.name} package ~ version {self._version}";
