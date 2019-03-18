@@ -59,7 +59,9 @@ class Contextual(object):
                 with open(path, "w"): pass
 
         with open(path) as fp:
-            packages_checked_today = fp.read().splitlines()
+            packages_checked_today = list(
+                set(fp.read().splitlines())
+            )
 
         packages_tmp = list(
             set(packages) - set(packages_checked_today)

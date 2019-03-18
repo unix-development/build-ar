@@ -269,7 +269,7 @@ class Package():
 
         for dependency in self._dependencies.split(" "):
             try:
-                output("pacman -Sp " + dependency + " &>/dev/null")
+                output("pacman -Sp '" + dependency + "' &>/dev/null")
                 continue
             except:
                 if dependency not in app.packages:
