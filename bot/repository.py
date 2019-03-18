@@ -226,7 +226,7 @@ class Package():
             """)
         else:
             strict_execute(f"""
-            git commit --allow-empty -m "Bot: Rebuild {self.name} package";
+            git commit --allow-empty -m "Bot: Rebuild {self.name} package ~ version {self._version}";
             """)
 
     def _set_real_version(self):
