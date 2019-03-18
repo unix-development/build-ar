@@ -61,6 +61,9 @@ validator.pkg.directory: |-
 validator.pkg.content: |-
   content
 
+validator.pkg.testing: |-
+  testing
+
 repository.database: |-
   Create database
 
