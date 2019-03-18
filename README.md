@@ -116,6 +116,12 @@ def pre_build():
          print(line)
 ```
 
+You can test a package build by running this:
+
+```
+$ make package test=dwm
+```
+
 #### 9. Let Travis-ci do its job
 After committing and pushing your changes, you will notice that if your Travis-ci repository is being buildn. When it's complete, you can check your Github fork and you are supposed to see new commit changes in packages that you just added and files should be on your server.
 
