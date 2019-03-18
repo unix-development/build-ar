@@ -62,14 +62,20 @@ class Interface():
         if not os.path.isfile(path + "/PKGBUILD"):
             return
 
+        epoch = extract(path, "epoch")
+
+        if epoch:
+            epoch += ":"
+
         return dict(
             description=extract(path, "pkgdesc"),
             version=extract(path, "pkgver"),
-            name=extract(path, "pkgname")
+            name=extract(path, "pkgname"),
+            epoch=epoch
         )
 
     def get_package_file(self, name, schema):
-        path = name + "-" + schema["version"] + "-"
+        path = name + "-" + schema["epoch"] + schema["version"] + "-"
 
         for location in os.listdir(app.mirror):
             if location.startswith(path):
