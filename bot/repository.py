@@ -174,11 +174,11 @@ class Package():
         self._clean_directory()
         self._validate_config()
         self._pull()
-        self._set_real_version()
 
         if "pre_build" in dir(self.module):
             self.module.pre_build()
 
+        self._set_real_version()
         self._set_variables()
         self._validate_build()
         self._make()
