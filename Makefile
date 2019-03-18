@@ -2,6 +2,11 @@ PROGRAM = repository-bot
 
 ID = $(shell id -u)
 PWD = $(shell pwd)
+BOT = \
+	docker run \
+		--volume="$(PWD)":/home/bot/remote \
+		--init --tty $(PROGRAM) \
+		python bot $(1)
 
 container:
 	@docker build \
@@ -10,18 +15,6 @@ container:
 		--build-arg TOKEN=$(GITHUB_TOKEN) \
 		--tag=$(PROGRAM) ./
 
-run:
-	@docker run \
-		--volume="$(PWD)":/home/bot/remote \
-		--init --tty $(PROGRAM) \
-		python bot build
-
-test:
-	@docker run \
-		--volume="$(PWD)":/home/bot/remote \
-		--init --tty $(PROGRAM) \
-		python bot validate
-
 update:
 	@if [ -z "$$(git remote | grep upstream)" ]; then \
 		git remote add upstream https://github.com/unix-development/build-your-own-archlinux-repository; \
@@ -29,4 +22,13 @@ update:
 	@git fetch upstream
 	@git pull upstream master
 
-.PHONY: container test update run
+run:
+	@$(call BOT, build)
+
+package:
+	@$(call BOT, package $(test))
+
+getting-started:
+	@$(call BOT, getting-started)
+
+.PHONY: container getting-started update package run
