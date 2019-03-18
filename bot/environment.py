@@ -2,6 +2,7 @@
 # -*- coding:utf-8 -*-
 
 import os
+import sys
 import textwrap
 import subprocess
 
@@ -14,8 +15,8 @@ class Environment(object):
 
     def prepare_git(self):
         self._execute(
-            "git config user.email 'hawbot@lognoz.org'; "
-            "git config user.name 'hawbot';"
+            "git config user.email '%s'; " % config.git.email +
+            "git config user.name '%s'" % config.git.name
         )
 
     def prepare_ssh(self):
@@ -41,6 +42,13 @@ class Environment(object):
                 fp.write(textwrap.dedent(content))
 
         self._execute("sudo pacman -Sy")
+
+    def prepare_package_testing(self):
+        app.testing.environment = True
+        app.testing.package = None
+
+        if len(sys.argv) > 2:
+            app.testing.package = sys.argv[2]
 
     def clean_mirror(self):
         if not os.path.exists(f"{app.mirror}/{config.database}.db"):
@@ -88,8 +96,9 @@ class Environment(object):
 def register():
     environment = Environment()
 
+    container.register("environment.clean_mirror", environment.clean_mirror)
     container.register("environment.prepare_git", environment.prepare_git)
     container.register("environment.prepare_mirror", environment.prepare_mirror)
+    container.register("environment.prepare_package_testing", environment.prepare_package_testing)
     container.register("environment.prepare_pacman", environment.prepare_pacman)
     container.register("environment.prepare_ssh", environment.prepare_ssh)
-    container.register("environment.clean_mirror", environment.clean_mirror)
