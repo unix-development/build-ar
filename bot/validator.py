@@ -118,8 +118,6 @@ class Validator():
         repository = {
             "url": config.url,
             "database": config.database,
-            "git email": config.git.email,
-            "git name": config.git.name,
             "ssh host": config.ssh.host,
             "ssh path": config.ssh.path,
             "ssh port": config.ssh.port
