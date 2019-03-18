@@ -174,6 +174,7 @@ class Package():
         self._clean_directory()
         self._validate_config()
         self._pull()
+        self._set_real_version()
 
         if "pre_build" in dir(self.module):
             self.module.pre_build()
@@ -183,8 +184,6 @@ class Package():
         self._make()
 
     def _make(self):
-        self._remove_overwriting_verion()
-
         if self._has_new_version() or self._is_dependency:
             self.updated = True
             self._verify_dependencies()
@@ -223,6 +222,28 @@ class Package():
             git commit -m "Bot: Add last update into {self.name} package ~ version {self._version}";
             """)
 
+    def _set_real_version(self):
+        try:
+            os.path.isfile("./PKGBUILD")
+            output("source ./PKGBUILD; type pkgver &> /dev/null")
+        except:
+            return
+
+        print(bold(text("content.repository.get.version")))
+
+        strict_execute("""
+        mkdir -p ./tmp; \
+        makepkg \
+            --nobuild \
+            --nodeps \
+            --nocheck \
+            --nocolor \
+            --noconfirm \
+            --skipinteg \
+            SRCDEST=./tmp; \
+        rm -rf ./tmp;
+        """)
+
     def _verify_dependencies(self):
         redirect = False
 
@@ -259,24 +280,6 @@ class Package():
                 return False
 
         return True
-
-    def _remove_overwriting_verion(self):
-        try:
-            output("source ./PKGBUILD; type pkgver &> /dev/null")
-
-            search = False
-            for line in edit_file("PKGBUILD"):
-                if line.startswith("pkgver()"):
-                    search = True
-                    continue
-                elif search is True:
-                    if line.startswith("}"):
-                        search = False
-                    continue
-
-                print(line)
-        except:
-            pass
 
     def _pull(self):
         print(bold(text("content.repository.pull")))
