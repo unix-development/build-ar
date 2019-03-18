@@ -80,13 +80,10 @@ repository.pull: |-
   Clone repository:
 
 repository.get.version: |-
-  Getting real version:
+  Get real version:
 
 repository.validate.config: |-
-  Validating package.py:
+  Validate package.py:
 
 repository.validate.build: |-
-  Validating PKGBUILD:
-
-repository.validate.config: |-
-  Validating package.py:
+  Validate PKGBUILD:
