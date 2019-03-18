@@ -24,18 +24,7 @@ The login command will, well, log you in.
 $ travis login
 ```
 
-#### 5. Create a personal access token
-To keep your Github repository up to date, you will need to generate a new personal access token. Travis-ci will use it to commit new versions of your packages.
-
-Go to [GitHub personal access tokens page](https://github.com/settings/tokens) and click on generate a new token button. Select main checkbox repo to have full control over your repositories and click on generate token. Make sure to havea copy of your new personal access token now because you won’t be able to see it again!
-
-Encrypt [<sup>[2]</sup>](#footnote-02) your access token to make it usable by Travis-ci in a secure way. After executing this command, an environmental variable should have been added to your *travis.yml*:
-
-```
-$ travis encrypt GITHUB_TOKEN="secretkey" --add
-```
-
-#### 6. Create an SSH key to deploy on your server
+#### 5. Create an SSH key to deploy on your server
 Change directory and generate a new key with ***no passphrase***.</br>
 You must include it in the `authorized_keys` file in your server.
 
@@ -65,6 +54,18 @@ before_install:
 - openssl aes-256-cbc -K $encrypted_77965d5bdd4d_key -iv $encrypted_77965d5bdd4d_iv
   -in deploy_key.enc -out ./deploy_key -d
 ```
+
+#### 6. Create a personal access token
+To keep your Github repository up to date, you will need to generate a new personal access token. Travis-ci will use it to commit new versions of your packages.
+
+Go to [GitHub personal access tokens page](https://github.com/settings/tokens) and click on generate a new token button. Select main checkbox repo to have full control over your repositories and click on generate token. Make sure to havea copy of your new personal access token now because you won’t be able to see it again!
+
+Encrypt [<sup>[2]</sup>](#footnote-02) your access token to make it usable by Travis-ci in a secure way. After executing this command, an environmental variable should have been added to your *travis.yml*:
+
+```
+$ travis encrypt GITHUB_TOKEN="secretkey" --add
+```
+
 #### 7. Configure your repository
 Define your repository configuration into `repository.json`. Git parameters will be used as an account configuration when pushing software updates.
 
