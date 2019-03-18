@@ -79,6 +79,9 @@ repository.commit: |-
 repository.pull: |-
   Clone repository:
 
+repository.get.version: |-
+  Getting real version:
+
 repository.validate.config: |-
   Validating package.py:
 
