@@ -209,7 +209,8 @@ class Package():
             --nocolor \
             --noconfirm \
             --skipinteg \
-            --syncdeps;
+            --syncdeps \
+            SRCDEST=./; \
         mv *.pkg.tar.xz {app.mirror}
         """);
 
