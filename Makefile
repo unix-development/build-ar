@@ -28,7 +28,7 @@ run:
 package:
 	@$(call BOT, package $(test))
 
-getting-started:
-	@$(call BOT, getting-started)
+validation:
+	@$(call BOT, validation)
 
-.PHONY: container getting-started update package run
+.PHONY: container validation update package run
