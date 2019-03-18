@@ -27,6 +27,10 @@ class Repository():
             if self.verify_package(name):
                 if app.is_travis: return
 
+    def test_package(self):
+        sys.path.append(app.pkg)
+        self.verify_package(app.testing.package, True)
+
     def verify_package(self, name, is_dependency = False):
         package = Package(name, is_dependency)
         package.run()
@@ -343,5 +347,6 @@ validator = Validator()
 
 def register():
     container.register("repository.synchronize", repository.synchronize)
+    container.register("repository.test_package", repository.test_package)
     container.register("repository.create_database", repository.create_database)
     container.register("repository.deploy", repository.deploy)
