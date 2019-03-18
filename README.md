@@ -24,7 +24,14 @@ The login command will, well, log you in.
 $ travis login
 ```
 
-#### 5. Create an SSH key to deploy on your server
+#### 5. Build Docker container
+To build the container you will need to run:
+
+```
+$ make container
+```
+
+#### 6. Create an SSH key to deploy on your server
 Change directory and generate a new key with ***no passphrase***.</br>
 You must include it in the `authorized_keys` file in your server.
 
@@ -61,7 +68,7 @@ You can validate your configuration running this at any time by running this:
 $ make validation
 ```
 
-#### 6. Create a personal access token
+#### 7. Create a personal access token
 To keep your Github repository up to date, you will need to generate a new personal access token. Travis-ci will use it to commit new versions of your packages.
 
 Go to [GitHub personal access tokens page](https://github.com/settings/tokens) and click on generate a new token button. Select main checkbox repo to have full control over your repositories and click on generate token. Make sure to havea copy of your new personal access token now because you won’t be able to see it again!
@@ -72,7 +79,7 @@ Encrypt [<sup>[2]</sup>](#footnote-02) your access token to make it usable by Tr
 $ travis encrypt GITHUB_TOKEN="secretkey" --add
 ```
 
-#### 7. Configure your repository
+#### 8. Configure your repository
 Define your repository configuration into `repository.json`. Git parameters will be used as an account configuration when pushing software updates.
 
 *Be careful about SSH path because Travis-ci will remove files in choosen directory before deploying builded packages and database.*
@@ -89,7 +96,7 @@ Define your repository configuration into `repository.json`. Git parameters will
     }
 }
 ```
-#### 8. Add packages that you want to be in your repository
+#### 9. Add packages that you want to be in your repository
 To add a new package, it needs to have a Git repositoy in order to verify if there are any updates. If you want to add the latest version of a package, you shoul create its directory in `pkg`. Let's have a look at an exemple with dwm:
 
 ```
@@ -128,10 +135,10 @@ You can test your package build by running this:
 $ make package test=dwm
 ```
 
-#### 9. Let Travis-ci do its job
+#### 10. Let Travis-ci do its job
 After committing and pushing your changes, you will notice that if your Travis-ci repository is being buildn. When it's complete, you can check your Github fork and you are supposed to see new commit changes in packages that you just added and files should be on your server.
 
-#### 10. Add to Pacman
+#### 11. Add to Pacman
 To use Pacman, you need to add this configuration to your `/etc/pacman.conf`.
 
 ```
