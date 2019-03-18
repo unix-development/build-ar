@@ -18,7 +18,7 @@ container.bootstrap([
     "repository"
 ])
 
-runner.set("validate", [
+runner.set("validation", [
     "validator.requirements",
     "validator.files",
     "validator.travis",
@@ -26,6 +26,16 @@ runner.set("validate", [
     "environment.prepare_ssh",
     "validator.connection",
     "validator.content"
+])
+
+runner.set("package", [
+    "validator.requirements",
+    "validator.repository",
+    "environment.prepare_package_testing",
+    "validator.content",
+    "environment.prepare_pacman",
+    "repository.test_package",
+    "repository.create_database"
 ])
 
 runner.set("build", [
