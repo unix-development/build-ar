@@ -55,6 +55,12 @@ before_install:
   -in deploy_key.enc -out ./deploy_key -d
 ```
 
+You can validate your configuration running this at any time by running this:
+
+```
+$ make validation
+```
+
 #### 6. Create a personal access token
 To keep your Github repository up to date, you will need to generate a new personal access token. Travis-ci will use it to commit new versions of your packages.
 
@@ -116,7 +122,7 @@ def pre_build():
          print(line)
 ```
 
-You can test a package build by running this:
+You can test your package build by running this:
 
 ```
 $ make package test=dwm
