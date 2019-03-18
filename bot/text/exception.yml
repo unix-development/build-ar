@@ -34,6 +34,12 @@ validator.pkg.directory: |-
 validator.pkg.content: |-
   No package.py was found in pkg subdirectories: %s
 
+validator.pkg.testing.argument: |-
+  You need to define which package you want to test with this command: make package test=discord
+
+validator.pkg.testing.package: |-
+  %s is not in pkg directory.
+
 validator.ssh.port: |-
   port must be an interger in repository.json
 
