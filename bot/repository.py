@@ -289,7 +289,7 @@ class Package():
             return True
 
         for f in os.listdir(app.mirror):
-            if f.startswith(self.module.name + '-' + self._version + '-'):
+            if f.startswith(self.module.name + '-' + self._epoch + self._version + '-'):
                 return False
 
         return True
@@ -310,6 +310,10 @@ class Package():
     def _set_variables(self):
         self._version = extract(self._location, "pkgver")
         self._name = extract(self._location, "pkgname")
+        self._epoch = extract(self._location, "epoch")
+
+        if self._epoch:
+            self._epoch += ":"
 
     def _validate_config(self):
         print(bold(text("content.repository.validate.config")))
