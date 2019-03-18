@@ -101,7 +101,8 @@ class Interface():
                 .replace("$path", config.url)
                 .replace("$database", config.database)
                 .replace("$remote_path", remote_path)
-                .replace("images/logo.png", "data:image/png;base64," + get_base64(app.www + "/images/logo.png")))
+                .replace("images/logo.png", "data:image/png;base64," + get_base64(app.www + "/images/logo.png"))
+                .replace("images/background.png", "data:image/png;base64," + get_base64(app.www + "/images/background.png")))
 
             if line.strip() == "<link rel=\"stylesheet\" href=\"css/main.css\">":
                 line = "<style type=\"text/css\">"
