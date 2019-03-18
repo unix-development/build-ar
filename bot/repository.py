@@ -202,15 +202,16 @@ class Package():
         print(bold(text("content.repository.build")))
 
         strict_execute(f"""
+        mkdir -p ./tmp; \
         makepkg \
+            SRCDEST=./tmp \
             --clean \
             --install \
             --nocheck \
             --nocolor \
             --noconfirm \
             --skipinteg \
-            --syncdeps \
-            SRCDEST=./; \
+            --syncdeps; \
         mv *.pkg.tar.xz {app.mirror}
         """);
 
@@ -242,13 +243,13 @@ class Package():
         strict_execute("""
         mkdir -p ./tmp; \
         makepkg \
+            SRCDEST=./tmp \
             --nobuild \
             --nodeps \
             --nocheck \
             --nocolor \
             --noconfirm \
-            --skipinteg \
-            SRCDEST=./tmp; \
+            --skipinteg; \
         rm -rf ./tmp;
         """)
 
