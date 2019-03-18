@@ -235,6 +235,28 @@ class Validator():
             valid=len(diff) == 0
         )
 
+    @return_self
+    def pkg_testing(self):
+        if app.testing.environment is not True:
+            return
+
+        valid = True
+        error = ""
+
+        if app.testing.package is None:
+            valid = False
+            error = text("exception.validator.pkg.testing.argument")
+
+        elif app.testing.package not in app.packages:
+            valid = False
+            error = text("exception.validator.pkg.testing.package") % app.testing.package
+
+        validate(
+            error=error,
+            target=text("content.validator.pkg.testing"),
+            valid=valid
+        )
+
 
 def register():
     container.register("validator.requirements", requirements)
@@ -281,7 +303,8 @@ def content():
 
     (validator
         .pkg_directory()
-        .pkg_content())
+        .pkg_content()
+        .pkg_testing())
 
 def travis():
     print(text("content.validator.title.travis"))
