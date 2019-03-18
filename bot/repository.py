@@ -214,12 +214,19 @@ class Package():
         """);
 
     def _commit(self):
-        if output("git status . --porcelain | sed s/^...//") and app.is_travis:
+        if app.is_travis is False:
+            return
+
+        if output("git status . --porcelain | sed s/^...//"):
             print(bold(text("content.repository.commit")))
 
             strict_execute(f"""
             git add .;
             git commit -m "Bot: Add last update into {self.name} package ~ version {self._version}";
+            """)
+        else:
+            strict_execute(f"""
+            git commit --allow-empty -m "Bot: Rebuild {self.name} package";
             """)
 
     def _set_real_version(self):
