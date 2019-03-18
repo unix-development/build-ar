@@ -2,7 +2,7 @@
 @import url('https://fonts.googleapis.com/css?family=Montserrat');
 
 // Interface colors
-$body-color: #d0d0d0;
+$body-color: #f3f3f3;
 $link-color: #3e3e3e;
 $link-color-hover: #000;
 
@@ -28,6 +28,7 @@ body {
 	margin: 6%;
 	font-family: 'Montserrat', sans-serif;
 	font-weight: 400;
+	background-repeat: repeat;
 
 	@include medium {
 		margin: 4%;
@@ -52,9 +53,9 @@ code {
 
 h1 {
 	color: #252737;
-	letter-spacing: 1.2px;
 	font-size: 32px;
-	line-height: 42px;
+	line-height: 40px;
+	font-weight: 500;
 
 	@include medium {
 		font-size: 25px;
@@ -177,6 +178,10 @@ p {
 	}
 }
 
+.container {
+	box-shadow: 0px 0px 30px #e8e8e8;
+}
+
 .header, .content {
 	margin: auto;
 	padding: 6.5%;
@@ -191,7 +196,7 @@ p {
 }
 
 .header {
-	background: #F3F5F7;
+	background: #f9f9f9;
 
 	.header-title {
 		display:table;
