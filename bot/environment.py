@@ -10,22 +10,38 @@ from utils.process import output
 
 
 class Environment(object):
+    def pull_main_repository(self):
+        try:
+            output("git remote | grep upstream")
+        except:
+            self._execute(
+                "git remote add upstream \
+                    https://github.com/unix-development/build-your-own-archlinux-repository")
+
+        self._execute(
+            "git fetch upstream; "
+            "git pull --no-ff --no-commit upstream master; "
+            "git reset HEAD README.md; "
+            "git checkout -- README.md; "
+            "git commit -m 'Core: Pull main repository project';"
+        )
+
     def prepare_mirror(self):
         self._execute("chmod 777 " + app.mirror)
 
     def prepare_git(self):
         self._execute(
-            "git config user.email 'uvobot@lognoz.org'; "
-            "git config user.name 'uvobot';"
+            "git config user.email 'hawbot@lognoz.org'; "
+            "git config user.name 'hawbot';"
         )
 
     def prepare_ssh(self):
         self._execute(
-            "eval $(ssh-agent); " +
-            "chmod 600 ./deploy_key; " +
-            "ssh-add ./deploy_key; " +
-            "mkdir -p ~/.ssh; " +
-            "chmod 0700 ~/.ssh; " +
+            "eval $(ssh-agent); "
+            "chmod 600 ./deploy_key; "
+            "ssh-add ./deploy_key; "
+            "mkdir -p ~/.ssh; "
+            "chmod 0700 ~/.ssh; "
             "ssh-keyscan -t rsa -H %s >> ~/.ssh/known_hosts; "
             % config.ssh.host
         )
@@ -102,3 +118,4 @@ def register():
     container.register("environment.prepare_package_testing", environment.prepare_package_testing)
     container.register("environment.prepare_pacman", environment.prepare_pacman)
     container.register("environment.prepare_ssh", environment.prepare_ssh)
+    container.register("environment.pull_main_repository", environment.pull_main_repository)
