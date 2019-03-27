@@ -23,6 +23,7 @@ update:
 	@git pull upstream master
 
 run:
+	@$(call BOT, update)
 	@$(call BOT, build)
 
 package:
