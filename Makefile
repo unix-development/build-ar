@@ -15,13 +15,6 @@ container:
 		--build-arg TOKEN=$(GITHUB_TOKEN) \
 		--tag=$(PROGRAM) ./
 
-update:
-	@if [ -z "$$(git remote | grep upstream)" ]; then \
-		git remote add upstream https://github.com/unix-development/build-your-own-archlinux-repository; \
-	fi
-	@git fetch upstream
-	@git pull upstream master
-
 run:
 	@$(call BOT, update)
 	@$(call BOT, build)
