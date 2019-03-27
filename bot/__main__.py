@@ -38,6 +38,11 @@ runner.set("package", [
     "repository.create_database"
 ])
 
+runner.set("update", [
+    "environment.prepare_git",
+    "environment.pull_main_repository"
+])
+
 runner.set("build", [
     "validator.requirements",
     "validator.files",
