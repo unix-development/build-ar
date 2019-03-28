@@ -216,30 +216,6 @@ class Validator():
         )
 
     @return_self
-    def travis_variable(self, content):
-        valid = False
-        environment = None
-
-        if "env" in content and "global" in content["env"]:
-            environment = content["env"]["global"]
-
-        if environment is not None:
-            if type(environment) is list:
-                for variable in environment:
-                    if "secure" in variable:
-                        valid = True
-                        break
-
-            elif type(environment) is dict and "secure" in environment:
-                valid = True
-
-        validate(
-            error=text("exception.validator.travis.variable"),
-            target=text("content.validator.travis.variable"),
-            valid=valid
-        )
-
-    @return_self
     def pkg_directory(self):
         validate(
             error=text("exception.validator.pkg.directory"),
@@ -340,7 +316,6 @@ def travis():
 
     (validator
         .travis_lint(content)
-        .travis_variable(content)
         .travis_openssl(content))
 
 
