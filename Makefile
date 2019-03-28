@@ -15,15 +15,19 @@ container:
 		--tag=$(PROGRAM) ./
 
 run: update
-	@docker run $(SETTING) python bot build
+	@docker run $(SETTING) \
+		python bot build
 
 package:
-	@docker run $(SETTING) python bot package $(test)
+	@docker run $(SETTING) \
+		python bot package $(test)
 
 update:
-	@docker run $(SETTING) python bot update
+	@docker run $(SETTING) \
+		python bot update
 
 validation:
-	@docker run $(SETTING) python bot validation
+	@docker run $(SETTING) \
+		python bot validation
 
 .PHONY: container validation update package run
