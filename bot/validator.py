@@ -57,18 +57,40 @@ class Validator():
 
     @return_self
     def deploy_key(self):
+        valid = True
+        target = ""
+
+        if os.path.isfile(app.base + "/deploy_key.enc") is False:
+            valid = False
+            target = "deploy_key.enc"
+
+        elif os.path.isfile(app.base + "/deploy_key") is False:
+            valid = False
+            target = "deploy_key"
+
         validate(
-            error=text("exception.validator.deploy_key"),
-            target="deploy_key",
-            valid=os.path.isfile(app.base + "/deploy_key")
+            error=text("exception.validator.file.not.found") % target,
+            target=target,
+            valid=valid
         )
 
     @return_self
-    def deploy_key_encrypted(self):
+    def repository(self):
+        valid = True
+        target = ""
+
+        if os.path.isfile(app.base + "/repository.json.enc") is False:
+            valid = False
+            target = "repository.json.enc"
+
+        elif os.path.isfile(app.base + "/repository.json") is False:
+            valid = False
+            target = "repository.json"
+
         validate(
-            error=text("exception.validator.deploy_key.enc"),
-            target="deploy_key.enc",
-            valid=os.path.isfile(app.base + "/deploy_key.enc")
+            error=text("exception.validator.file.not.found") % target,
+            target=target,
+            valid=valid
         )
 
     @return_self
@@ -113,11 +135,12 @@ class Validator():
         )
 
     @return_self
-    def repository(self):
+    def content(self):
         valid = True
         repository = {
             "url": config.url,
             "database": config.database,
+            "github token": config.github.token,
             "ssh host": config.ssh.host,
             "ssh path": config.ssh.path,
             "ssh port": config.ssh.port
@@ -151,13 +174,13 @@ class Validator():
         )
 
     @return_self
-    def travis_github_token(self):
+    def github_token(self):
         if app.is_travis is False:
             return
 
         valid = False
         user = git_remote_path().split("/")[1]
-        response = output("curl -su %s:${GITHUB_TOKEN} https://api.github.com/user" % user)
+        response = output(f"curl -su {user}:${config.github.token} https://api.github.com/user")
         content = json.loads(response)
 
         if "login" in content:
@@ -189,30 +212,6 @@ class Validator():
         validate(
             error=text("exception.validator.travis.openssl"),
             target=text("content.validator.travis.openssl"),
-            valid=valid
-        )
-
-    @return_self
-    def travis_variable(self, content):
-        valid = False
-        environment = None
-
-        if "env" in content and "global" in content["env"]:
-            environment = content["env"]["global"]
-
-        if environment is not None:
-            if type(environment) is list:
-                for variable in environment:
-                    if "secure" in variable:
-                        valid = True
-                        break
-
-            elif type(environment) is dict and "secure" in environment:
-                valid = True
-
-        validate(
-            error=text("exception.validator.travis.variable"),
-            target=text("content.validator.travis.variable"),
             valid=valid
         )
 
@@ -279,14 +278,14 @@ def files():
     print(text("content.validator.title.files"))
 
     (validator
-        .deploy_key_encrypted()
+        .repository()
         .deploy_key())
 
 def repository():
     print(text("content.validator.title.repository"))
 
     (validator
-       .repository()
+       .content()
        .database()
        .port())
 
@@ -296,7 +295,7 @@ def connection():
     (validator
         .ssh_connection()
         .mirror_connection()
-        .travis_github_token())
+        .github_token())
 
 def content():
     print(text("content.validator.title.packages"))
@@ -317,7 +316,6 @@ def travis():
 
     (validator
         .travis_lint(content)
-        .travis_variable(content)
         .travis_openssl(content))
 
 

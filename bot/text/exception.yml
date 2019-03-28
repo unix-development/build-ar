@@ -10,11 +10,8 @@ validator.os: |-
 validator.internet: |-
   This program needs to be connected to internet.
 
-validator.deploy_key: |-
-  deploy_key could not been found.
-
-validator.deploy_key.enc: |-
-  deploy_key.enc could not been found.
+validator.file.not.found: |-
+  %s could not been found.
 
 validator.ssh.connection: |-
   ssh connection could not be established.
