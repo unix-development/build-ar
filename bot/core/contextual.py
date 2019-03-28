@@ -28,8 +28,12 @@ class Contextual(object):
         app.packages = packages
 
     def set_repository(self):
-        with open(f"{app.base}/repository.json") as fp:
-            app.config = Dot(json.load(fp))
+        path = f"{app.base}/repository.json"
+        if os.path.isfile(path):
+            with open(f"{app.base}/repository.json") as fp:
+                app.config = Dot(json.load(fp))
+        else:
+            app.config = Dot({})
 
     def set_texts(self):
         app.text = dict(
