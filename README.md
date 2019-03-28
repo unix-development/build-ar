@@ -94,7 +94,7 @@ Create and define your repository configuration into `repository.json`. You can 
 }
 ```
 
-Encrypt your deploy key:
+Encrypt your repository configuration:
 ```
 $ travis encrypt-file ./repository.json --add
 ```
