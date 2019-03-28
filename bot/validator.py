@@ -173,12 +173,9 @@ class Validator():
 
     @return_self
     def github_token(self):
-        if app.is_travis is False:
-            return
-
         valid = False
         user = git_remote_path().split("/")[1]
-        response = output(f"curl -su {user}:${config.github.token} https://api.github.com/user")
+        response = output(f"curl -su {user}:{config.github.token} https://api.github.com/user")
         content = json.loads(response)
 
         if "login" in content:
