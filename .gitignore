@@ -7,6 +7,7 @@ src/
 deploy_key
 deploy_key.pub
 package-lock.json
+repository.json
 **/.*
 **/README.md
 */pkg
