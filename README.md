@@ -73,14 +73,8 @@ To keep your Github repository up to date, you will need to generate a new perso
 
 Go to [GitHub personal access tokens page](https://github.com/settings/tokens) and click on generate a new token button. Select main checkbox repo to have full control over your repositories and click on generate token. Make sure to havea copy of your new personal access token now because you won’t be able to see it again!
 
-Encrypt [<sup>[2]</sup>](#footnote-02) your access token to make it usable by Travis-ci in a secure way. After executing this command, an environmental variable should have been added to your *travis.yml*:
-
-```
-$ travis encrypt GITHUB_TOKEN="secretkey" --add
-```
-
 #### 8. Configure your repository
-Define your repository configuration into `repository.json`. Git parameters will be used as an account configuration when pushing software updates.
+Create and define your repository configuration into `repository.json`. You can paste your personal access token into token parameters.
 
 *Be careful about SSH path because Travis-ci will remove files in choosen directory before deploying builded packages and database.*
 
@@ -88,6 +82,9 @@ Define your repository configuration into `repository.json`. Git parameters will
 {
    "database": "custom",
    "url": "https://mirror.yourdomain.org",
+   "github": {
+      "token": "aed564c9e6f2a4fcadcad11af3334f6e"
+   },
    "ssh": {
       "port": 22,
       "user": "user",
@@ -96,6 +93,12 @@ Define your repository configuration into `repository.json`. Git parameters will
     }
 }
 ```
+
+Encrypt your deploy key:
+```
+$ travis encrypt-file ./repository.json --add
+```
+
 #### 9. Add packages that you want to be in your repository
 To add a new package, it needs to have a Git repositoy in order to verify if there are any updates. If you want to add the latest version of a package, you shoul create its directory in `pkg`. Let's have a look at an exemple with dwm:
 
