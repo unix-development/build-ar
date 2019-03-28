@@ -2,11 +2,10 @@ PROGRAM = repository-bot
 
 ID = $(shell id -u)
 PWD = $(shell pwd)
-BOT = \
-	docker run \
-		--volume="$(PWD)":/home/bot/remote \
-		--init --tty $(PROGRAM) \
-		python bot $(1)
+
+SETTING = \
+	--volume="$(PWD)":/home/bot/remote \
+	--init --tty $(PROGRAM)
 
 container:
 	@docker build \
@@ -15,14 +14,16 @@ container:
 		--build-arg TOKEN=$(GITHUB_TOKEN) \
 		--tag=$(PROGRAM) ./
 
-run:
-	@$(call BOT, update)
-	@$(call BOT, build)
+run: update
+	@docker run $(SETTING) python bot build
 
 package:
-	@$(call BOT, package $(test))
+	@docker run $(SETTING) python bot package $(test)
+
+update:
+	@docker run $(SETTING) python bot update
 
 validation:
-	@$(call BOT, validation)
+	@docker run $(SETTING) python bot validation
 
 .PHONY: container validation update package run
