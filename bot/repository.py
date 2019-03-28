@@ -81,7 +81,7 @@ class Repository():
 
         if app.is_travis:
             print(title(text("content.repository.deploy.git")) + "\n")
-            strict_execute("git push https://${GITHUB_TOKEN}@%s HEAD:master" % git_remote_path())
+            strict_execute("git push https://%s@%s HEAD:master" % (config.github.token, git_remote_path()))
 
     def set_package_checked(self, name):
         with open(f"{app.mirror}/packages_checked", "a+") as f:
