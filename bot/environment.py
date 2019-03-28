@@ -31,8 +31,8 @@ class Environment(object):
 
     def prepare_git(self):
         self._execute(
-            "git config user.email 'uvobot@lognoz.org'; "
-            "git config user.name 'uvobot';"
+            "git config --global user.email 'uvobot@lognoz.org'; "
+            "git config --global user.name 'uvobot';"
         )
 
     def prepare_ssh(self):
