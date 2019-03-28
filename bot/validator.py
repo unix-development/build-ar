@@ -140,6 +140,7 @@ class Validator():
         repository = {
             "url": config.url,
             "database": config.database,
+            "github token": config.github.token,
             "ssh host": config.ssh.host,
             "ssh path": config.ssh.path,
             "ssh port": config.ssh.port
@@ -173,13 +174,13 @@ class Validator():
         )
 
     @return_self
-    def travis_github_token(self):
+    def github_token(self):
         if app.is_travis is False:
             return
 
         valid = False
         user = git_remote_path().split("/")[1]
-        response = output("curl -su %s:${GITHUB_TOKEN} https://api.github.com/user" % user)
+        response = output(f"curl -su {user}:${config.github.token} https://api.github.com/user")
         content = json.loads(response)
 
         if "login" in content:
@@ -318,7 +319,7 @@ def connection():
     (validator
         .ssh_connection()
         .mirror_connection()
-        .travis_github_token())
+        .github_token())
 
 def content():
     print(text("content.validator.title.packages"))
