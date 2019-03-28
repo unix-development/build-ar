@@ -57,18 +57,40 @@ class Validator():
 
     @return_self
     def deploy_key(self):
+        valid = True
+        target = ""
+
+        if os.path.isfile(app.base + "/deploy_key.enc") is False:
+            valid = False
+            target = "deploy_key.enc"
+
+        elif os.path.isfile(app.base + "/deploy_key") is False:
+            valid = False
+            target = "deploy_key"
+
         validate(
-            error=text("exception.validator.deploy_key"),
-            target="deploy_key",
-            valid=os.path.isfile(app.base + "/deploy_key")
+            error=text("exception.validator.file.not.found") % target,
+            target=target,
+            valid=valid
         )
 
     @return_self
-    def deploy_key_encrypted(self):
+    def repository(self):
+        valid = True
+        target = ""
+
+        if os.path.isfile(app.base + "/repository.json.enc") is False:
+            valid = False
+            target = "repository.json.enc"
+
+        elif os.path.isfile(app.base + "/repository.json") is False:
+            valid = False
+            target = "repository.json"
+
         validate(
-            error=text("exception.validator.deploy_key.enc"),
-            target="deploy_key.enc",
-            valid=os.path.isfile(app.base + "/deploy_key.enc")
+            error=text("exception.validator.file.not.found") % target,
+            target=target,
+            valid=valid
         )
 
     @return_self
@@ -113,7 +135,7 @@ class Validator():
         )
 
     @return_self
-    def repository(self):
+    def content(self):
         valid = True
         repository = {
             "url": config.url,
@@ -279,14 +301,14 @@ def files():
     print(text("content.validator.title.files"))
 
     (validator
-        .deploy_key_encrypted()
+        .repository()
         .deploy_key())
 
 def repository():
     print(text("content.validator.title.repository"))
 
     (validator
-       .repository()
+       .content()
        .database()
        .port())
 
