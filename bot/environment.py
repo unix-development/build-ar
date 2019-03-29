@@ -6,25 +6,31 @@ import sys
 import textwrap
 import subprocess
 
-from utils.process import output
+from utils.process import output, git_remote_path
 
 
 class Environment(object):
+    upstream = "github.com/unix-development/build-your-own-archlinux-repository"
+
     def pull_main_repository(self):
+        if git_remote_path() == self.upstream: return
+
+        print("Updating repository bot:")
+
         try:
             output("git remote | grep upstream")
         except:
-            self._execute(
-                "git remote add upstream \
-                    https://github.com/unix-development/build-your-own-archlinux-repository")
+            self._execute(f"git remote add upstream https://{self.upstream}")
 
         self._execute(
             "git fetch upstream; "
-            "git pull --no-ff --no-commit upstream master; "
+            "git pull --no-ff --no-commit -X theirs upstream master; "
             "git reset HEAD README.md; "
             "git checkout -- README.md; "
             "git commit -m 'Core: Pull main repository project';"
         )
+
+        print("  [ ✓ ] up to date")
 
     def prepare_mirror(self):
         self._execute("chmod 777 " + app.mirror)
