@@ -1,11 +1,9 @@
 FROM unixdevelopment/archlinux
 
-ARG TOKEN
 ARG TRAVIS
 ARG USER_ID
 
 ENV IS_DOCKER=Yes
-ENV GITHUB_TOKEN=$TOKEN
 ENV TRAVIS=$TRAVIS
 
 RUN mkdir \
