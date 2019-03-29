@@ -30,6 +30,7 @@ runner.set("validation", [
 
 runner.set("package", [
     "validator.requirements",
+    "validator.files",
     "validator.repository",
     "environment.prepare_package_testing",
     "validator.content",
