@@ -90,3 +90,9 @@ repository.validate.config: |-
 
 repository.validate.build: |-
   Validate PKGBUILD:
+
+environment.pull.repository: |-
+  Updating repository bot:
+
+environment.up.to.date: |-
+  up to date
