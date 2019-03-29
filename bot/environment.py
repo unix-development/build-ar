@@ -15,7 +15,7 @@ class Environment(object):
     def pull_main_repository(self):
         if git_remote_path() == self.upstream: return
 
-        print("Updating repository bot:")
+        print(text("content.environment.pull.repository"))
 
         try:
             output("git remote | grep upstream")
@@ -30,7 +30,7 @@ class Environment(object):
             "git commit -m 'Core: Pull main repository project';"
         )
 
-        print("  [ ✓ ] up to date")
+        print("  [ ✓ ] " + text("content.environment.up.to.date"))
 
     def prepare_mirror(self):
         self._execute("chmod 777 " + app.mirror)
