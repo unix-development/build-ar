@@ -177,8 +177,8 @@ class Package():
     def run(self):
         self._separator()
         self._set_utils()
-        self._validate_config()
         self._clean_directory()
+        self._validate_config()
         self._pull()
 
         if "pre_build" in dir(self.module):
@@ -337,15 +337,10 @@ class Package():
 
     def _clean_directory(self):
         files = os.listdir(".")
-        protected = []
-
-        if "protected_files" in dir(self.module):
-            protected = self.module.protected_files
-
         for f in files:
             if os.path.isdir(f):
                 os.system("rm -rf " + f)
-            elif os.path.isfile(f) and f != "package.py" and f not in protected:
+            elif os.path.isfile(f) and f != "package.py":
                 os.remove(f)
 
     def _set_utils(self):
