@@ -2,7 +2,7 @@
 This project is an easy-to-use program that provides functionalities to build a custom repository for Arch Linux. *Travis-ci* is used as a continuous integration service to automatically check if a new version of software has been released, build packages and deploy them into a server.
 
 ## Usage
-You can build an unofficial repository by yourself with the following procedure:
+**Important: Make sure you have Docker and Python 3 on your system before following the next steps.**
 
 #### 1. Fork the repository
 Fork the [Repository Bot](https://github.com/unix-development/build-your-own-archlinux-repository) by clicking on the fork button at the top of the page.
