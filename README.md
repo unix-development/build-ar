@@ -8,12 +8,10 @@ been released, build packages and deploy them into a server.
 **Important: Make sure you have Docker and Python 3 on your system before
 following the next steps.**
 
-1. Fork the repository  
-   Fork the [Repository Bot](https://github.com/unix-development/build-your-own-archlinux-repository)
+1. Fork the [Repository Bot](https://github.com/unix-development/build-your-own-archlinux-repository)
    by clicking on the fork button at the top of the page.
 
-2. Integrate your fork into Travis-ci  
-   Go to [travis-ci.org](https://travis-ci.org) and sign up with your GitHub
+2. Go to [travis-ci.org](https://travis-ci.org) and sign up with your GitHub
    account. Click on your name at the upper right corner to open your profile.
    Toggle the switch on your fork project. Click on settings button to
    configure a cron job [<sup>[1]</sup>](#footnote-01) that will build and
