@@ -38,9 +38,9 @@ following the next steps.**
    $ make container
    ```
 
-6. Create an SSH key to deploy on your server  
-   Change directory and generate a new key with ***no passphrase***.</br>
-   You must include it in the `authorized_keys` file in your server.
+6. Create an SSH key to deploy on your server. Change directory and generate a
+	new key with ***no passphrase***. You must include it in the
+	`authorized_keys` file in your server.
 
    ```
    $ cd ~/.ssh
@@ -75,8 +75,7 @@ following the next steps.**
    $ make validation
    ```
 
-7. Create a personal access token  
-   To keep your Github repository up to date, you will need to generate a new
+7. To keep your Github repository up to date, you will need to generate a new
    personal access token. Travis-ci will use it to commit new versions of your
    packages.
 
@@ -86,8 +85,8 @@ following the next steps.**
    repositories and click on generate token. Make sure to have a copy of your
    new personal access token now because you won’t be able to see it again!
 
-8. Configure your repository  
-   Create and define your repository configuration into `repository.json`. You can paste your personal access token into token parameters.
+8. Create and define your repository configuration into `repository.json`. You
+	can paste your personal access token into token parameters.
 
    *Be careful about SSH path because Travis-ci will remove files in choosen directory before deploying builded packages and database.*
 
@@ -112,11 +111,10 @@ following the next steps.**
    $ travis encrypt-file ./repository.json --add
    ```
 
-9. Add packages that you want to be in your repository  
-   To add a new package, it needs to have a Git repository in order to verify
-   if there are any updates. If you want to add the latest version of a
-   package, you should create its directory in `pkg`. Let's have a look at
-   an example with dwm:
+9. Add packages that you want to be in your repository. It needs to have a Git
+	repository in order to verify if there are any updates. If you want to add
+	the latest version of a package, you should create its directory in `pkg`.
+	Let's have a look at an example with dwm:
 
    ```
    $ cd packages
@@ -158,14 +156,13 @@ following the next steps.**
    $ make package test=dwm
    ```
 
-10. Let Travis-ci do its job  
-    After committing and pushing your changes, you will notice that if your
-    Travis-ci repository is being build. When it's complete, you can check your
-    Github fork and you are supposed to see new commit changes in packages that
-    you just added and files should be on your server.
+10. Let Travis-ci do its job! After committing and pushing your changes, you
+	 will notice that if your Travis-ci repository is being build. When it's
+	 complete, you can check your Github fork and you are supposed to see new
+	 commit changes in packages that you just added and files should be on your
+	 server.
 
-11. Add to Pacman  
-    To use Pacman, you need to add this configuration to your
+11. To use Pacman, you need to add this configuration to your
     `/etc/pacman.conf`.
 
     ```
