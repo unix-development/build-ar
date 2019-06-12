@@ -60,7 +60,7 @@ class Validator():
         valid = True
         target = "deploy_key"
 
-        if os.path.isfile(app.base + "/deploy_key.enc") is False:
+        if app.is_travis and os.path.isfile(app.base + "/deploy_key.enc") is False:
             valid = False
             target = "deploy_key.enc"
 
@@ -78,7 +78,7 @@ class Validator():
         valid = True
         target = "repository.json"
 
-        if os.path.isfile(app.base + "/repository.json.enc") is False:
+        if app.is_travis and os.path.isfile(app.base + "/repository.json.enc") is False:
             valid = False
             target = "repository.json.enc"
 
@@ -301,6 +301,9 @@ def content():
         .pkg_testing())
 
 def travis():
+    if app.is_travis is False:
+        return
+
     print(text("content.validator.title.travis"))
 
     with open(".travis.yml", "r") as stream:

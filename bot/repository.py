@@ -81,14 +81,13 @@ class Repository():
             {config.ssh.user}@{config.ssh.host}:{config.ssh.path}
         """)
 
-        if app.is_travis:
-            print(title(text("content.repository.deploy.git")) + "\n")
+        print(title(text("content.repository.deploy.git")) + "\n")
 
-            try:
-                subprocess.check_call("git push https://%s@%s HEAD:master &> /dev/null" % (
-                    config.github.token, git_remote_path()), shell=True)
-            except:
-                sys.exit("Error: Failed to push some refs to 'https://%s'" % git_remote_path())
+        try:
+            subprocess.check_call("git push https://%s@%s HEAD:master &> /dev/null" % (
+                config.github.token, git_remote_path()), shell=True)
+        except:
+            sys.exit("Error: Failed to push some refs to 'https://%s'" % git_remote_path())
 
     def set_package_checked(self, name):
         with open(f"{app.mirror}/packages_checked", "a+") as f:
@@ -227,9 +226,6 @@ class Package():
         """);
 
     def _commit(self):
-        if app.is_travis is False:
-            return
-
         print(bold(text("content.repository.commit")))
 
         if output("git status . --porcelain | sed s/^...//"):
