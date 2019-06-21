@@ -305,6 +305,7 @@ class Package():
         git remote add origin {self.module.source};
         git pull origin master;
         rm -rf .git;
+        rm -f .gitignore;
         """)
 
         if os.path.isfile(".SRCINFO"):
