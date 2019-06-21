@@ -94,5 +94,9 @@ repository.validate.build: |-
 environment.pull.repository: |-
   Updating repository bot:
 
+environment.prepare.mirror: |-
+  Pull server files:
+
 environment.up.to.date: |-
   up to date
+

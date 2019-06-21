@@ -13,7 +13,7 @@ container:
 		--build-arg TRAVIS=$(TRAVIS) \
 		--tag=$(PROGRAM) ./
 
-run: update
+run:
 	@docker run $(SETTING) \
 		python bot build
 
