@@ -53,6 +53,7 @@ runner.set("build", [
     "validator.connection",
     "validator.content",
     "environment.prepare_git",
+    "environment.prepare_mirror",
     "environment.prepare_pacman",
     "environment.clean_mirror",
     "repository.synchronize",
