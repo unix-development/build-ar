@@ -35,7 +35,7 @@ class Environment(object):
     def prepare_mirror(self):
         sources = output("git ls-files " + app.mirror + " | awk -F / '{print $2}'").split("\n")
 
-        if len(os.listdir(app.mirror)) != len(sources):
+        if len(os.listdir(app.mirror)) != len(sources) + 1:
             return
 
         print(text("content.environment.prepare.mirror"))
