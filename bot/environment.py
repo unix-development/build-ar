@@ -33,12 +33,16 @@ class Environment(object):
         print("  [ ✓ ] " + text("content.environment.up.to.date"))
 
     def prepare_mirror(self):
-        sources = output("git ls-files " + app.mirror + " | awk -F / '{print $2}'").split("\n")
+        remote = output("git ls-files " + app.mirror + " | awk -F / '{print $2}'").split("\n")
+        local = os.listdir(app.mirror)
 
-        if len(os.listdir(app.mirror)) != len(sources) + 1:
+        local.remove("validation_token")
+        local.remove("packages_checked")
+
+        if len(local) != len(remote):
             return
 
-        print(text("content.environment.prepare.mirror"))
+        print("\n" + text("content.environment.prepare.mirror"))
 
         strict_execute(f"""
         scp -i {app.base}/deploy_key -P {config.ssh.port} \
