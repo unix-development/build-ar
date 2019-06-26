@@ -2,17 +2,18 @@
 # -*- coding:utf-8 -*-
 
 import os
-import re
 import sys
-import time
-import shutil
 import subprocess
 
-from datetime import datetime
 from core.container import return_self
-from utils.editor import edit_file, replace_ending
-from utils.process import output, strict_execute, git_remote_path, extract
-from utils.style import title, bold
+from utils.editor import edit_file
+from utils.editor import replace_ending
+from utils.process import output
+from utils.process import strict_execute
+from utils.process import git_remote_path
+from utils.process import extract
+from utils.style import title
+from utils.style import bold
 from utils.validator import validate
 
 

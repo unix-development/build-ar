@@ -3,6 +3,7 @@
 
 import sys
 
+
 class Runner():
     commands = dict()
 

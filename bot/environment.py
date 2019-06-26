@@ -6,7 +6,9 @@ import sys
 import textwrap
 import subprocess
 
-from utils.process import output, git_remote_path, strict_execute
+from utils.process import output
+from utils.process import git_remote_path
+from utils.process import strict_execute
 
 
 class Environment(object):

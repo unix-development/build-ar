@@ -2,8 +2,6 @@
 # -*- coding:utf-8 -*-
 
 import os
-import re
-import sys
 import yaml
 import json
 import socket
@@ -12,7 +10,8 @@ import platform
 import requests
 
 from core.container import return_self
-from utils.process import output, git_remote_path
+from utils.process import output
+from utils.process import git_remote_path
 from utils.validator import validate
 
 

@@ -1,9 +1,7 @@
 #!/usr/bin/env python
 # -*- coding:utf-8 -*-
 
-import re
 import fileinput
-import subprocess
 
 
 def replace_ending(find, replace, string):
