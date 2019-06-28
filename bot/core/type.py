@@ -55,3 +55,20 @@ class Attr(dict):
 
     def __setstate__(self, dict):
         self.__dict__ = dict
+
+
+class Dict(dict):
+    def __init__(self, arg):
+        super(Dict, self).__init__(arg)
+
+        for key, value in arg.items():
+            if type(value) is dict:
+                self[key] = Dict(value)
+            else:
+                self[key] = value
+
+    def __getattr__(self, attr):
+        return self.get(attr)
+
+    def __setattr__(self, key, value):
+        self.__setitem__(key, value)
