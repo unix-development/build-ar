@@ -12,7 +12,7 @@ from core.type import Attr
 paths = Attr()
 
 # Config into repository.json
-configs = None
+conf = None
 
 # Packages in pkg directory
 packages = []
