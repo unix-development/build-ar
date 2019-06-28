@@ -57,7 +57,6 @@ class Repository():
             strict_execute(f"""
             repo-add \
                 --nocolor \
-                --remove \
                 {app.mirror}/{config.database}.db.tar.gz \
                 {app.mirror}/{package}-*.pkg.tar.xz
             """)
