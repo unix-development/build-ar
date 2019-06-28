@@ -17,7 +17,7 @@ class Contextual(object):
         app.base = self._get_base_path()
         app.mirror = app.base + "/mirror"
         app.pkg = app.base + "/pkg"
-        app.www = app.base + "/www"
+        app.www = app.base + "/bot/www"
 
     def set_packages(self):
         packages = []
