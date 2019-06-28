@@ -98,23 +98,6 @@ class Contextual(object):
         return os.path.realpath(__file__).replace("/bot/core/contextual.py", "")
 
 
-class Dot(dict):
-    def __init__(self, arg):
-        super(Dot, self).__init__(arg)
-
-        for key, value in arg.items():
-            if type(value) is dict:
-                self[key] = Dot(value)
-            else:
-                self[key] = value
-
-    def __getattr__(self, attr):
-        return self.get(attr)
-
-    def __setattr__(self, key, value):
-        self.__setitem__(key, value)
-
-
 def register():
     contextual = Contextual()
 
