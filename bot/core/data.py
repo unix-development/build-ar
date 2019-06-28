@@ -14,5 +14,5 @@ paths = Attr()
 # Config into repository.json
 conf = None
 
-# Packages in pkg directory
-packages = []
+# Store all packages in pkg directory
+repository = []
