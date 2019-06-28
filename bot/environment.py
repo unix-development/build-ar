@@ -10,6 +10,7 @@ import sys
 import textwrap
 import subprocess
 
+from core.container import container
 from utils.process import output
 from utils.process import git_remote_path
 from utils.process import strict_execute
@@ -21,7 +22,7 @@ class Environment(object):
     def pull_main_repository(self):
         if git_remote_path() == self.upstream: return
 
-        print(text("content.environment.pull.repository"))
+        print("Updating repository bot:")
 
         try:
             output("git remote | grep upstream")

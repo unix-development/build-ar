@@ -10,6 +10,7 @@ import sys
 import subprocess
 
 from core.container import return_self
+from core.container import container
 from utils.editor import edit_file
 from utils.editor import replace_ending
 from utils.process import output

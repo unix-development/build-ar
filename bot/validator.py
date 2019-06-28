@@ -14,6 +14,7 @@ import platform
 import requests
 
 from core.container import return_self
+from core.container import container
 from utils.process import output
 from utils.process import git_remote_path
 from utils.validator import validate
