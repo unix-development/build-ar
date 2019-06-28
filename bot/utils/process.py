@@ -34,5 +34,5 @@ def extract(module, name):
 
     return output.strip().decode("UTF-8")
 
-def is_travis(self):
+def is_travis():
     return ("TRAVIS" in os.environ and os.environ["TRAVIS"] != "")
