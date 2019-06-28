@@ -25,10 +25,6 @@ class Container(object):
         for bootstrap in bootstrappers:
             __import__(bootstrap)
             module = sys.modules[bootstrap]
-            # module.app = self.instances
-            # module.config = self.instances.config
-            # module.text = self._text
-            # module.container = self
             module.register()
 
     def _text(self, abstract):
