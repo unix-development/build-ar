@@ -10,19 +10,23 @@ import json
 import yaml
 
 from datetime import datetime
+from core.settings import configs
+from core.settings import packages
+from core.settings import paths
 
 
 class Contextual(object):
     def set_contextual_paths(self):
-        app.base = self._get_base_path()
-        app.mirror = app.base + "/mirror"
-        app.pkg = app.base + "/pkg"
-        app.www = app.base + "/bot/www"
+        root = self._get_base_path()
+
+        paths.base = root
+        paths.mirror = os.path.join(root, "mirror")
+        paths.pkg = os.path.join(root, "pkg")
+        paths.www = os.path.join(root, "bot/www")
 
     def set_packages(self):
-        packages = []
-        for name in os.listdir(app.pkg):
-            if os.path.isfile(f"{app.pkg}/{name}/package.py"):
+        for name in os.listdir(paths.pkg):
+            if os.path.isfile(os.path.join(paths.pkg, name, "package.py")):
                 packages.append(name)
 
         packages.sort()
@@ -30,24 +34,17 @@ class Contextual(object):
         if app.is_travis is True:
             packages = self._get_packages_sorted(packages)
 
-        app.packages = packages
-
     def set_repository(self):
-        path = f"{app.base}/repository.json"
+        path = os.path.join(paths.base, "repository.json")
         if os.path.isfile(path):
-            with open(f"{app.base}/repository.json") as fp:
-                app.config = Dot(json.load(fp))
-        else:
-            app.config = Dot({})
+            with open(path) as fp:
+                configs = Attr(json.load(fp))
 
     def set_texts(self):
         app.text = dict(
             exception = self._get_text("exception"),
             content = self._get_text("content")
         )
-
-    def set_is_travis(self):
-        app.is_travis = ("TRAVIS" in os.environ and os.environ["TRAVIS"] != "")
 
     def _get_text(self, abstract):
         path = f"{app.base}/bot/text/{abstract}.yml"
@@ -65,7 +62,8 @@ class Contextual(object):
                 os.path.getctime(path))
 
             if today.date() > last_modification.date():
-                with open(path, "w"): pass
+                with open(path, "w"):
+                    pass
 
         with open(path) as fp:
             packages_checked_today = list(
@@ -77,7 +75,9 @@ class Contextual(object):
         )
 
         if len(packages_tmp) == 0:
-            with open(path, 'w'): pass
+            with open(path, 'w'):
+                pass
+
             return packages
         else:
             packages_tmp.sort()
@@ -102,7 +102,6 @@ def register():
     contextual = Contextual()
 
     contextual.set_contextual_paths()
-    contextual.set_is_travis()
     contextual.set_packages()
     contextual.set_repository()
     contextual.set_texts()
