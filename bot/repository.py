@@ -360,7 +360,9 @@ repository = Repository()
 validator = Validator()
 
 def register():
-    container.register("repository.synchronize", repository.synchronize)
-    container.register("repository.test_package", repository.test_package)
-    container.register("repository.create_database", repository.create_database)
-    container.register("repository.deploy", repository.deploy)
+    return {
+        "repository.synchronize": repository.synchronize,
+        "repository.test_package": repository.test_package,
+        "repository.create_database": repository.create_database,
+        "repository.deploy": repository.deploy
+    }

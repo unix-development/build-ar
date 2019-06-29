@@ -133,7 +133,10 @@ class Interface():
 
 def register():
     interface = Interface()
-    container.register("interface.create", interface.create)
+
+    return {
+        "interface.create": interface.create
+    }
 
 def get_base64(path):
     with open(path, 'rb') as f:

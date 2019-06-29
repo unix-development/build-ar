@@ -25,7 +25,13 @@ class Container(object):
         for bootstrap in bootstrappers:
             __import__(bootstrap)
             module = sys.modules[bootstrap]
-            module.register()
+            parameters = module.register()
+
+            if parameters is None:
+                continue
+
+            for key in parameters:
+                self.register(key, parameters[key])
 
     def _text(self, abstract):
         keys = abstract.split(".", 1)

@@ -15,85 +15,81 @@ import requests
 
 from core.container import return_self
 from core.container import container
-from utils.process import output
+from core.data import paths
 from utils.process import git_remote_path
+from utils.process import is_travis
+from utils.process import output
 from utils.validator import validate
 
+def check_user_privileges():
+    validate(
+        error="This program needs to be not execute as root.",
+        target="user privileges",
+        valid=os.getuid() != 0
+    )
+
+def check_is_docker_image():
+    validate(
+        error="This program needs to be executed in a docker image.",
+        target="docker",
+        valid=os.environ.get("IS_DOCKER", False)
+    )
+
+def check_operating_system():
+    validate(
+        error="This program needs to be executed in Arch Linux.",
+        target="operating system",
+        valid=platform.dist()[0] == "arch"
+    )
+
+def check_internet_up():
+    try:
+        socket.create_connection(("www.github.com", 80))
+        connected = True
+    except OSError:
+        connected = False
+
+    validate(
+        error="This program needs to be connected to internet.",
+        target="internet",
+        valid=connected
+    )
+
+def check_deploy_key():
+    valid = True
+    target = "deploy_key"
+
+    if is_travis() and os.path.isfile(os.path.join(paths.base, "deploy_key.enc")) is False:
+        valid = False
+        target = "deploy_key.enc"
+
+    elif os.path.isfile(os.path.join(paths.base, "deploy_key")) is False:
+        valid = False
+
+    validate(
+        error="%s could not been found." % target,
+        target=target,
+        valid=valid
+    )
+
+def check_repository():
+    valid = True
+    target = "repository.json"
+
+    if is_travis() and os.path.isfile(os.path.join(paths.base, "repository.json.enc")) is False:
+        valid = False
+        target = "repository.json.enc"
+
+    elif os.path.isfile(os.path.join(paths.base, "repository.json")) is False:
+        valid = False
+
+    validate(
+        error="%s could not been found." % target,
+        target=target,
+        valid=valid
+    )
 
 class Validator():
-    @return_self
-    def user_privileges(self):
-        validate(
-            error=text("exception.validator.root"),
-            target=text("content.validator.root"),
-            valid=os.getuid() != 0
-        )
-
-    @return_self
-    def is_docker_image(self):
-        validate(
-            error=text("exception.validator.docker"),
-            target=text("content.validator.docker"),
-            valid=os.environ.get("IS_DOCKER", False)
-        )
-
-    @return_self
-    def operating_system(self):
-        validate(
-            error=text("exception.validator.os"),
-            target=text("content.validator.os"),
-            valid=platform.dist()[0] == "arch"
-        )
-
-    @return_self
-    def internet_up(self):
-        try:
-            socket.create_connection(("www.github.com", 80))
-            connected = True
-        except OSError:
-            connected = False
-
-        validate(
-            error=text("exception.validator.internet"),
-            target=text("content.validator.internet"),
-            valid=connected
-        )
-
-    @return_self
-    def deploy_key(self):
-        valid = True
-        target = "deploy_key"
-
-        if app.is_travis and os.path.isfile(app.base + "/deploy_key.enc") is False:
-            valid = False
-            target = "deploy_key.enc"
-
-        elif os.path.isfile(app.base + "/deploy_key") is False:
-            valid = False
-
-        validate(
-            error=text("exception.validator.file.not.found") % target,
-            target=target,
-            valid=valid
-        )
-
-    @return_self
-    def repository(self):
-        valid = True
-        target = "repository.json"
-
-        if app.is_travis and os.path.isfile(app.base + "/repository.json.enc") is False:
-            valid = False
-            target = "repository.json.enc"
-
-        elif os.path.isfile(app.base + "/repository.json") is False:
-            valid = False
-
-        validate(
-            error=text("exception.validator.file.not.found") % target,
-            target=target,
-            valid=valid
-        )
 
     @return_self
     def ssh_connection(self):
@@ -257,68 +253,68 @@ class Validator():
 
 
 def register():
-    container.register("validator.requirements", requirements)
-    container.register("validator.repository", repository)
-    container.register("validator.content", content)
-    container.register("validator.travis", travis)
-    container.register("validator.connection", connection)
-    container.register("validator.files", files)
+    return {
+        "validator.requirements": requirements,
+        "validator.files": files,
+        "validator.repository": repository,
+        "validator.content": content,
+        "validator.travis": travis,
+        "validator.connection": connection,
+    }
 
 def requirements():
-    print(text("content.validator.title.requirements"))
+    print("Validating requirements:")
 
-    (validator
-        .user_privileges()
-        .is_docker_image()
-        .operating_system()
-        .internet_up())
+    check_user_privileges()
+    check_is_docker_image()
+    check_operating_system()
+    check_internet_up()
 
 def files():
-    print(text("content.validator.title.files"))
+    print("Validating files:")
 
-    (validator
-        .repository()
-        .deploy_key())
+    check_repository()
+    check_deploy_key()
 
-def repository():
-    print(text("content.validator.title.repository"))
-
-    (validator
-       .content()
-       .database()
-       .port())
-
-def connection():
-    print(text("content.validator.title.connection"))
-
-    (validator
-        .ssh_connection()
-        .mirror_connection()
-        .github_token())
-
-def content():
-    print(text("content.validator.title.packages"))
-
-    (validator
-        .pkg_directory()
-        .pkg_content()
-        .pkg_testing())
-
-def travis():
-    if app.is_travis is False:
-        return
-
-    print(text("content.validator.title.travis"))
-
-    with open(".travis.yml", "r") as stream:
-        try:
-            content = yaml.load(stream)
-        except yaml.YAMLError as error:
-            content = error
-
-    (validator
-        .travis_lint(content)
-        .travis_openssl(content))
+#def repository():
+#    print("Validating repository:")
+#
+#    (validator
+#       .content()
+#       .database()
+#       .port())
+#
+#def connection():
+#    print("Validating connection:")
+#
+#    (validator
+#        .ssh_connection()
+#        .mirror_connection()
+#        .github_token())
+#
+#def content():
+#    print("Validating packages:")
+#
+#    (validator
+#        .pkg_directory()
+#        .pkg_content()
+#        .pkg_testing())
+#
+#def travis():
+#    if is_travis() is False:
+#        return
+#
+#    print("Validating travis:")
+#
+#    with open(".travis.yml", "r") as stream:
+#        try:
+#            content = yaml.load(stream)
+#        except yaml.YAMLError as error:
+#            content = error
+#
+#    (validator
+#        .travis_lint(content)
+#        .travis_openssl(content))
 
 
 validator = Validator()

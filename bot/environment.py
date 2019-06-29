@@ -140,10 +140,12 @@ class Environment(object):
 def register():
     environment = Environment()
 
-    container.register("environment.clean_mirror", environment.clean_mirror)
-    container.register("environment.prepare_git", environment.prepare_git)
-    container.register("environment.prepare_mirror", environment.prepare_mirror)
-    container.register("environment.prepare_package_testing", environment.prepare_package_testing)
-    container.register("environment.prepare_pacman", environment.prepare_pacman)
-    container.register("environment.prepare_ssh", environment.prepare_ssh)
-    container.register("environment.pull_main_repository", environment.pull_main_repository)
+    return {
+        "environment.clean_mirror": environment.clean_mirror,
+        "environment.prepare_git": environment.prepare_git,
+        "environment.prepare_mirror": environment.prepare_mirror,
+        "environment.prepare_package_testing": environment.prepare_package_testing,
+        "environment.prepare_pacman": environment.prepare_pacman,
+        "environment.prepare_ssh": environment.prepare_ssh,
+        "environment.pull_main_repository": environment.pull_main_repository
+    }
