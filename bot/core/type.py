@@ -72,3 +72,14 @@ class Dict(dict):
 
     def __setattr__(self, key, value):
         self.__setitem__(key, value)
+
+
+def get_attr_value(ref, name):
+    for key in name.split(" "):
+        try:
+             ref = ref[key]
+        except:
+            return None
+
+    return ref
+
