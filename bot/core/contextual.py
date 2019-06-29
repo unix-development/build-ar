@@ -59,7 +59,12 @@ def set_configs():
     path = os.path.join(paths.base, "repository.json")
     if os.path.isfile(path):
         with open(path) as fp:
-            conf.user = Dict(json.load(fp))
+            try:
+                content = json.load(fp)
+            except ValueError:
+                content = {}
+
+            conf.user = Dict(content)
 
 def register():
     set_contextual_paths(base_path())
