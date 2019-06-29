@@ -7,6 +7,7 @@ See the file 'LICENSE' for copying permission
 
 import os
 import yaml
+import sys
 import json
 import socket
 import secrets
@@ -16,6 +17,8 @@ import requests
 from core.container import return_self
 from core.container import container
 from core.data import paths
+from core.data import conf
+from core.type import get_attr_value
 from utils.process import git_remote_path
 from utils.process import is_travis
 from utils.process import output
@@ -89,6 +92,47 @@ def check_repository():
         valid=valid
     )
 
+def check_content():
+    repository = {}
+    expected = [
+        "url",
+        "database",
+        "github token",
+        "ssh host",
+        "ssh path",
+        "ssh port"
+    ]
+
+    for name in expected:
+        repository[name] = get_attr_value(conf.user, name)
+
+    valid = True
+    for name in repository:
+        if not repository[name]:
+            valid = False
+            break
+
+    validate(
+        error="%s must be defined in repository.json" % name,
+        target="content",
+        valid=valid
+    )
+
+def check_database():
+    validate(
+        error="Database must be different than core, community and extra.",
+        target="database",
+        valid=conf.user.database not in ["core", "extra", "community"]
+    )
+
+def check_port():
+    validate(
+        error="port must be an interger in repository.json",
+        target="port",
+        valid=type(conf.user.ssh.port) == int
+    )
+
+
 class Validator():
 
     @return_self
@@ -130,45 +174,6 @@ class Validator():
             error=text("exception.validator.mirror.connection") % config.url,
             target=text("content.validator.mirror.connection"),
             valid=valid
-        )
-
-    @return_self
-    def content(self):
-        valid = True
-        repository = {
-            "url": config.url,
-            "database": config.database,
-            "github token": config.github.token,
-            "ssh host": config.ssh.host,
-            "ssh path": config.ssh.path,
-            "ssh port": config.ssh.port
-        }
-
-        for name in repository:
-            if not repository[name]:
-                valid = False
-                break
-
-        validate(
-            error=text("exception.validator.repository") % name,
-            target=text("content.validator.repository"),
-            valid=valid
-        )
-
-    @return_self
-    def database(self):
-        validate(
-            error=text("exception.validator.database"),
-            target=text("content.validator.database"),
-            valid=config.database not in [ "core", "extra", "community" ]
-        )
-
-    @return_self
-    def port(self):
-        validate(
-            error=text("exception.validator.ssh.port"),
-            target=text("content.validator.ssh.port"),
-            valid=type(config.ssh.port) == int
         )
 
     @return_self
@@ -257,9 +262,9 @@ def register():
         "validator.requirements": requirements,
         "validator.files": files,
         "validator.repository": repository,
-        "validator.content": content,
-        "validator.travis": travis,
-        "validator.connection": connection,
+        #"validator.content": content,
+        #"validator.travis": travis,
+        #"validator.connection": connection,
     }
 
 def requirements():
@@ -276,14 +281,13 @@ def files():
     check_repository()
     check_deploy_key()
 
-#def repository():
-#    print("Validating repository:")
-#
-#    (validator
-#       .content()
-#       .database()
-#       .port())
-#
+def repository():
+    print("Validating repository:")
+
+    check_content()
+    check_database()
+    check_port()
+
 #def connection():
 #    print("Validating connection:")
 #
