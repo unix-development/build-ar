@@ -9,6 +9,8 @@ import os
 import sys
 import subprocess
 
+from core.data import conf
+
 
 def output(command):
     return subprocess.check_output(command, shell=True).decode(sys.stdout.encoding).strip()
@@ -36,3 +38,10 @@ def extract(module, name):
 
 def is_travis():
     return ("TRAVIS" in os.environ and os.environ["TRAVIS"] != "")
+
+def is_testing():
+    try:
+        conf.testing.environment
+        return True
+    except:
+        return False
