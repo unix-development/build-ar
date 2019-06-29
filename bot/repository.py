@@ -9,173 +9,171 @@ import os
 import sys
 import subprocess
 
-from core.container import return_self
-from core.container import container
+from core.data import conf
+from core.data import paths
+from core.data import repository
 from utils.editor import edit_file
 from utils.editor import replace_ending
 from utils.process import output
 from utils.process import strict_execute
 from utils.process import git_remote_path
 from utils.process import extract
+from utils.process import is_travis
+from utils.process import is_testing
 from utils.style import title
 from utils.style import bold
 from utils.validator import validate
 
 
-class Repository():
-    def __init__(self):
-        self.packages_updated = []
+packages_updated = []
 
-    def synchronize(self):
-        sys.path.append(app.pkg)
+def synchronize():
+    sys.path.append(app.pkg)
 
-        for name in app.packages:
-            if self.verify_package(name):
-                if app.is_travis: return
+    for name in app.packages:
+        if self.verify_package(name):
+            if app.is_travis: return
 
-    def test_package(self):
-        sys.path.append(app.pkg)
-        self.verify_package(app.testing.package, True)
+def test_package():
+    sys.path.append(paths.pkg)
+    verify_package(conf.testing.package, True)
 
-    def verify_package(self, name, is_dependency = False):
-        package = Package(name, is_dependency)
-        package.run()
+def verify_package(name, is_dependency=False):
+    package = Package(name, is_dependency)
+    package.run()
 
-        if package.updated:
-            return True
+    if package.updated:
+        return True
 
-    def create_database(self):
-        if len(self.packages_updated) == 0: return
+def create_database():
+    if len(packages_updated) == 0:
+        return
 
-        print(title(text("content.repository.database")) + "\n")
+    print(title(text("content.repository.database")) + "\n")
 
-        strict_execute("""
-        rm -f {path}/{database}.old;
-        rm -f {path}/{database}.files;
-        rm -f {path}/{database}.files.tar.gz;
-        rm -f {path}/{database}.files.tar.gz.old;
-        """.format(
-            database=config.database,
-            path=app.mirror
-        ))
+    strict_execute("""
+    rm -f {path}/{database}.old;
+    rm -f {path}/{database}.files;
+    rm -f {path}/{database}.files.tar.gz;
+    rm -f {path}/{database}.files.tar.gz.old;
+    """.format(
+        database=config.database,
+        path=app.mirror
+    ))
 
-        for package in self.packages_updated:
-            strict_execute(f"""
-            repo-add \
-                --nocolor \
-                --remove \
-                {app.mirror}/{config.database}.db.tar.gz \
-                {app.mirror}/{package}-*.pkg.tar.xz
-            """)
-
-    def deploy(self):
-        if len(self.packages_updated) == 0: return
-
-        print(title(text("content.repository.deploy.ssh")) + "\n")
-
+    for package in packages_updated:
         strict_execute(f"""
-        rsync \
-            --archive \
-            --compress \
-            --copy-links \
-            --delete \
-            --recursive \
-            --update \
-            --verbose \
-            --progress -e 'ssh -i {app.base}/deploy_key -p {config.ssh.port}' \
-            {app.mirror}/ \
-            {config.ssh.user}@{config.ssh.host}:{config.ssh.path}
+        repo-add \
+            --nocolor \
+            --remove \
+            {app.mirror}/{config.database}.db.tar.gz \
+            {app.mirror}/{package}-*.pkg.tar.xz
         """)
 
-        print(title(text("content.repository.deploy.git")) + "\n")
+def deploy():
+    if len(packages_updated) == 0:
+        return
 
-        try:
-            subprocess.check_call("git push https://%s@%s HEAD:master &> /dev/null" % (
-                config.github.token, git_remote_path()), shell=True)
-        except:
-            sys.exit("Error: Failed to push some refs to 'https://%s'" % git_remote_path())
+    print(title(text("content.repository.deploy.ssh")) + "\n")
 
-    def set_package_checked(self, name):
-        with open(f"{app.mirror}/packages_checked", "a+") as f:
-            f.write(name + "\n")
+    strict_execute(f"""
+    rsync \
+        --archive \
+        --compress \
+        --copy-links \
+        --delete \
+        --recursive \
+        --update \
+        --verbose \
+        --progress -e 'ssh -i {app.base}/deploy_key -p {config.ssh.port}' \
+        {app.mirror}/ \
+        {config.ssh.user}@{config.ssh.host}:{config.ssh.path}
+    """)
+
+    print(title(text("content.repository.deploy.git")) + "\n")
+
+    try:
+        subprocess.check_call("git push https://%s@%s HEAD:master &> /dev/null" % (
+            config.github.token, git_remote_path()), shell=True)
+    except:
+        sys.exit("Error: Failed to push some refs to 'https://%s'" % git_remote_path())
+
+def set_package_checked(name):
+    with open(f"{paths.mirror}/packages_checked", "a+") as f:
+        f.write(name + "\n")
 
 
-class Validator():
-    @return_self
-    def module_source(self, package):
-        validate(
-            error=text("exception.repository.config.undefined") % ("source", package.name),
-            target="source",
-            valid=self._attribute_exists(package.module, "source")
-        )
 
-    @return_self
-    def module_name(self, package):
-        valid = True
-        exception = ""
+def check_module_source(package):
+    validate(
+        error="No %s variable is defined in %s package.py" % ("source", package.name),
+        target="source",
+        valid=_attribute_exists(package.module, "source")
+    )
 
-        if self._attribute_exists(package.module, "name") is False:
-            exception = text("exception.repository.config.undefined") % ("name", package.name)
-            valid = False
-        elif package.name != package.module.name:
-            exception = text("exception.repository.config.different.name")
-            valid = False
+def check_module_name(package):
+    valid = True
+    exception = ""
 
-        validate(
-            error=exception,
-            target="name",
-            valid=valid
-        )
+    if _attribute_exists(package.module, "name") is False:
+        exception = "No %s variable is defined in %s package.py" % ("name", package.name)
+        valid = False
+    elif package.name != package.module.name:
+        exception = "The name defined in package.py is the not the same in PKGBUILD."
+        valid = False
 
-    @return_self
-    def build_exists(self):
-        validate(
-            error=text("exception.repository.build.not.exists"),
-            target="is exists",
-            valid=os.path.isfile("PKGBUILD")
-        )
+    validate(
+        error=exception,
+        target="name",
+        valid=valid
+    )
 
-    @return_self
-    def build_version(self, version):
-        validate(
-            error=text("exception.repository.build.undefined") % "version",
-            target="version",
-            valid=version
-        )
+def check_build_exists():
+    validate(
+        error="PKGBUILD does not exists.",
+        target="is exists",
+        valid=os.path.isfile("PKGBUILD")
+    )
 
-    @return_self
-    def build_name(self, module, name):
-        valid = True
-        exception = ""
+def check_build_version(version):
+    validate(
+        error="No version variable is defined in PKGBUILD.",
+        target="version",
+        valid=version
+    )
 
-        if not name:
-            exception = text("exception.repository.build.undefined") % "name",
-            valid = False
-        elif module.name not in name.split(" "):
-            exception = text("exception.repository.build.different.name")
-            valid = False
+def check_build_name(module, name):
+    valid = True
+    exception = ""
 
-        validate(
-            error=exception,
-            target="name",
-            valid=valid
-        )
+    if not name:
+        exception = "No name variable is defined in PKGBUILD."
+        valid = False
 
-    def _attribute_exists(self, module, name):
-        try:
-            getattr(module, name)
-            return True
-        except AttributeError:
-            return False
+    elif module.name not in name.split(" "):
+        exception = "The name defined in package.py is the not the same in PKGBUILD."
+        valid = False
 
+    validate(
+        error=exception,
+        target="name",
+        valid=valid
+    )
+
+def _attribute_exists(module, name):
+    try:
+        getattr(module, name)
+        return True
+    except AttributeError:
+        return False
 
 
 class Package():
     updated = False
 
     def __init__(self, name, is_dependency):
-        self._module = f"{name}.package"
-        self._location = f"{app.pkg}/{name}"
+        self._module = name + ".package"
+        self._location = os.path.join(paths.pkg, name)
         self._is_dependency = is_dependency
 
         __import__(self._module)
@@ -204,18 +202,22 @@ class Package():
             self.updated = True
             self._verify_dependencies()
 
-            if len(repository.packages_updated) > 0 and app.is_travis:
+            if len(packages_updated) > 0 and is_travis():
                 return
 
-            self._commit()
+            if is_testing is False:
+                self._commit()
+
             self._build()
 
-            repository.packages_updated += self._name.split(" ")
-
-        repository.set_package_checked(self.name)
+            if is_testing:
+                # Remove changes
+            else:
+                packages_updated.extend(packages_updated + self._name.split(" "))
+                set_package_checked(self.name)
 
     def _build(self):
-        print(bold(text("content.repository.build")))
+        print(bold("Build package:"))
 
         strict_execute(f"""
         mkdir -p ./tmp; \
@@ -228,11 +230,13 @@ class Package():
             --noconfirm \
             --skipinteg \
             --syncdeps; \
-        mv *.pkg.tar.xz {app.mirror}
-        """);
+        """)
+
+        if is_testing is False:
+            strict_execute("mv *.pkg.tar.xz %s" % paths.mirror)
 
     def _commit(self):
-        print(bold(text("content.repository.commit")))
+        print(bold("Commit changes:"))
 
         if output("git status . --porcelain | sed s/^...//"):
             strict_execute(f"""
@@ -251,7 +255,7 @@ class Package():
         except:
             return
 
-        print(bold(text("content.repository.get.version")))
+        print(bold("Get real version:"))
 
         strict_execute("""
         mkdir -p ./tmp; \
@@ -281,14 +285,14 @@ class Package():
                 output("pacman -Sp '" + dependency + "' &>/dev/null")
                 continue
             except:
-                if dependency not in app.packages:
-                    sys.exit("\n" + text("exception.repository.dependency") % dependency)
+                if dependency not in repository:
+                    sys.exit("\nError: %s is not part of the official package and can't be found in pkg directory." % dependency)
 
-                if dependency not in repository.packages_updated:
+                if dependency not in packages_updated:
                     redirect = True
                     repository.verify_package(dependency, True)
 
-        if redirect is True and app.is_travis is False:
+        if redirect is True and is_travis() is False:
             self._separator()
 
         os.chdir(self._location)
@@ -304,7 +308,7 @@ class Package():
         return True
 
     def _pull(self):
-        print(bold(text("content.repository.pull")))
+        print(bold("Clone repository:"))
 
         strict_execute(f"""
         git init --quiet;
@@ -326,19 +330,17 @@ class Package():
             self._epoch += ":"
 
     def _validate_config(self):
-        print(bold(text("content.repository.validate.config")))
+        print(bold("Validate package.py:"))
 
-        (validator
-            .module_source(self)
-            .module_name(self))
+        check_module_source(self)
+        check_module_name(self)
 
     def _validate_build(self):
-        print(bold(text("content.repository.validate.build")))
+        print(bold("Validate PKGBUILD:"))
 
-        (validator
-            .build_exists()
-            .build_version(self._version)
-            .build_name(self, self._name))
+        check_build_exists()
+        check_build_version(self._version)
+        check_build_name(self, self._name)
 
     def _separator(self):
         print(title(self.name))
@@ -356,13 +358,10 @@ class Package():
         self.module.replace_ending = replace_ending
 
 
-repository = Repository()
-validator = Validator()
-
 def register():
     return {
-        "repository.synchronize": repository.synchronize,
-        "repository.test_package": repository.test_package,
-        "repository.create_database": repository.create_database,
-        "repository.deploy": repository.deploy
+        "repository.synchronize": synchronize,
+        "repository.test_package": test_package,
+        "repository.create_database": create_database,
+        "repository.deploy": deploy
     }
