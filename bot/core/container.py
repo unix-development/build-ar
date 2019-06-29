@@ -6,7 +6,6 @@ See the file 'LICENSE' for copying permission
 """
 
 import sys
-import functools
 
 
 class Container(object):
@@ -32,20 +31,6 @@ class Container(object):
 
             for key in parameters:
                 self.register(key, parameters[key])
-
-    def _text(self, abstract):
-        keys = abstract.split(".", 1)
-        return self.instances.text[keys[0]][keys[1]]
-
-
-def return_self(method):
-    @functools.wraps(method)
-    def enforced_method(*args, **kwargs):
-        self = args[0]
-        method(*args, **kwargs)
-        return self
-
-    return enforced_method
 
 
 container = Container()
