@@ -187,6 +187,7 @@ class Package():
         self._set_utils()
         self._clean_directory()
         self._validate_config()
+        self._add()
         self._pull()
 
         if "pre_build" in dir(self.module):
@@ -197,6 +198,11 @@ class Package():
         self._validate_build()
         self._make()
 
+    def _add(self):
+        if is_testing() is True:
+            strict_execute("git add .")
+            return
+
     def _make(self):
         if self._has_new_version() or self._is_dependency:
             self.updated = True
@@ -205,16 +211,22 @@ class Package():
             if len(packages_updated) > 0 and is_travis():
                 return
 
-            if is_testing is False:
+            if is_testing() is False:
                 self._commit()
 
             self._build()
 
-            if is_testing:
-                # Remove changes
+            if is_testing():
+                self._reset()
             else:
                 packages_updated.extend(packages_updated + self._name.split(" "))
                 set_package_checked(self.name)
+
+    def _reset(self):
+        strict_execute("""
+        git checkout .;
+        git reset &> /dev/null
+        """)
 
     def _build(self):
         print(bold("Build package:"))
