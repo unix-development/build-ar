@@ -10,7 +10,8 @@ import sys
 import textwrap
 import subprocess
 
-from core.container import container
+from core.data import conf
+from core.data import paths
 from utils.process import output
 from utils.process import git_remote_path
 from utils.process import strict_execute
@@ -71,28 +72,28 @@ class Environment(object):
             "mkdir -p ~/.ssh; "
             "chmod 0700 ~/.ssh; "
             "ssh-keyscan -t rsa -H %s >> ~/.ssh/known_hosts; "
-            % config.ssh.host
+            % conf.user.ssh.host
         )
 
     def prepare_pacman(self):
-        content = (f"""
-        [{config.database}]
+        content = ("""
+        [%s]
         SigLevel = Optional TrustedOnly
-        Server = file:///{app.mirror}
-        """)
+        Server = file:///%s
+        """ % (conf.user.database, paths.mirror))
 
-        if os.path.exists(f"{app.mirror}/{config.database}.db"):
+        if os.path.exists(os.path.join(paths.mirror, conf.user.database + ".db")):
             with open("/etc/pacman.conf", "a+") as fp:
                 fp.write(textwrap.dedent(content))
 
         self._execute("sudo pacman -Sy")
 
     def prepare_package_testing(self):
-        app.testing.environment = True
-        app.testing.package = None
+        conf.testing.environment = True
+        conf.testing.package = None
 
         if len(sys.argv) > 2:
-            app.testing.package = sys.argv[2]
+            conf.testing.package = sys.argv[2]
 
     def clean_mirror(self):
         if not os.path.exists(f"{app.mirror}/{config.database}.db"):
