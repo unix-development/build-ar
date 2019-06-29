@@ -169,7 +169,6 @@ def check_pkg_content():
         valid=len(diff) == 0
     )
 
-# @TO TEST
 def check_pkg_testing():
     try:
         conf.testing.environment
