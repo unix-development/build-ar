@@ -5,8 +5,10 @@ Copyright (c) Build Your Own Arch Linux Repository developers
 See the file 'LICENSE' for copying permission
 """
 
+import collections
 
-class Attr(dict):
+
+class Attr(collections.defaultdict):
     """
     This class defines an object, inheriting from Python data
     type dictionary.
@@ -16,45 +18,17 @@ class Attr(dict):
     >>> foo.bar
     1
     """
+    def __init__(self):
+        super(Attr, self).__init__(Attr)
 
-    def __init__(self, initial=None):
-        if initial is None:
-            initial = {}
-
-        dict.__init__(self, initial)
-
-    def __getattr__(self, item):
-        """
-        Maps values to attributes
-        Only called if there *is NOT* an attribute with this name
-        """
-
+    def __getattr__(self, abstract):
         try:
-            return self.__getitem__(item)
+            return self[abstract]
         except KeyError:
-            raise AttributeError("unable to access item '%s'" % item)
+            raise AttributeError(abstract)
 
-    def __setattr__(self, item, value):
-        """
-        Maps attributes to values
-        Only if we are initialised
-        """
-
-        # This test allows attributes to be set in the __init__ method
-        if "_AttribDict__initialised" not in self.__dict__:
-            return dict.__setattr__(self, item, value)
-
-        # Any normal attributes are handled normally
-        elif item in self.__dict__:
-            dict.__setattr__(self, item, value)
-        else:
-            self.__setitem__(item, value)
-
-    def __getstate__(self):
-        return self.__dict__
-
-    def __setstate__(self, dict):
-        self.__dict__ = dict
+    def __setattr__(self, abstract, value):
+        self[abstract] = value
 
 
 class Dict(dict):
