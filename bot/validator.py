@@ -22,6 +22,7 @@ from utils.process import is_travis
 from utils.process import output
 from utils.validator import validate
 
+
 def check_user_privileges():
     validate(
         error="This program needs to be not execute as root.",
@@ -182,7 +183,7 @@ def check_pkg_testing():
         valid = False
         error = "You need to define which package you want to test with this command: make package test=discord"
 
-    elif conf.testing.package not in conf.packages:
+    elif conf.testing.package not in repository:
         valid = False
         error = "%s is not in pkg directory." % conf.testing.package
 
