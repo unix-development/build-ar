@@ -21,7 +21,8 @@ class Environment(object):
     upstream = "github.com/unix-development/build-your-own-archlinux-repository"
 
     def pull_main_repository(self):
-        if git_remote_path() == self.upstream: return
+        if git_remote_path() == self.upstream:
+            return
 
         print("Updating repository bot:")
 
@@ -38,11 +39,12 @@ class Environment(object):
             "git commit -m 'Core: Pull main repository project';"
         )
 
-        print("  [ ✓ ] " + text("content.environment.up.to.date"))
+        print("  [ ✓ ] up to date")
 
     def prepare_mirror(self):
-        remote = output("git ls-files " + app.mirror + " | awk -F / '{print $2}'").split("\n")
-        local = os.listdir(app.mirror)
+        remote = output("git ls-files " + paths.mirror + " | awk -F / '{print $2}'").split("\n")
+        local = os.listdir(paths.mirror)
+        ssh = conf.user.ssh
 
         local.remove("validation_token")
         local.remove("packages_checked")
@@ -50,12 +52,12 @@ class Environment(object):
         if len(local) != len(remote):
             return
 
-        print("\n" + text("content.environment.prepare.mirror"))
+        print("\nPull remote mirror directory files:")
 
         strict_execute(f"""
-        scp -i {app.base}/deploy_key -P {config.ssh.port} \
-            {config.ssh.user}@{config.ssh.host}:{config.ssh.path}/* \
-            {app.mirror}/
+        scp -i {paths.base}/deploy_key -P {ssh.port} \
+            {ssh.user}@{ssh.host}:{ssh.path}/* \
+            {paths.mirror}/
         """)
 
     def prepare_git(self):
@@ -96,10 +98,10 @@ class Environment(object):
             conf.testing.package = sys.argv[2]
 
     def clean_mirror(self):
-        if not os.path.exists(f"{app.mirror}/{config.database}.db"):
+        if not os.path.exists(f"{paths.mirror}/{conf.user.database}.db"):
             return
 
-        database = output(f"pacman -Sl {config.database}")
+        database = output(f"pacman -Sl {conf.user.database}")
         files = self._get_mirror_packages()
         packages = []
 
@@ -109,7 +111,7 @@ class Environment(object):
 
         for fp in files:
             if self._in_mirror(packages, fp) is False:
-                os.remove(app.mirror + "/" + fp)
+                os.remove(paths.mirror + "/" + fp)
 
     def _in_mirror(self, packages, fp):
         for package in packages:
@@ -120,7 +122,7 @@ class Environment(object):
 
     def _get_mirror_packages(self):
         packages = []
-        for root, dirs, files in os.walk(app.mirror):
+        for root, dirs, files in os.walk(paths.mirror):
             for fp in files:
                 if not fp.endswith(".tar.xz"):
                     continue
