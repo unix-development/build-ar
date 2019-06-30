@@ -6,6 +6,7 @@ See the file 'LICENSE' for copying permission
 """
 
 import os
+import sys
 import yaml
 import json
 import socket
@@ -170,9 +171,7 @@ def check_pkg_content():
     )
 
 def check_pkg_testing():
-    try:
-        conf.testing.environment
-    except AttributeError:
+    if conf.testing.environment is not True:
         return
 
     valid = True
@@ -185,6 +184,10 @@ def check_pkg_testing():
     elif conf.testing.package not in repository:
         valid = False
         error = "%s is not in pkg directory." % conf.testing.package
+
+    elif output("git status " + paths.pkg + "/" + conf.testing.package + " --porcelain | sed s/^...//"):
+        valid = False
+        error = "You need to commit your changes before to test your package."
 
     validate(
         error=error,
