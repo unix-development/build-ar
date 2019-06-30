@@ -33,7 +33,6 @@ runner.set("package", [
     "validator.content",
     "environment.prepare_pacman",
     "repository.test_package",
-    "repository.create_database"
 ])
 
 runner.set("update", [
