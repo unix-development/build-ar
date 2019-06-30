@@ -8,12 +8,6 @@ See the file 'LICENSE' for copying permission
 from core.runner import runner
 from core.container import container
 
-import core.contextual
-import environment
-import interface
-import repository
-import validator
-
 container.bootstrap([
     "core.contextual",
     "environment",
@@ -26,7 +20,7 @@ runner.set("validation", [
     "validator.requirements",
     "validator.files",
     "validator.travis",
-    "validator.repository",
+    "validator.content",
     "environment.prepare_ssh",
     "validator.connection",
     "validator.content"
@@ -35,7 +29,6 @@ runner.set("validation", [
 runner.set("package", [
     "validator.requirements",
     "validator.files",
-    "validator.repository",
     "environment.prepare_package_testing",
     "validator.content",
     "environment.prepare_pacman",
@@ -52,7 +45,7 @@ runner.set("build", [
     "validator.requirements",
     "validator.files",
     "validator.travis",
-    "validator.repository",
+    "validator.content",
     "environment.prepare_ssh",
     "validator.connection",
     "validator.content",
