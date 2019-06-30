@@ -102,8 +102,6 @@ def set_package_checked(name):
     with open(f"{paths.mirror}/packages_checked", "a+") as f:
         f.write(name + "\n")
 
-
-
 def check_module_source(package):
     validate(
         error="No %s variable is defined in %s package.py" % ("source", package.name),
@@ -187,7 +185,6 @@ class Package():
         self._set_utils()
         self._clean_directory()
         self._validate_config()
-        self._add()
         self._pull()
 
         if "pre_build" in dir(self.module):
@@ -197,11 +194,6 @@ class Package():
         self._set_variables()
         self._validate_build()
         self._make()
-
-    def _add(self):
-        if is_testing() is True:
-            strict_execute("git add .")
-            return
 
     def _make(self):
         if self._has_new_version() or self._is_dependency:
@@ -224,8 +216,9 @@ class Package():
 
     def _reset(self):
         strict_execute("""
-        git checkout .;
-        git reset &> /dev/null
+        git reset HEAD -- . &> /dev/null;
+        git checkout -- . &> /dev/null;
+        git clean -fd . &> /dev/null;
         """)
 
     def _build(self):
