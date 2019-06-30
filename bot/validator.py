@@ -6,7 +6,6 @@ See the file 'LICENSE' for copying permission
 """
 
 import os
-import sys
 import yaml
 import json
 import socket
@@ -14,38 +13,41 @@ import secrets
 import platform
 import requests
 
-from core.data import paths
 from core.data import conf
+from core.data import paths
 from core.data import repository
+from core.settings import IS_TRAVIS
 from core.type import get_attr_value
 from utils.process import git_remote_path
-from utils.process import is_travis
 from utils.process import output
 from utils.validator import validate
 
 
-def check_user_privileges():
+def _check_user_privileges():
     validate(
         error="This program needs to be not execute as root.",
         target="user privileges",
         valid=os.getuid() != 0
     )
 
-def check_is_docker_image():
+
+def _check_is_docker_image():
     validate(
         error="This program needs to be executed in a docker image.",
         target="docker",
         valid=os.environ.get("IS_DOCKER", False)
     )
 
-def check_operating_system():
+
+def _check_operating_system():
     validate(
         error="This program needs to be executed in Arch Linux.",
         target="operating system",
-        valid=platform.dist()[0] == "arch"
+        valid=(platform.dist()[0] == "arch")
     )
 
-def check_internet_up():
+
+def _check_internet_up():
     try:
         socket.create_connection(("www.github.com", 80))
         connected = True
@@ -58,11 +60,12 @@ def check_internet_up():
         valid=connected
     )
 
-def check_deploy_key():
+
+def _check_deploy_key():
     valid = True
     target = "deploy_key"
 
-    if is_travis() and os.path.isfile(os.path.join(paths.base, "deploy_key.enc")) is False:
+    if IS_TRAVIS and os.path.isfile(os.path.join(paths.base, "deploy_key.enc")) is False:
         valid = False
         target = "deploy_key.enc"
 
@@ -75,11 +78,12 @@ def check_deploy_key():
         valid=valid
     )
 
-def check_repository():
+
+def _check_repository():
     valid = True
     target = "repository.json"
 
-    if is_travis() and os.path.isfile(os.path.join(paths.base, "repository.json.enc")) is False:
+    if IS_TRAVIS and os.path.isfile(os.path.join(paths.base, "repository.json.enc")) is False:
         valid = False
         target = "repository.json.enc"
 
@@ -92,7 +96,8 @@ def check_repository():
         valid=valid
     )
 
-def check_content():
+
+def _check_content():
     configs = {}
     expected = [
         "url",
@@ -118,28 +123,32 @@ def check_content():
         valid=valid
     )
 
-def check_database():
+
+def _check_database():
     validate(
         error="Database must be different than core, community and extra.",
         target="database",
         valid=conf.user.database not in ["core", "extra", "community"]
     )
 
-def check_port():
+
+def _check_port():
     validate(
         error="port must be an interger in repository.json",
         target="port",
         valid=type(conf.user.ssh.port) == int
     )
 
-def check_travis_lint(content):
+
+def _check_travis_lint(content):
     validate(
         error="An error occured while trying to parse your travis file.\nPlease make sure that the file is valid YAML.",
         target="lint",
         valid=type(content) is dict
     )
 
-def check_travis_openssl(content):
+
+def _check_travis_openssl(content):
     valid = False
 
     if "before_install" in content:
@@ -153,14 +162,16 @@ def check_travis_openssl(content):
         valid=valid
     )
 
-def check_pkg_directory():
+
+def _check_pkg_directory():
     validate(
         error="No package was found in pkg directory.",
         target="directory",
         valid=len(repository) > 0
     )
 
-def check_pkg_content():
+
+def _check_pkg_content():
     folders = [f.name for f in os.scandir(paths.pkg) if f.is_dir()]
     diff = set(folders) - set(repository)
 
@@ -170,7 +181,8 @@ def check_pkg_content():
         valid=len(diff) == 0
     )
 
-def check_pkg_testing():
+
+def _check_pkg_testing():
     if conf.testing.environment is not True:
         return
 
@@ -195,7 +207,8 @@ def check_pkg_testing():
         valid=valid
     )
 
-def check_ssh_connection():
+
+def _check_ssh_connection():
     script = "ssh -i ./deploy_key -p %i -q %s@%s [[ -d %s ]] && echo 1 || echo 0" % (
         conf.user.ssh.port,
         conf.user.ssh.user,
@@ -209,7 +222,8 @@ def check_ssh_connection():
         valid=output(script) is "1"
     )
 
-def check_mirror_connection():
+
+def _check_mirror_connection():
     ssh = conf.user.ssh
     token = secrets.token_hex(15)
     source = os.path.join(paths.mirror, "validation_token")
@@ -234,7 +248,8 @@ def check_mirror_connection():
         valid=valid
     )
 
-def check_github_token():
+
+def _check_github_token():
     valid = False
     user = git_remote_path().split("/")[1]
     response = output("curl -su %s:%s https://api.github.com/user" % (user, conf.user.github.token))
@@ -249,62 +264,57 @@ def check_github_token():
         valid=valid
     )
 
-def register():
-    return {
-        "validator.requirements": requirements,
-        "validator.files": files,
-        "validator.configs": configs,
-        "validator.travis": travis,
-        "validator.content": content,
-        "validator.connection": connection
-    }
 
-def requirements():
-    print("Validating requirements:")
+class Validator():
+    def requirements(self):
+        print("Validating requirements:")
 
-    check_user_privileges()
-    check_is_docker_image()
-    check_operating_system()
-    check_internet_up()
+        _check_user_privileges()
+        _check_is_docker_image()
+        _check_operating_system()
+        _check_internet_up()
 
-def files():
-    print("Validating files:")
+    def files(self):
+        print("Validating files:")
 
-    check_repository()
-    check_deploy_key()
+        _check_repository()
+        _check_deploy_key()
 
-def configs():
-    print("Validating repository:")
+    def configs(self):
+        print("Validating repository:")
 
-    check_content()
-    check_database()
-    check_port()
+        _check_content()
+        _check_database()
+        _check_port()
 
-def connection():
-    print("Validating connection:")
+    def connection(self):
+        print("Validating connection:")
 
-    check_ssh_connection()
-    check_mirror_connection()
-    check_github_token()
+        _check_ssh_connection()
+        _check_mirror_connection()
+        _check_github_token()
 
-def content():
-    print("Validating packages:")
+    def content(self):
+        print("Validating packages:")
 
-    check_pkg_directory()
-    check_pkg_content()
-    check_pkg_testing()
+        _check_pkg_directory()
+        _check_pkg_content()
+        _check_pkg_testing()
 
-def travis():
-    if is_travis() is False:
-        return
+    def travis(self):
+        if IS_TRAVIS is False:
+            return
 
-    print("Validating travis:")
+        print("Validating travis:")
 
-    with open(".travis.yml", "r") as stream:
-        try:
-            content = yaml.load(stream)
-        except yaml.YAMLError as error:
-            content = error
+        with open(".travis.yml", "r") as stream:
+            try:
+                content = yaml.load(stream)
+            except yaml.YAMLError as error:
+                content = error
 
-    check_travis_lint(content)
-    check_travis_openssl(content)
+        _check_travis_lint(content)
+        _check_travis_openssl(content)
+
+
+validator = Validator()
