@@ -11,6 +11,7 @@ import subprocess
 
 from core.settings import UPSTREAM_REPOSITORY
 from core.settings import IS_DEVELOPMENT
+from core.settings import IS_TRAVIS
 
 from core.data import conf
 from core.data import paths
@@ -20,7 +21,6 @@ from utils.process import output
 from utils.process import strict_execute
 from utils.process import git_remote_path
 from utils.process import extract
-from utils.process import is_travis
 from utils.style import title
 from utils.style import bold
 from utils.validator import validate
@@ -53,7 +53,7 @@ class Repository():
 
         for name in conf.packages:
             if self.verify_package(name):
-                if is_travis():
+                if IS_TRAVIS:
                     return
 
     def test_package(self):
@@ -162,7 +162,7 @@ class Package():
             self.updated = True
             self._verify_dependencies()
 
-            if len(conf.updated) > 0 and is_travis():
+            if len(conf.updated) > 0 and IS_TRAVIS:
                 return
 
             self._build()
@@ -262,7 +262,7 @@ class Package():
                     redirect = True
                     repository.verify_package(dependency, True)
 
-        if redirect is True and is_travis() is False:
+        if redirect is True and IS_TRAVIS is False:
             self._separator()
 
         os.chdir(self._location)
