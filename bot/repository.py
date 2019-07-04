@@ -7,6 +7,10 @@ See the file 'LICENSE' for copying permission
 
 import os
 import sys
+import subprocess
+
+from core.setting import UPSTREAM_REPOSITORY
+from core.setting import IS_DEVELOPMENT
 
 from core.data import conf
 from core.data import paths
@@ -14,7 +18,6 @@ from utils.editor import edit_file
 from utils.editor import replace_ending
 from utils.process import output
 from utils.process import strict_execute
-from utils.process import git_remote_path
 from utils.process import extract
 from utils.process import is_travis
 from utils.style import title
@@ -23,6 +26,27 @@ from utils.validator import validate
 
 
 class Repository():
+    def pull_main_repository(self):
+        if IS_DEVELOPMENT:
+            return
+
+        print("Updating repository bot:")
+
+        try:
+            output("git remote | grep upstream")
+        except:
+            self._execute(f"git remote add upstream {UPSTREAM_REPOSITORY}")
+
+        self._execute(
+            "git fetch upstream; "
+            "git pull --no-ff --no-commit -X theirs upstream master; "
+            "git reset HEAD README.md; "
+            "git checkout -- README.md; "
+            "git commit -m 'Core: Pull main repository project';"
+        )
+
+        print("  [ ✓ ] up to date")
+
     def synchronize(self):
         sys.path.append(paths.pkg)
 
@@ -94,15 +118,13 @@ class Repository():
         #except:
         #    sys.exit("Error: Failed to push some refs to 'https://%s'" % git_remote_path())
 
-
-repository = Repository()
-
-def _attribute_exists(module, name):
-    try:
-        getattr(module, name)
-        return True
-    except AttributeError:
-        return False
+    def _execute(self, commands):
+        subprocess.run(
+            commands,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            shell=True
+        )
 
 
 class Package():
@@ -363,3 +385,14 @@ class Package():
     def _set_utils(self):
         self.module.edit_file = edit_file
         self.module.replace_ending = replace_ending
+
+
+def _attribute_exists(module, name):
+    try:
+        getattr(module, name)
+        return True
+    except AttributeError:
+        return False
+
+
+repository = Repository()
