@@ -174,9 +174,7 @@ def _check_pkg_content():
     )
 
 def _check_pkg_testing():
-    try:
-        conf.package_to_test
-    except AttributeError:
+    if conf.environment is "prod":
         return
 
     valid = True
