@@ -9,8 +9,8 @@ import os
 import sys
 import subprocess
 
-from core.setting import UPSTREAM_REPOSITORY
-from core.setting import IS_DEVELOPMENT
+from core.settings import UPSTREAM_REPOSITORY
+from core.settings import IS_DEVELOPMENT
 
 from core.data import conf
 from core.data import paths
