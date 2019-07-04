@@ -70,7 +70,7 @@ class Environment(object):
         self._execute("sudo pacman -Sy")
 
     def prepare_package_testing(self):
-        conf.package_to_test = None
+        conf.environment = "dev"
 
         if len(sys.argv) > 2:
             conf.package_to_test = sys.argv[2]
