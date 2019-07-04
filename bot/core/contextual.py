@@ -59,8 +59,9 @@ def get_sorted_packages(matches):
     return (not_checked + checked)
 
 def set_configs():
-    # To remove
     conf.updated = []
+    conf.package_to_test = None
+    conf.environment = "prod"
 
     path = os.path.join(paths.base, "repository.json")
     content = {}
