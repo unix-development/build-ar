@@ -59,6 +59,16 @@ def main():
         repository.pull_main_repository
     ])
 
+    runner.set("package", [
+        validator.requirements,
+        validator.files,
+        environment.prepare_package_testing,
+        validator.content,
+        validator.configs,
+        environment.prepare_pacman,
+        repository.test_package
+    ])
+
     for execute in runner.get():
         execute()
 
