@@ -133,8 +133,7 @@ def _check_port():
     )
 
 def _check_travis_lint(content):
-    error_msg = "An error occured while trying to parse your travis file.\n"
-    error_msg += "Please make sure that the file is valid YAML.",
+    error_msg = "An error occured while trying to parse your travis file.\nPlease make sure that the file is valid YAML.",
 
     validate(
         error=error_msg,
@@ -144,10 +143,7 @@ def _check_travis_lint(content):
 
 def _check_travis_openssl(content):
     valid = False
-
-    error_msg = "No openssl statement could be found in your travis file.\n"
-    error_msg += "Please make sure to execute: "
-    error_msg += "travis encrypt-file ./deploy_key --add",
+    error_msg = "No openssl statement could be found in your travis file.\nPlease make sure to execute: travis encrypt-file ./deploy_key --add"
 
     if "before_install" in content:
         for statement in content["before_install"]:
@@ -251,11 +247,8 @@ def _check_github_token():
     if "login" in content:
         valid = True
 
-    error_msg = "An error occured while trying to connect to your github repository with your encrypted token.\n"
-    error_msg += "Please make sure that your token is working."
-
     validate(
-        error=error_msg,
+        error="An error occured while trying to connect to your github repository with your encrypted token.\nPlease make sure that your token is working.",
         target="github token api",
         valid=valid
     )
