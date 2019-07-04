@@ -7,7 +7,6 @@ See the file 'LICENSE' for copying permission
 
 import os
 import json
-import sys
 
 from core.data import conf
 from core.data import paths
@@ -38,9 +37,6 @@ def set_repository():
 
     if IS_TRAVIS:
         matches = get_sorted_packages(matches)
-
-    print(matches)
-    sys.exit()
 
     conf.packages = matches
 
