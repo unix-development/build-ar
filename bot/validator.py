@@ -119,18 +119,18 @@ def _check_content():
 
 def _check_database():
     valid = True
-    exception = ""
+    error_msg = ""
 
     if conf.db in ("core", "extra", "community"):
         valid = False
-        exception = "Database must be different than core, community and extra."
+        error_msg = "Database must be different than core, community and extra."
 
     elif conf.db.isalnum() is False:
         valid = False
-        exception = "Database must be an alphanumeric string."
+        error_msg = "Database must be an alphanumeric string."
 
     validate(
-        error=exception,
+        error=error_msg,
         target="database",
         valid=valid
     )
