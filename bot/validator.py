@@ -13,10 +13,12 @@ import secrets
 import platform
 import requests
 
-from core.data import conf
-from core.data import paths
+from core.settings import ALIAS_CONFIGS
 from core.settings import IS_DEVELOPMENT
 from core.settings import IS_TRAVIS
+
+from core.data import conf
+from core.data import paths
 from core.type import get_attr_value
 from utils.process import git_remote_path
 from utils.process import output
@@ -92,22 +94,10 @@ def _check_repository():
     )
 
 def _check_content():
-    configs = {}
-    expected = [
-        "db",
-        "url",
-        "ssh_host",
-        "ssh_path",
-        "ssh_port",
-        "github_token"
-    ]
-
-    for name in expected:
-        configs[name] = get_attr_value(conf, name)
-
     valid = True
-    for name in configs:
-        if not configs[name]:
+
+    for name in ALIAS_CONFIGS:
+        if not get_attr_value(conf, name):
             valid = False
             break
 
