@@ -8,34 +8,37 @@ See the file 'LICENSE' for copying permission
 import os
 import json
 
-from utils.process import is_travis
 from core.data import conf
-from core.data import repository
 from core.data import paths
-from core.type import Dict
+from core.settings import ALIAS_CONFIGS
+from core.settings import ALLOWED_CONFIGS
+from core.settings import IS_TRAVIS
 
 
-def set_contextual_paths(root):
+def set_paths(root):
     paths.base = root
     paths.mirror = os.path.join(root, "mirror")
     paths.pkg = os.path.join(root, "pkg")
     paths.www = os.path.join(root, "bot/www")
 
-def base_path():
+def get_base_path():
     return os.path.realpath(__file__).replace("/bot/core/contextual.py", "")
 
 def set_repository():
     matches = []
+
     for name in os.listdir(paths.pkg):
-        if os.path.isfile(os.path.join(paths.pkg, name, "package.py")):
+        path = os.path.join(paths.pkg, name, "package.py")
+
+        if os.path.isfile(path):
             matches.append(name)
 
     matches.sort()
 
-    if is_travis() is True:
+    if IS_TRAVIS:
         matches = get_sorted_packages(matches)
 
-    repository.extend(matches)
+    conf.packages = matches
 
 def get_sorted_packages(matches):
     path = os.path.join(paths.mirror, "packages_checked")
@@ -48,7 +51,7 @@ def get_sorted_packages(matches):
 
     not_checked = list(set(matches) - set(checked))
     if len(not_checked) == 0:
-        with open(path, 'w'):
+        with open(path, "w"):
             pass
     else:
         not_checked.sort()
@@ -57,16 +60,19 @@ def get_sorted_packages(matches):
 
 def set_configs():
     path = os.path.join(paths.base, "repository.json")
+    content = {}
+
     if os.path.isfile(path):
         with open(path) as fp:
+            content = json.load(fp)
+
+    for i, name in enumerate(ALLOWED_CONFIGS):
+        value = content
+
+        for j in name.split("."):
             try:
-                content = json.load(fp)
-            except ValueError:
-                content = {}
+                value = value[j]
+            except Exception:
+                value = None
 
-            conf.user = Dict(content)
-
-def register():
-    set_contextual_paths(base_path())
-    set_repository()
-    set_configs()
+        conf[ALIAS_CONFIGS[i]] = value
