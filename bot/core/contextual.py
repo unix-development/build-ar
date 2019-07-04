@@ -1,120 +1,82 @@
 #!/usr/bin/env python
-# -*- coding:utf-8 -*-
+
+"""
+Copyright (c) Build Your Own Arch Linux Repository developers
+See the file 'LICENSE' for copying permission
+"""
 
 import os
 import json
-import yaml
-from datetime import datetime
+
+from core.data import conf
+from core.data import paths
+from core.settings import ALIAS_CONFIGS
+from core.settings import ALLOWED_CONFIGS
+from core.settings import IS_TRAVIS
 
 
-class Contextual(object):
-    def set_contextual_paths(self):
-        app.base = self._get_base_path()
-        app.mirror = app.base + "/mirror"
-        app.pkg = app.base + "/pkg"
-        app.www = app.base + "/www"
+def set_paths(root):
+    paths.base = root
+    paths.mirror = os.path.join(root, "mirror")
+    paths.pkg = os.path.join(root, "pkg")
+    paths.www = os.path.join(root, "bot/www")
 
-    def set_packages(self):
-        packages = []
-        for name in os.listdir(app.pkg):
-            if os.path.isfile(f"{app.pkg}/{name}/package.py"):
-                packages.append(name)
+def get_base_path():
+    return os.path.realpath(__file__).replace("/bot/core/contextual.py", "")
 
-        packages.sort()
+def set_repository():
+    matches = []
 
-        if app.is_travis is True:
-            packages = self._get_packages_sorted(packages)
+    for name in os.listdir(paths.pkg):
+        path = os.path.join(paths.pkg, name, "package.py")
 
-        app.packages = packages
-
-    def set_repository(self):
-        path = f"{app.base}/repository.json"
         if os.path.isfile(path):
-            with open(f"{app.base}/repository.json") as fp:
-                app.config = Dot(json.load(fp))
-        else:
-            app.config = Dot({})
+            matches.append(name)
 
-    def set_texts(self):
-        app.text = dict(
-            exception = self._get_text("exception"),
-            content = self._get_text("content")
-        )
+    matches.sort()
 
-    def set_is_travis(self):
-        app.is_travis = ("TRAVIS" in os.environ and os.environ["TRAVIS"] != "")
+    if IS_TRAVIS:
+        matches = get_sorted_packages(matches)
 
-    def _get_text(self, abstract):
-        path = f"{app.base}/bot/text/{abstract}.yml"
+    conf.packages = matches
 
-        with open(path, "r") as fp:
-            return yaml.load(fp)
+def get_sorted_packages(matches):
+    path = os.path.join(paths.mirror, "packages_checked")
 
-    def _get_packages_sorted(self, packages):
-        path = f"{app.mirror}/packages_checked"
-        if not os.path.exists(path):
-            os.mknod(path)
-        else:
-            today = datetime.now()
-            last_modification = datetime.fromtimestamp(
-                os.path.getctime(path))
+    if not os.path.exists(path):
+        os.mknod(path)
 
-            if today.date() > last_modification.date():
-                with open(path, "w"): pass
+    with open(path) as fp:
+        checked = fp.read().splitlines()
 
+    not_checked = list(set(matches) - set(checked))
+    if len(not_checked) == 0:
+        with open(path, "w"):
+            pass
+    else:
+        not_checked.sort()
+
+    return (not_checked + checked)
+
+def set_configs():
+    conf.updated = []
+    conf.package_to_test = None
+    conf.environment = "prod"
+
+    path = os.path.join(paths.base, "repository.json")
+    content = {}
+
+    if os.path.isfile(path):
         with open(path) as fp:
-            packages_checked_today = list(
-                set(fp.read().splitlines())
-            )
+            content = json.load(fp)
 
-        packages_tmp = list(
-            set(packages) - set(packages_checked_today)
-        )
+    for i, name in enumerate(ALLOWED_CONFIGS):
+        value = content
 
-        if len(packages_tmp) == 0:
-            with open(path, 'w'): pass
-            return packages
-        else:
-            packages_tmp.sort()
-            return (packages_tmp + packages_checked_today)
+        for j in name.split("."):
+            try:
+                value = value[j]
+            except Exception:
+                value = None
 
-    def _get_value(self, abstract, repository):
-        value = repository
-        for name in abstract.split('.'):
-            if name in value:
-                value = value[name]
-
-        if value != repository:
-            return repository
-        else:
-            return ""
-
-    def _get_base_path(self):
-        return os.path.realpath(__file__).replace("/bot/core/contextual.py", "")
-
-
-class Dot(dict):
-    def __init__(self, arg):
-        super(Dot, self).__init__(arg)
-
-        for key, value in arg.items():
-            if type(value) is dict:
-                self[key] = Dot(value)
-            else:
-                self[key] = value
-
-    def __getattr__(self, attr):
-        return self.get(attr)
-
-    def __setattr__(self, key, value):
-        self.__setitem__(key, value)
-
-
-def register():
-    contextual = Contextual()
-
-    contextual.set_contextual_paths()
-    contextual.set_is_travis()
-    contextual.set_packages()
-    contextual.set_repository()
-    contextual.set_texts()
+        conf[ALIAS_CONFIGS[i]] = value

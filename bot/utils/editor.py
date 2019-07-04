@@ -1,9 +1,11 @@
 #!/usr/bin/env python
-# -*- coding:utf-8 -*-
 
-import re
+"""
+Copyright (c) Build Your Own Arch Linux Repository developers
+See the file 'LICENSE' for copying permission
+"""
+
 import fileinput
-import subprocess
 
 
 def replace_ending(find, replace, string):

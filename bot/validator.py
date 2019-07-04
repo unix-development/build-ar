@@ -1,9 +1,11 @@
 #!/usr/bin/env python
-# -*- coding:utf-8 -*-
+
+"""
+Copyright (c) Build Your Own Arch Linux Repository developers
+See the file 'LICENSE' for copying permission
+"""
 
 import os
-import re
-import sys
 import yaml
 import json
 import socket
@@ -11,310 +13,295 @@ import secrets
 import platform
 import requests
 
-from core.container import return_self
-from utils.process import output, git_remote_path
+from core.settings import ALIAS_CONFIGS
+from core.settings import IS_DEVELOPMENT
+from core.settings import IS_TRAVIS
+
+from core.data import conf
+from core.data import paths
+from core.type import get_attr_value
+from utils.process import git_remote_path
+from utils.process import output
 from utils.validator import validate
 
 
-class Validator():
-    @return_self
-    def user_privileges(self):
-        validate(
-            error=text("exception.validator.root"),
-            target=text("content.validator.root"),
-            valid=os.getuid() != 0
-        )
+def _check_user_privileges():
+    validate(
+        error="This program needs to be not execute as root.",
+        target="user privileges",
+        valid=(os.getuid() != 0)
+    )
 
-    @return_self
-    def is_docker_image(self):
-        validate(
-            error=text("exception.validator.docker"),
-            target=text("content.validator.docker"),
-            valid=os.environ.get("IS_DOCKER", False)
-        )
+def _check_is_docker_image():
+    validate(
+        error="This program needs to be executed in a docker image.",
+        target="docker",
+        valid=(os.environ.get("IS_DOCKER", False))
+    )
 
-    @return_self
-    def operating_system(self):
-        validate(
-            error=text("exception.validator.os"),
-            target=text("content.validator.os"),
-            valid=platform.dist()[0] == "arch"
-        )
+def _check_operating_system():
+    validate(
+        error="This program needs to be executed in Arch Linux.",
+        target="operating system",
+        valid=(platform.dist()[0] == "arch")
+    )
 
-    @return_self
-    def internet_up(self):
-        try:
-            socket.create_connection(("www.github.com", 80))
-            connected = True
-        except OSError:
-            connected = False
+def _check_internet_up():
+    try:
+        socket.create_connection(("www.github.com", 80))
+        connected = True
+    except OSError:
+        connected = False
 
-        validate(
-            error=text("exception.validator.internet"),
-            target=text("content.validator.internet"),
-            valid=connected
-        )
+    validate(
+        error="This program needs to be connected to internet.",
+        target="internet",
+        valid=connected
+    )
 
-    @return_self
-    def deploy_key(self):
-        valid = True
-        target = "deploy_key"
+def _check_deploy_key():
+    valid = True
+    target = "deploy_key"
 
-        if app.is_travis and os.path.isfile(app.base + "/deploy_key.enc") is False:
-            valid = False
-            target = "deploy_key.enc"
-
-        elif os.path.isfile(app.base + "/deploy_key") is False:
-            valid = False
-
-        validate(
-            error=text("exception.validator.file.not.found") % target,
-            target=target,
-            valid=valid
-        )
-
-    @return_self
-    def repository(self):
-        valid = True
-        target = "repository.json"
-
-        if app.is_travis and os.path.isfile(app.base + "/repository.json.enc") is False:
-            valid = False
-            target = "repository.json.enc"
-
-        elif os.path.isfile(app.base + "/repository.json") is False:
-            valid = False
-
-        validate(
-            error=text("exception.validator.file.not.found") % target,
-            target=target,
-            valid=valid
-        )
-
-    @return_self
-    def ssh_connection(self):
-        script = "ssh -i ./deploy_key -p %i -q %s@%s [[ -d %s ]] && echo 1 || echo 0" % (
-            config.ssh.port,
-            config.ssh.user,
-            config.ssh.host,
-            config.ssh.path
-        )
-
-        validate(
-            error=text("exception.validator.ssh.connection"),
-            target=text("content.validator.ssh.connection"),
-            valid=output(script) is "1"
-        )
-
-    @return_self
-    def mirror_connection(self):
-        ssh = config.ssh
-        token = secrets.token_hex(15)
-        source = f"{app.mirror}/validation_token"
-
-        with open(source, "w") as f:
-            f.write(token)
-            f.close()
-
-        os.system("rsync -aqvz -e 'ssh -i ./deploy_key -p %i' %s %s@%s:%s" % (
-            ssh.port, source, ssh.user, ssh.host, ssh.path)
-        )
-
-        try:
-            response = requests.get(config.url + "/validation_token")
-            valid = True if response.status_code == 200 else False
-        except:
-            valid = False
-
-        validate(
-            error=text("exception.validator.mirror.connection") % config.url,
-            target=text("content.validator.mirror.connection"),
-            valid=valid
-        )
-
-    @return_self
-    def content(self):
-        valid = True
-        repository = {
-            "url": config.url,
-            "database": config.database,
-            "github token": config.github.token,
-            "ssh host": config.ssh.host,
-            "ssh path": config.ssh.path,
-            "ssh port": config.ssh.port
-        }
-
-        for name in repository:
-            if not repository[name]:
-                valid = False
-                break
-
-        validate(
-            error=text("exception.validator.repository") % name,
-            target=text("content.validator.repository"),
-            valid=valid
-        )
-
-    @return_self
-    def database(self):
-        validate(
-            error=text("exception.validator.database"),
-            target=text("content.validator.database"),
-            valid=config.database not in [ "core", "extra", "community" ]
-        )
-
-    @return_self
-    def port(self):
-        validate(
-            error=text("exception.validator.ssh.port"),
-            target=text("content.validator.ssh.port"),
-            valid=type(config.ssh.port) == int
-        )
-
-    @return_self
-    def github_token(self):
+    if IS_TRAVIS and os.path.isfile(os.path.join(paths.base, "deploy_key.enc")) is False:
         valid = False
-        user = git_remote_path().split("/")[1]
-        response = output(f"curl -su {user}:{config.github.token} https://api.github.com/user")
-        content = json.loads(response)
+        target = "deploy_key.enc"
 
-        if "login" in content:
-            valid = True
-
-        validate(
-            error=text("exception.validator.travis.github.token"),
-            target=text("content.validator.travis.github.token"),
-            valid=valid
-        )
-
-    @return_self
-    def travis_lint(self, content):
-        validate(
-            error=text("exception.validator.travis.lint"),
-            target=text("content.validator.travis.lint"),
-            valid=type(content) is dict
-        )
-
-    @return_self
-    def travis_openssl(self, content):
+    elif os.path.isfile(os.path.join(paths.base, "deploy_key")) is False:
         valid = False
 
-        if "before_install" in content:
-            for statement in content["before_install"]:
-                if statement.startswith("openssl"):
-                    valid = True
+    validate(
+        error="%s could not been found." % target,
+        target=target,
+        valid=valid
+    )
 
-        validate(
-            error=text("exception.validator.travis.openssl"),
-            target=text("content.validator.travis.openssl"),
-            valid=valid
-        )
+def _check_repository():
+    valid = True
+    target = "repository.json"
 
-    @return_self
-    def pkg_directory(self):
-        validate(
-            error=text("exception.validator.pkg.directory"),
-            target=text("content.validator.pkg.directory"),
-            valid=len(app.packages) > 0
-        )
+    if IS_TRAVIS and os.path.isfile(os.path.join(paths.base, "repository.json.enc")) is False:
+        valid = False
+        target = "repository.json.enc"
 
-    @return_self
-    def pkg_content(self):
-        folders = [f.name for f in os.scandir(app.pkg) if f.is_dir()]
-        diff = set(folders) - set(app.packages)
+    elif os.path.isfile(os.path.join(paths.base, "repository.json")) is False:
+        valid = False
 
-        validate(
-            error=text("exception.validator.pkg.content") % (", ".join(diff)),
-            target=text("content.validator.pkg.content"),
-            valid=len(diff) == 0
-        )
+    validate(
+        error="%s could not been found." % target,
+        target=target,
+        valid=valid
+    )
 
-    @return_self
-    def pkg_testing(self):
-        if app.testing.environment is not True:
-            return
+def _check_content():
+    valid = True
 
-        valid = True
-        error = ""
-
-        if app.testing.package is None:
+    for name in ALIAS_CONFIGS:
+        if not get_attr_value(conf, name):
             valid = False
-            error = text("exception.validator.pkg.testing.argument")
+            break
 
-        elif app.testing.package not in app.packages:
-            valid = False
-            error = text("exception.validator.pkg.testing.package") % app.testing.package
+    validate(
+        error="%s must be defined in repository.json" % name,
+        target="content",
+        valid=valid
+    )
 
-        validate(
-            error=error,
-            target=text("content.validator.pkg.testing"),
-            valid=valid
-        )
+def _check_database():
+    valid = True
+    error_msg = ""
 
+    if conf.db in ("core", "extra", "community"):
+        valid = False
+        error_msg = "Database must be different than core, community and extra."
 
-def register():
-    container.register("validator.requirements", requirements)
-    container.register("validator.repository", repository)
-    container.register("validator.content", content)
-    container.register("validator.travis", travis)
-    container.register("validator.connection", connection)
-    container.register("validator.files", files)
+    elif conf.db.isalnum() is False:
+        valid = False
+        error_msg = "Database must be an alphanumeric string."
 
-def requirements():
-    print(text("content.validator.title.requirements"))
+    validate(
+        error=error_msg,
+        target="database",
+        valid=valid
+    )
 
-    (validator
-        .user_privileges()
-        .is_docker_image()
-        .operating_system()
-        .internet_up())
+def _check_port():
+    validate(
+        error="port must be an interger in repository.json",
+        target="port",
+        valid=(type(conf.ssh_port) == int)
+    )
 
-def files():
-    print(text("content.validator.title.files"))
+def _check_travis_lint(content):
+    error_msg = "An error occured while trying to parse your travis file.\nPlease make sure that the file is valid YAML.",
 
-    (validator
-        .repository()
-        .deploy_key())
+    validate(
+        error=error_msg,
+        target="lint",
+        valid=(type(content) is dict)
+    )
 
-def repository():
-    print(text("content.validator.title.repository"))
+def _check_travis_openssl(content):
+    valid = False
+    error_msg = "No openssl statement could be found in your travis file.\nPlease make sure to execute: travis encrypt-file ./deploy_key --add"
 
-    (validator
-       .content()
-       .database()
-       .port())
+    if "before_install" in content:
+        for statement in content["before_install"]:
+            if statement.startswith("openssl"):
+                valid = True
 
-def connection():
-    print(text("content.validator.title.connection"))
+    validate(
+        error=error_msg,
+        target="openssl",
+        valid=valid
+    )
 
-    (validator
-        .ssh_connection()
-        .mirror_connection()
-        .github_token())
+def _check_pkg_directory():
+    validate(
+        error="No package was found in pkg directory.",
+        target="directory",
+        valid=(len(conf.packages) > 0)
+    )
 
-def content():
-    print(text("content.validator.title.packages"))
+def _check_pkg_content():
+    folders = [f.name for f in os.scandir(paths.pkg) if f.is_dir()]
+    diff = set(folders) - set(conf.packages)
 
-    (validator
-        .pkg_directory()
-        .pkg_content()
-        .pkg_testing())
+    validate(
+        error="No package.py was found in pkg subdirectories: %s" % (", ".join(diff)),
+        target="content",
+        valid=(len(diff) == 0)
+    )
 
-def travis():
-    if app.is_travis is False:
+def _check_pkg_testing():
+    if conf.environment is "prod":
         return
 
-    print(text("content.validator.title.travis"))
+    valid = True
+    error_msg = ""
 
-    with open(".travis.yml", "r") as stream:
-        try:
-            content = yaml.load(stream)
-        except yaml.YAMLError as error:
-            content = error
+    if conf.package_to_test is None:
+        valid = False
+        error_msg = "You need to define which package you want to test with this command: make package test=discord"
 
-    (validator
-        .travis_lint(content)
-        .travis_openssl(content))
+    elif conf.package_to_test not in conf.packages:
+        valid = False
+        error_msg = "%s is not in pkg directory." % conf.package_to_test
+
+    elif output("git status " + paths.pkg + "/" + conf.package_to_test + " --porcelain | sed s/^...//"):
+        valid = False
+        error_msg = "You need to commit your changes before to test your package."
+
+    validate(
+        error=error_msg,
+        target="testing",
+        valid=valid
+    )
+
+def _check_ssh_connection():
+    script = "ssh -i ./deploy_key -p %i -q %s@%s [[ -d %s ]] && echo 1 || echo 0" % (
+        conf.ssh_port,
+        conf.ssh_user,
+        conf.ssh_host,
+        conf.ssh_path
+    )
+
+    validate(
+        error="ssh connection could not be established.",
+        target="ssh address",
+        valid=(output(script) is "1")
+    )
+
+def _check_mirror_connection():
+    token = secrets.token_hex(15)
+    source = os.path.join(paths.mirror, "validation_token")
+
+    with open(source, "w") as f:
+        f.write(token)
+        f.close()
+
+    os.system("rsync -aqvz -e 'ssh -i ./deploy_key -p %i' %s %s@%s:%s" % (
+        conf.ssh_port, source, conf.ssh_user, conf.ssh_host, conf.ssh_path)
+    )
+
+    try:
+        response = requests.get(conf.url + "/validation_token")
+        valid = True if response.status_code == 200 else False
+    except requests.RequestException:
+        valid = False
+
+    validate(
+        error="This program can't connect to %s." % conf.url,
+        target="mirror host",
+        valid=valid
+    )
+
+def _check_github_token():
+    valid = False
+    user = git_remote_path().split("/")[1]
+    response = output("curl -su %s:%s https://api.github.com/user" % (user, conf.github_token))
+    content = json.loads(response)
+
+    if "login" in content:
+        valid = True
+
+    validate(
+        error="An error occured while trying to connect to your github repository with your encrypted token.\nPlease make sure that your token is working.",
+        target="github token api",
+        valid=valid
+    )
+
+
+class Validator():
+    def requirements(self):
+        print("Validating requirements:")
+
+        _check_user_privileges()
+        _check_is_docker_image()
+        _check_operating_system()
+        _check_internet_up()
+
+    def files(self):
+        print("Validating files:")
+
+        _check_repository()
+        _check_deploy_key()
+
+    def configs(self):
+        print("Validating repository:")
+
+        _check_content()
+        _check_database()
+        _check_port()
+
+    def connection(self):
+        print("Validating connection:")
+
+        _check_ssh_connection()
+        _check_mirror_connection()
+        _check_github_token()
+
+    def content(self):
+        print("Validating packages:")
+
+        _check_pkg_directory()
+        _check_pkg_content()
+        _check_pkg_testing()
+
+    def travis(self):
+        if IS_TRAVIS is False:
+            return
+
+        print("Validating travis:")
+
+        with open(".travis.yml", "r") as stream:
+            try:
+                content = yaml.load(stream)
+            except yaml.YAMLError as error:
+                content = error
+
+        _check_travis_lint(content)
+        _check_travis_openssl(content)
 
 
 validator = Validator()

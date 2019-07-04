@@ -1,66 +1,77 @@
 #!/usr/bin/env python
-# -*- coding:utf-8 -*-
 
+"""
+Copyright (c) Build Your Own Arch Linux Repository developers
+See the file 'LICENSE' uor copying permission
+"""
+
+from environment import environment
+from interface import interface
+from repository import repository
+from validator import validator
+
+from core.contextual import get_base_path
+from core.contextual import set_configs
+from core.contextual import set_paths
+from core.contextual import set_repository
 from core.runner import runner
-from core.container import container
 
-import core.contextual
-import environment
-import interface
-import repository
-import validator
 
-container.bootstrap([
-    "core.contextual",
-    "environment",
-    "validator",
-    "interface",
-    "repository"
-])
+def set_contextual():
+    base = get_base_path()
+    set_paths(base)
+    set_repository()
+    set_configs()
 
-runner.set("validation", [
-    "validator.requirements",
-    "validator.files",
-    "validator.travis",
-    "validator.repository",
-    "environment.prepare_ssh",
-    "validator.connection",
-    "validator.content"
-])
+def main():
+    set_contextual()
 
-runner.set("package", [
-    "validator.requirements",
-    "validator.files",
-    "validator.repository",
-    "environment.prepare_package_testing",
-    "validator.content",
-    "environment.prepare_pacman",
-    "repository.test_package",
-    "repository.create_database"
-])
+    runner.set("validation", [
+        validator.requirements,
+        validator.files,
+        validator.travis,
+        validator.content,
+        validator.configs,
+        environment.prepare_ssh,
+        validator.connection
+    ])
 
-runner.set("update", [
-    "environment.prepare_git",
-    "environment.pull_main_repository"
-])
+    runner.set("build", [
+        validator.requirements,
+        validator.files,
+        validator.travis,
+        validator.content,
+        validator.configs,
+        environment.prepare_ssh,
+        validator.connection,
+        environment.prepare_git,
+        environment.prepare_mirror,
+        environment.prepare_pacman,
+        environment.clean_mirror,
+        repository.synchronize,
+        repository.create_database,
+        interface.create,
+        repository.deploy
+    ])
 
-runner.set("build", [
-    "validator.requirements",
-    "validator.files",
-    "validator.travis",
-    "validator.repository",
-    "environment.prepare_ssh",
-    "validator.connection",
-    "validator.content",
-    "environment.prepare_git",
-    "environment.prepare_mirror",
-    "environment.prepare_pacman",
-    "environment.clean_mirror",
-    "repository.synchronize",
-    "repository.create_database",
-    "interface.create",
-    "repository.deploy"
-])
+    runner.set("update", [
+        environment.prepare_git,
+        repository.pull_main_repository
+    ])
 
-container.register("runner", runner)
-container.run()
+    runner.set("package", [
+        validator.requirements,
+        validator.files,
+        environment.prepare_package_testing,
+        validator.content,
+        validator.configs,
+        environment.prepare_pacman,
+        repository.test_package
+    ])
+
+    for execute in runner.get():
+        execute()
+
+
+if __name__ == "__main__":
+    main()

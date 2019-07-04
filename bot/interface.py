@@ -1,12 +1,20 @@
 #!/usr/bin/env python
-# -*- coding:utf-8 -*-
+
+"""
+Copyright (c) Build Your Own Arch Linux Repository developers
+See the file 'LICENSE' for copying permission
+"""
 
 import os
 import base64
 
-from time import strftime, gmtime
+from time import strftime
+from time import gmtime
+from core.data import conf
+from core.data import paths
 from utils.editor import edit_file
-from utils.process import git_remote_path, extract
+from utils.process import git_remote_path
+from utils.process import extract
 
 
 class Interface():
@@ -21,10 +29,10 @@ class Interface():
     """
 
     def create(self):
-        app.packages.sort()
+        conf.packages.sort()
 
-        for package in app.packages:
-            module = app.pkg + "/" + package
+        for package in conf.packages:
+            module = paths.pkg + "/" + package
 
             try:
                 open(module + "/PKGBUILD")
@@ -55,7 +63,7 @@ class Interface():
         self.compress()
 
     def get_time_file(self, name):
-        path = app.mirror + "/" + name
+        path = paths.mirror + "/" + name
         return strftime("%d %h %Y", gmtime(os.path.getmtime(path)))
 
     def get_schema(self, path):
@@ -77,7 +85,7 @@ class Interface():
     def get_package_file(self, name, schema):
         path = name + "-" + schema["epoch"] + schema["version"] + "-"
 
-        for location in os.listdir(app.mirror):
+        for location in os.listdir(paths.mirror):
             if location.startswith(path):
                 return location
 
@@ -85,7 +93,7 @@ class Interface():
         search = False
         description = default
 
-        for line in open(f"{app.pkg}/{package}/PKGBUILD"):
+        for line in open(f"{paths.pkg}/{package}/PKGBUILD"):
             line = line.strip()
             if line.startswith("package_" + name + "()"):
                 search = True
@@ -96,37 +104,33 @@ class Interface():
         return description
 
     def move_to_mirror(self):
-        os.system(f"cp {app.www}/index.html {app.mirror}")
+        os.system(f"cp {paths.www}/index.html {paths.mirror}")
 
     def replace_variables(self):
         remote_path = 'https://' + git_remote_path().rstrip('.git')
 
-        for line in edit_file(app.mirror + "/index.html"):
+        for line in edit_file(paths.mirror + "/index.html"):
             line = (line
                 .replace("$content", self.table)
-                .replace("$path", config.url)
-                .replace("$database", config.database)
+                .replace("$path", conf.url)
+                .replace("$database", conf.db)
                 .replace("$remote_path", remote_path)
-                .replace("images/logo.png", "data:image/png;base64," + get_base64(app.www + "/images/logo.png"))
-                .replace("images/background.png", "data:image/png;base64," + get_base64(app.www + "/images/background.png")))
+                .replace("images/logo.png", "data:image/png;base64," + get_base64(paths.www + "/images/logo.png"))
+                .replace("images/background.png", "data:image/png;base64," + get_base64(paths.www + "/images/background.png")))
 
             if line.strip() == "<link rel=\"stylesheet\" href=\"css/main.css\">":
                 line = "<style type=\"text/css\">"
-                line += get_compressed_file(app.www + "/css/main.css")
+                line += get_compressed_file(paths.www + "/css/main.css")
                 line += "</style>"
 
             print(line)
 
     def compress(self):
-        content = get_compressed_file(app.mirror + "/index.html")
+        content = get_compressed_file(paths.mirror + "/index.html")
 
-        with open(app.mirror + "/index.html", "w") as f:
+        with open(paths.mirror + "/index.html", "w") as f:
             f.write(content)
 
-
-def register():
-    interface = Interface()
-    container.register("interface.create", interface.create)
 
 def get_base64(path):
     with open(path, 'rb') as f:
@@ -135,3 +139,6 @@ def get_base64(path):
 def get_compressed_file(path):
     with open(path) as f:
         return " ".join(f.read().split())
+
+
+interface = Interface()
