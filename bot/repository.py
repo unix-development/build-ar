@@ -18,6 +18,7 @@ from utils.editor import edit_file
 from utils.editor import replace_ending
 from utils.process import output
 from utils.process import strict_execute
+from utils.process import git_remote_path
 from utils.process import extract
 from utils.process import is_travis
 from utils.style import title
@@ -110,13 +111,13 @@ class Repository():
             {conf.ssh_user}@{conf.ssh_host}:{conf.ssh_path}
         """)
 
-        #print(title("Deploy to git remote") + "\n")
+        print(title("Deploy to git remote") + "\n")
 
-        #try:
-        #    subprocess.check_call("git push https://%s@%s HEAD:master &> /dev/null" % (
-        #        conf.user.github.token, git_remote_path()), shell=True)
-        #except:
-        #    sys.exit("Error: Failed to push some refs to 'https://%s'" % git_remote_path())
+        try:
+            subprocess.check_call("git push https://%s@%s HEAD:master &> /dev/null" % (
+                conf.github_token, git_remote_path()), shell=True)
+        except:
+            sys.exit("Error: Failed to push some refs to 'https://%s'" % git_remote_path())
 
     def _execute(self, commands):
         subprocess.run(
@@ -165,14 +166,8 @@ class Package():
                 return
 
             self._build()
+            self._commit()
             self._set_package_checked()
-
-            # if is_testing():
-            #     self._reset()
-            # else:
-            #     conf.updated.extend(self._name.split(" "))
-            #     set_package_checked(self.name)
-
 
     def _set_package_checked(self):
         conf.updated.extend(self._name.split(" "))
@@ -204,10 +199,13 @@ class Package():
         rm -rf ./tmp;
         """)
 
-        # if is_testing() is False:
-        strict_execute("mv *.pkg.tar.xz %s" % paths.mirror)
+        if conf.environment is "prod":
+            strict_execute("mv *.pkg.tar.xz %s" % paths.mirror)
 
     def _commit(self):
+        if conf.environment is not "prod":
+            return
+
         print(bold("Commit changes:"))
 
         if output("git status . --porcelain | sed s/^...//"):
@@ -257,7 +255,7 @@ class Package():
                 output("pacman -Sp '" + dependency + "' &>/dev/null")
                 continue
             except:
-                if dependency not in repository:
+                if dependency not in conf.packages:
                     sys.exit("\nError: %s is not part of the official package and can't be found in pkg directory." % dependency)
 
                 if dependency not in conf.updated:
