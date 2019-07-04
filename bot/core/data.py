@@ -11,8 +11,5 @@ from core.type import Attr
 # Contextual paths
 paths = Attr()
 
-# Config into repository.json
+# Configs, user preferences, data, etc.
 conf = Attr()
-
-# Store all packages in pkg directory
-repository = []
