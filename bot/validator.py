@@ -15,7 +15,7 @@ import requests
 
 from core.data import conf
 from core.data import paths
-from core.data import repository
+from core.settings import IS_DEVELOPMENT
 from core.settings import IS_TRAVIS
 from core.type import get_attr_value
 from utils.process import git_remote_path
@@ -25,91 +25,85 @@ from utils.validator import validate
 
 def _check_user_privileges():
     validate(
-        error='This program needs to be not execute as root.',
-        target='user privileges',
+        error="This program needs to be not execute as root.",
+        target="user privileges",
         valid=(os.getuid() != 0)
     )
 
-
 def _check_is_docker_image():
     validate(
-        error='This program needs to be executed in a docker image.',
-        target='docker',
-        valid=(os.environ.get('IS_DOCKER', False))
+        error="This program needs to be executed in a docker image.",
+        target="docker",
+        valid=(os.environ.get("IS_DOCKER", False))
     )
-
 
 def _check_operating_system():
     validate(
-        error='This program needs to be executed in Arch Linux.',
-        target='operating system',
-        valid=(platform.dist()[0] == 'arch')
+        error="This program needs to be executed in Arch Linux.",
+        target="operating system",
+        valid=(platform.dist()[0] == "arch")
     )
-
 
 def _check_internet_up():
     try:
-        socket.create_connection(('www.github.com', 80))
+        socket.create_connection(("www.github.com", 80))
         connected = True
     except OSError:
         connected = False
 
     validate(
-        error='This program needs to be connected to internet.',
-        target='internet',
+        error="This program needs to be connected to internet.",
+        target="internet",
         valid=connected
     )
 
-
 def _check_deploy_key():
     valid = True
-    target = 'deploy_key'
+    target = "deploy_key"
 
-    if IS_TRAVIS and os.path.isfile(os.path.join(paths.base, 'deploy_key.enc')) is False:
+    if IS_TRAVIS and os.path.isfile(os.path.join(paths.base, "deploy_key.enc")) is False:
         valid = False
-        target = 'deploy_key.enc'
+        target = "deploy_key.enc"
 
-    elif os.path.isfile(os.path.join(paths.base, 'deploy_key')) is False:
+    elif os.path.isfile(os.path.join(paths.base, "deploy_key")) is False:
         valid = False
 
     validate(
-        error='%s could not been found.' % target,
+        error="%s could not been found." % target,
         target=target,
         valid=valid
     )
-
 
 def _check_repository():
     valid = True
-    target = 'repository.json'
+    target = "repository.json"
 
-    if IS_TRAVIS and os.path.isfile(os.path.join(paths.base, 'repository.json.enc')) is False:
+    if IS_TRAVIS and os.path.isfile(os.path.join(paths.base, "repository.json.enc")) is False:
         valid = False
-        target = 'repository.json.enc'
+        target = "repository.json.enc"
 
-    elif os.path.isfile(os.path.join(paths.base, 'repository.json')) is False:
+    elif os.path.isfile(os.path.join(paths.base, "repository.json")) is False:
         valid = False
 
     validate(
-        error='%s could not been found.' % target,
+        error="%s could not been found." % target,
         target=target,
         valid=valid
     )
-
 
 def _check_content():
     configs = {}
     expected = [
-        'url',
-        'database',
-        'github token',
-        'ssh host',
-        'ssh path',
-        'ssh port'
+        "db",
+        "url",
+        "ssh_host",
+        "ssh_path",
+        "ssh_port",
+        "github_token"
     ]
 
     for name in expected:
-        configs[name] = get_attr_value(conf.user, name)
+        configs[name] = get_attr_value(conf, name)
 
     valid = True
     for name in configs:
@@ -118,166 +112,168 @@ def _check_content():
             break
 
     validate(
-        error='%s must be defined in repository.json' % name,
-        target='content',
+        error="%s must be defined in repository.json" % name,
+        target="content",
         valid=valid
     )
 
-
 def _check_database():
-    validate(
-        error='Database must be different than core, community and extra.',
-        target='database',
-        valid=conf.user.database not in ('core', 'extra', 'community')
-    )
+    valid = True
+    exception = ""
 
+    if conf.db in ("core", "extra", "community"):
+        valid = False
+        exception = "Database must be different than core, community and extra."
+
+    elif conf.db.isalnum() is False:
+        valid = False
+        exception = "Database must be an alphanumeric string."
+
+    validate(
+        error=exception,
+        target="database",
+        valid=valid
+    )
 
 def _check_port():
     validate(
-        error='port must be an interger in repository.json',
-        target='port',
-        valid=(type(conf.user.ssh.port) == int)
+        error="port must be an interger in repository.json",
+        target="port",
+        valid=(type(conf.ssh_port) == int)
     )
 
-
 def _check_travis_lint(content):
-    error_msg = 'An error occured while trying to parse your travis file.\n'
-    error_msg += 'Please make sure that the file is valid YAML.',
+    error_msg = "An error occured while trying to parse your travis file.\n"
+    error_msg += "Please make sure that the file is valid YAML.",
 
     validate(
         error=error_msg,
-        target='lint',
+        target="lint",
         valid=(type(content) is dict)
     )
-
 
 def _check_travis_openssl(content):
     valid = False
 
-    error_msg = 'No openssl statement could be found in your travis file.\n'
-    error_msg += 'Please make sure to execute: '
-    error_msg += 'travis encrypt-file ./deploy_key --add',
+    error_msg = "No openssl statement could be found in your travis file.\n"
+    error_msg += "Please make sure to execute: "
+    error_msg += "travis encrypt-file ./deploy_key --add",
 
-    if 'before_install' in content:
-        for statement in content['before_install']:
-            if statement.startswith('openssl'):
+    if "before_install" in content:
+        for statement in content["before_install"]:
+            if statement.startswith("openssl"):
                 valid = True
 
     validate(
         error=error_msg,
-        target='openssl',
+        target="openssl",
         valid=valid
     )
-
 
 def _check_pkg_directory():
     validate(
-        error='No package was found in pkg directory.',
-        target='directory',
-        valid=len(repository) > 0
+        error="No package was found in pkg directory.",
+        target="directory",
+        valid=(len(conf.packages) > 0)
     )
-
 
 def _check_pkg_content():
     folders = [f.name for f in os.scandir(paths.pkg) if f.is_dir()]
-    diff = set(folders) - set(repository)
+    diff = set(folders) - set(conf.packages)
 
     validate(
-        error='No package.py was found in pkg subdirectories: %s' % (', '.join(diff)),
-        target='content',
-        valid=len(diff) == 0
+        error="No package.py was found in pkg subdirectories: %s" % (", ".join(diff)),
+        target="content",
+        valid=(len(diff) == 0)
     )
 
-
 def _check_pkg_testing():
-    if conf.testing.environment is not True:
+    try:
+        conf.package_to_test
+    except AttributeError:
         return
 
     valid = True
-    error_msg = ''
+    error_msg = ""
 
-    if conf.testing.package is None:
+    if conf.package_to_test is None:
         valid = False
-        error_msg = 'You need to define which package you want to test with this command: make package test=discord'
+        error_msg = "You need to define which package you want to test with this command: make package test=discord"
 
-    elif conf.testing.package not in repository:
+    elif conf.package_to_test not in conf.packages:
         valid = False
-        error_msg = '%s is not in pkg directory.' % conf.testing.package
+        error_msg = "%s is not in pkg directory." % conf.package_to_test
 
-    elif output('git status ' + paths.pkg + '/' + conf.testing.package + ' --porcelain | sed s/^...//'):
+    elif output("git status " + paths.pkg + "/" + conf.package_to_test + " --porcelain | sed s/^...//"):
         valid = False
-        error_msg = 'You need to commit your changes before to test your package.'
+        error_msg = "You need to commit your changes before to test your package."
 
     validate(
         error=error_msg,
-        target='testing',
+        target="testing",
         valid=valid
     )
 
-
 def _check_ssh_connection():
-    script = 'ssh -i ./deploy_key -p %i -q %s@%s [[ -d %s ]] && echo 1 || echo 0' % (
-        conf.user.ssh.port,
-        conf.user.ssh.user,
-        conf.user.ssh.host,
-        conf.user.ssh.path
+    script = "ssh -i ./deploy_key -p %i -q %s@%s [[ -d %s ]] && echo 1 || echo 0" % (
+        conf.ssh_port,
+        conf.ssh_user,
+        conf.ssh_host,
+        conf.ssh_path
     )
 
     validate(
-        error='ssh connection could not be established.',
-        target='ssh address',
-        valid=output(script) is '1'
+        error="ssh connection could not be established.",
+        target="ssh address",
+        valid=(output(script) is "1")
     )
 
-
 def _check_mirror_connection():
-    ssh = conf.user.ssh
     token = secrets.token_hex(15)
-    source = os.path.join(paths.mirror, 'validation_token')
+    source = os.path.join(paths.mirror, "validation_token")
 
-    with open(source, 'w') as f:
+    with open(source, "w") as f:
         f.write(token)
         f.close()
 
-    os.system('rsync -aqvz -e "ssh -i ./deploy_key -p %i" %s %s@%s:%s' % (
-        ssh.port, source, ssh.user, ssh.host, ssh.path)
+    os.system("rsync -aqvz -e 'ssh -i ./deploy_key -p %i' %s %s@%s:%s" % (
+        conf.ssh_port, source, conf.ssh_user, conf.ssh_host, conf.ssh_path)
     )
 
     try:
-        response = requests.get(conf.user.url + '/validation_token')
+        response = requests.get(conf.url + "/validation_token")
         valid = True if response.status_code == 200 else False
     except requests.RequestException:
         valid = False
 
     validate(
-        error='This program can\'t connect to %s.' % conf.user.url,
-        target='mirror host',
+        error="This program can't connect to %s." % conf.url,
+        target="mirror host",
         valid=valid
     )
 
-
 def _check_github_token():
     valid = False
-    user = git_remote_path().split('/')[1]
-    response = output('curl -su %s:%s https://api.github.com/user' % (user, conf.user.github.token))
+    user = git_remote_path().split("/")[1]
+    response = output("curl -su %s:%s https://api.github.com/user" % (user, conf.github_token))
     content = json.loads(response)
 
-    if 'login' in content:
+    if "login" in content:
         valid = True
 
-    error_msg = 'An error occured while trying to connect to your github repository with your encrypted token.\n'
-    error_msg += 'Please make sure that your token is working.'
+    error_msg = "An error occured while trying to connect to your github repository with your encrypted token.\n"
+    error_msg += "Please make sure that your token is working."
 
     validate(
         error=error_msg,
-        target='github token api',
+        target="github token api",
         valid=valid
     )
 
 
 class Validator():
     def requirements(self):
-        print('Validating requirements:')
+        print("Validating requirements:")
 
         _check_user_privileges()
         _check_is_docker_image()
@@ -285,27 +281,27 @@ class Validator():
         _check_internet_up()
 
     def files(self):
-        print('Validating files:')
+        print("Validating files:")
 
         _check_repository()
         _check_deploy_key()
 
     def configs(self):
-        print('Validating repository:')
+        print("Validating repository:")
 
         _check_content()
         _check_database()
         _check_port()
 
     def connection(self):
-        print('Validating connection:')
+        print("Validating connection:")
 
         _check_ssh_connection()
         _check_mirror_connection()
         _check_github_token()
 
     def content(self):
-        print('Validating packages:')
+        print("Validating packages:")
 
         _check_pkg_directory()
         _check_pkg_content()
@@ -315,9 +311,9 @@ class Validator():
         if IS_TRAVIS is False:
             return
 
-        print('Validating travis:')
+        print("Validating travis:")
 
-        with open('.travis.yml', 'r') as stream:
+        with open(".travis.yml", "r") as stream:
             try:
                 content = yaml.load(stream)
             except yaml.YAMLError as error:
