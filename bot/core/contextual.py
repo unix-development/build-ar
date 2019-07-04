@@ -7,6 +7,7 @@ See the file 'LICENSE' for copying permission
 
 import os
 import json
+import sys
 
 from core.data import conf
 from core.data import paths
@@ -38,6 +39,9 @@ def set_repository():
     if IS_TRAVIS:
         matches = get_sorted_packages(matches)
 
+    print(matches)
+    sys.exit()
+
     conf.packages = matches
 
 def get_sorted_packages(matches):
@@ -48,15 +52,24 @@ def get_sorted_packages(matches):
 
     with open(path) as fp:
         checked = fp.read().splitlines()
+        checked = list(dict.fromkeys(checked))
+        deleted = list(set(checked) - set(matches))
+
+        i = 0
+        while(i < len(deleted)):
+            checked.remove(deleted[i])
+            i = i + 1
 
     not_checked = list(set(matches) - set(checked))
+
     if len(not_checked) == 0:
         with open(path, "w"):
             pass
+
+        return matches
     else:
         not_checked.sort()
-
-    return (not_checked + checked)
+        return (not_checked + checked)
 
 def set_configs():
     conf.updated = []
