@@ -8,12 +8,12 @@ See the file 'LICENSE' for copying permission
 import os
 import base64
 
-from time import strftime
-from time import gmtime
+from datetime import datetime
 from core.data import conf
 from core.data import paths
 from utils.editor import edit_file
 from utils.process import git_remote_path
+from utils.process import output
 from utils.process import extract
 
 
@@ -40,6 +40,7 @@ class Interface():
                 continue
 
             schema = self.get_schema(module)
+            date = self.get_last_change(module)
             version = schema["version"]
             description = schema["description"]
 
@@ -47,7 +48,6 @@ class Interface():
                 build = self.get_package_file(name, schema)
 
                 if build:
-                    date = self.get_time_file(build)
                     description = self.get_description(package, name, description)
 
                     self.table += (self.content
@@ -62,9 +62,10 @@ class Interface():
         self.replace_variables()
         self.compress()
 
-    def get_time_file(self, name):
-        path = paths.mirror + "/" + name
-        return strftime("%d %h %Y", gmtime(os.path.getmtime(path)))
+    def get_last_change(self, path):
+        last_change = output("git log -1 --format='%at' -- " + path)
+        timestamp = datetime.fromtimestamp(int(last_change))
+        return timestamp.strftime("%d %h %Y")
 
     def get_schema(self, path):
         if not os.path.isfile(path + "/PKGBUILD"):
