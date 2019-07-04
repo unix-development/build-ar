@@ -32,7 +32,11 @@ class Environment(object):
         strict_execute(f"""
         scp -i {paths.base}/deploy_key -P {conf.ssh_port} \
             {conf.ssh_user}@{conf.ssh_host}:{conf.ssh_path}/* \
-            {paths.mirror}/
+            {paths.mirror}/;
+
+        ssh -i {paths.base}/deploy_key -P {conf.ssh_port} \
+            {conf.ssh_user}@{conf.ssh_host} \
+            touch {paths.mirror}/*;
         """)
 
     def prepare_git(self):
