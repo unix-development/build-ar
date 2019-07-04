@@ -5,11 +5,8 @@ Copyright (c) Build Your Own Arch Linux Repository developers
 See the file 'LICENSE' for copying permission
 """
 
-import os
 import sys
 import subprocess
-
-from core.data import conf
 
 
 def output(command):
@@ -35,13 +32,3 @@ def extract(module, name):
     output, error = process.communicate()
 
     return output.strip().decode("UTF-8")
-
-def is_travis():
-    return ("TRAVIS" in os.environ and os.environ["TRAVIS"] != "")
-
-def is_testing():
-    try:
-        conf.testing.environment
-        return True
-    except:
-        return False
