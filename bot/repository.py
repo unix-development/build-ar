@@ -167,13 +167,17 @@ class Package():
 
             self._build()
             self._commit()
-            self._set_package_checked()
+            self._set_package_updated()
 
-    def _set_package_checked(self):
+        self._set_package_checked()
+
+    def _set_package_updated(self):
         conf.updated.extend(self._name.split(" "))
 
-        with open(f"{paths.mirror}/packages_checked", "a+") as f:
-            f.write(self.name + "\n")
+    def _set_package_checked(self):
+        if conf.environment is "prod":
+            with open(f"{paths.mirror}/packages_checked", "a+") as f:
+                f.write(self.name + "\n")
 
     def _reset(self):
         strict_execute("""
