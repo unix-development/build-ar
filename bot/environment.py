@@ -34,9 +34,9 @@ class Environment(object):
             {conf.ssh_user}@{conf.ssh_host}:{conf.ssh_path}/* \
             {paths.mirror}/;
 
-        ssh -i {paths.base}/deploy_key -P {conf.ssh_port} \
+        ssh -i {paths.base}/deploy_key -p {conf.ssh_port} \
             {conf.ssh_user}@{conf.ssh_host} \
-            touch {paths.mirror}/*;
+            touch {conf.ssh_path}/*;
         """)
 
     def prepare_git(self):
