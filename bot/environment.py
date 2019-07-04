@@ -13,38 +13,13 @@ import subprocess
 from core.data import conf
 from core.data import paths
 from utils.process import output
-from utils.process import git_remote_path
 from utils.process import strict_execute
 
 
 class Environment(object):
-    upstream = "github.com/unix-development/build-your-own-archlinux-repository"
-
-    def pull_main_repository(self):
-        if git_remote_path() == self.upstream:
-            return
-
-        print("Updating repository bot:")
-
-        try:
-            output("git remote | grep upstream")
-        except:
-            self._execute(f"git remote add upstream https://{self.upstream}")
-
-        self._execute(
-            "git fetch upstream; "
-            "git pull --no-ff --no-commit -X theirs upstream master; "
-            "git reset HEAD README.md; "
-            "git checkout -- README.md; "
-            "git commit -m 'Core: Pull main repository project';"
-        )
-
-        print("  [ ✓ ] up to date")
-
     def prepare_mirror(self):
         remote = output("git ls-files " + paths.mirror + " | awk -F / '{print $2}'").split("\n")
         local = os.listdir(paths.mirror)
-        ssh = conf.user.ssh
 
         local.remove("validation_token")
         local.remove("packages_checked")
@@ -55,8 +30,8 @@ class Environment(object):
         print("\nPull remote mirror directory files:")
 
         strict_execute(f"""
-        scp -i {paths.base}/deploy_key -P {ssh.port} \
-            {ssh.user}@{ssh.host}:{ssh.path}/* \
+        scp -i {paths.base}/deploy_key -P {conf.ssh_port} \
+            {conf.ssh_user}@{conf.ssh_host}:{conf.ssh_path}/* \
             {paths.mirror}/
         """)
 
@@ -74,7 +49,7 @@ class Environment(object):
             "mkdir -p ~/.ssh; "
             "chmod 0700 ~/.ssh; "
             "ssh-keyscan -t rsa -H %s >> ~/.ssh/known_hosts; "
-            % conf.user.ssh.host
+            % conf.ssh_host
         )
 
     def prepare_pacman(self):
@@ -82,26 +57,25 @@ class Environment(object):
         [%s]
         SigLevel = Optional TrustedOnly
         Server = file:///%s
-        """ % (conf.user.database, paths.mirror))
+        """ % (conf.db, paths.mirror))
 
-        if os.path.exists(os.path.join(paths.mirror, conf.user.database + ".db")):
+        if os.path.exists(os.path.join(paths.mirror, conf.db + ".db")):
             with open("/etc/pacman.conf", "a+") as fp:
                 fp.write(textwrap.dedent(content))
 
         self._execute("sudo pacman -Sy")
 
     def prepare_package_testing(self):
-        conf.testing.environment = True
-        conf.testing.package = None
+        conf.package_to_test = None
 
         if len(sys.argv) > 2:
-            conf.testing.package = sys.argv[2]
+            conf.package_to_test = sys.argv[2]
 
     def clean_mirror(self):
-        if not os.path.exists(f"{paths.mirror}/{conf.user.database}.db"):
+        if not os.path.exists(f"{paths.mirror}/{conf.db}.db"):
             return
 
-        database = output(f"pacman -Sl {conf.user.database}")
+        database = output(f"pacman -Sl {conf.db}")
         files = self._get_mirror_packages()
         packages = []
 
@@ -140,15 +114,4 @@ class Environment(object):
         )
 
 
-def register():
-    environment = Environment()
-
-    return {
-        "environment.clean_mirror": environment.clean_mirror,
-        "environment.prepare_git": environment.prepare_git,
-        "environment.prepare_mirror": environment.prepare_mirror,
-        "environment.prepare_package_testing": environment.prepare_package_testing,
-        "environment.prepare_pacman": environment.prepare_pacman,
-        "environment.prepare_ssh": environment.prepare_ssh,
-        "environment.pull_main_repository": environment.pull_main_repository
-    }
+environment = Environment()
