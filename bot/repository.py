@@ -58,7 +58,7 @@ class Repository():
 
     def test_package(self):
         sys.path.append(paths.pkg)
-        self.verify_package(conf.testing.package, True)
+        self.verify_package(conf.package_to_test, True)
 
     def verify_package(self, name, is_dependency=False):
         package = Package(name, is_dependency)
