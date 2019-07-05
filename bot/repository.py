@@ -9,10 +9,12 @@ import os
 import sys
 import subprocess
 
+
 from core.settings import UPSTREAM_REPOSITORY
 from core.settings import IS_DEVELOPMENT
 from core.settings import IS_TRAVIS
 
+from imp import load_source
 from core.data import conf
 from core.data import paths
 from utils.editor import edit_file
@@ -136,11 +138,10 @@ class Package():
         self._location = os.path.join(paths.pkg, name)
         self._is_dependency = is_dependency
 
-        __import__(self._module)
         os.chdir(self._location)
 
         self.name = name
-        self.module = sys.modules[self._module]
+        self.module = load_source(self._module, os.path.join(self._location, "package.py"))
 
     def run(self):
         self._separator()
