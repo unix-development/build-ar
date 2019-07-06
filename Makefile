@@ -5,6 +5,10 @@ define bot
 		python bot $(1)
 endef
 
+
+.PHONY: all
+all: container run
+
 .PHONY: container
 container:
 	@docker build --pull \
