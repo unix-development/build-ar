@@ -20,12 +20,13 @@ from utils.process import strict_execute
 class Environment(object):
     def prepare_mirror(self):
         remote = output("git ls-files " + paths.mirror + " | awk -F / '{print $2}'").split("\n")
-        local = os.listdir(paths.mirror)
+        files = os.listdir(paths.mirror)
 
-        local.remove("validation_token")
-        local.remove("packages_checked")
+        for f in ["validation_token", "packages_checked"]:
+            if f in files:
+                files.remove(f)
 
-        if len(local) != len(remote):
+        if len(files) != len(remote):
             return
 
         print(bold("Pull remote mirror directory files:"))
