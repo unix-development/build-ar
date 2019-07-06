@@ -34,11 +34,7 @@ def set_repository():
             matches.append(name)
 
     matches.sort()
-
-    if IS_TRAVIS:
-        matches = get_sorted_packages(matches)
-
-    conf.packages = matches
+    conf.packages = get_sorted_packages(matches)
 
 def get_sorted_packages(matches):
     path = os.path.join(paths.mirror, "packages_checked")
