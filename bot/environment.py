@@ -12,6 +12,7 @@ import subprocess
 
 from core.data import conf
 from core.data import paths
+from utils.style import bold
 from utils.process import output
 from utils.process import strict_execute
 
@@ -27,7 +28,7 @@ class Environment(object):
         if len(local) != len(remote):
             return
 
-        print("\nPull remote mirror directory files:")
+        print("\n" + bold("Pull remote mirror directory files:"))
 
         strict_execute(f"""
         scp -i {paths.base}/deploy_key -P {conf.ssh_port} \
