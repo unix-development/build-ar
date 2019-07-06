@@ -1,32 +1,29 @@
-PROGRAM = repository-bot
+define bot
+	@docker run \
+		--volume="$(shell pwd)":/home/bot/remote \
+		--init --tty build-your-own-archlinux-repository \
+		python bot $(1)
+endef
 
-ID = $(shell id -u)
-PWD = $(shell pwd)
-
-SETTING = \
-	--volume="$(PWD)":/home/bot/remote \
-	--init --tty $(PROGRAM)
-
+.PHONY: container
 container:
 	@docker build \
-		--build-arg USER_ID=$(ID) \
+		--build-arg USER_ID=$(shell id -u) \
 		--build-arg TRAVIS=$(TRAVIS) \
-		--tag=$(PROGRAM) ./
+		--tag=build-your-own-archlinux-repository ./
 
-run:
-	@docker run $(SETTING) \
-		python bot build
-
+.PHONY: package
 package:
-	@docker run $(SETTING) \
-		python bot package $(test)
+	$(call bot, package $(test))
 
+.PHONY: run
+run: update
+	$(call bot, build)
+
+.PHONY: update
 update:
-	@docker run $(SETTING) \
-		python bot update
+	$(call bot, update)
 
+.PHONY: validation
 validation:
-	@docker run $(SETTING) \
-		python bot validation
-
-.PHONY: container validation update package run
+	$(call bot, validation)
