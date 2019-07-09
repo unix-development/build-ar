@@ -91,16 +91,12 @@ class Interface():
     def commit_readme(self):
         path = paths.base + "/README.md"
 
-        if (has_git_changes(path) is False):
+        if (has_git_changes(path) is False or len(conf.updated) == 0):
             return
 
         print(bold("Build README.md and mirror page:"))
 
-        if len(conf.updated) == 0:
-            commit_msg = "Doc: Add recent changes into packages information table"
-        else:
-            commit_msg = "Doc: Update " + ", ".join(conf.updated) + " in packages information table"
-
+        commit_msg = "Doc: Update " + ", ".join(conf.updated) + " in packages information table"
         strict_execute(f"""
         git add {path};
         git commit -m "{commit_msg}";
