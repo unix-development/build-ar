@@ -99,7 +99,7 @@ class Interface():
         if len(conf.updated) == 0:
             commit_msg = "Doc: Add recent changes into packages information table"
         else:
-            commit_msg = "Doc: Change modification date to " + ", ".join(conf.updated) + " in packages information table"
+            commit_msg = "Doc: Update modification date of " + ", ".join(conf.updated) + " in packages information table"
 
         strict_execute(f"""
         git add {path};
