@@ -21,6 +21,7 @@ from core.data import conf
 from core.data import paths
 from core.type import get_attr_value
 from utils.process import git_remote_path
+from utils.process import has_git_changes
 from utils.process import output
 from utils.validator import validate
 
@@ -188,7 +189,7 @@ def _check_pkg_testing():
         valid = False
         error_msg = "%s is not in pkg directory." % conf.package_to_test
 
-    elif output("git status " + paths.pkg + "/" + conf.package_to_test + " --porcelain | sed s/^...//"):
+    elif has_git_changes(paths.pkg + "/" + conf.package_to_test):
         valid = False
         error_msg = "You need to commit your changes before to test your package."
 

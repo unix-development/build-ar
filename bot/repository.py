@@ -19,10 +19,11 @@ from core.data import conf
 from core.data import paths
 from utils.editor import edit_file
 from utils.editor import replace_ending
+from utils.process import extract
+from utils.process import git_remote_path
+from utils.process import has_git_changes
 from utils.process import output
 from utils.process import strict_execute
-from utils.process import git_remote_path
-from utils.process import extract
 from utils.style import title
 from utils.style import bold
 from utils.validator import validate
@@ -213,7 +214,7 @@ class Package():
 
         print(bold("Commit changes:"))
 
-        if output("git status . --porcelain | sed s/^...//"):
+        if has_git_changes("."):
             strict_execute(f"""
             git add .;
             git commit -m "Bot: Add last update into {self.name} package ~ version {self._version}";
@@ -273,7 +274,7 @@ class Package():
         os.chdir(self._location)
 
     def _has_new_version(self):
-        if output("git status . --porcelain | sed s/^...//"):
+        if has_git_changes("."):
             return True
 
         for f in os.listdir(paths.mirror):

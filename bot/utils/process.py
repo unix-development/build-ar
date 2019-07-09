@@ -8,6 +8,8 @@ See the file 'LICENSE' for copying permission
 import sys
 import subprocess
 
+def has_git_changes(path):
+    return output("git status " + path + " --porcelain | sed s/^...//")
 
 def output(command):
     return subprocess.check_output(command, shell=True).decode(sys.stdout.encoding).strip()
