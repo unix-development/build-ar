@@ -11,6 +11,7 @@ import base64
 from datetime import datetime
 from core.data import conf
 from core.data import paths
+from utils.style import bold
 from utils.editor import edit_file
 from utils.process import extract
 from utils.process import git_remote_path
@@ -90,11 +91,20 @@ class Interface():
     def commit_readme(self):
         path = paths.base + "/README.md"
 
-        if (has_git_changes(path)):
-            strict_execute(f"""
-            git add {path};
-            git commit -m "Doc: Add recent changes into packages information table";
-            """)
+        if (has_git_changes(path) is False):
+            return
+
+        print(bold("Build README.md and mirror page:"))
+
+        if len(conf.updated) == 0:
+            commit_msg = "Doc: Add recent changes into packages information table"
+        else:
+            commit_msg = "Doc: Change modification date to " + ", ".join(conf.updated) + " in packages information table"
+
+        strict_execute(f"""
+        git add {path};
+        git commit -m "{commit_msg}";
+        """)
 
     def get_schema(self, path):
         if not os.path.isfile(path + "/PKGBUILD"):
