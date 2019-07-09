@@ -11,5 +11,5 @@ Server = $path
 <br>
 
 Package	|  Version	|  Modification
-:--- | --- | ---
+:--- | :--- | :---
 $content
