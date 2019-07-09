@@ -96,7 +96,7 @@ class Interface():
 
         print(bold("Build README.md and mirror page:"))
 
-        commit_msg = "Doc: Update " + ", ".join(conf.updated) + " in packages information table"
+        commit_msg = "Doc: Bump " + ", ".join(conf.updated) + " in packages information table"
         strict_execute(f"""
         git add {path};
         git commit -m "{commit_msg}";
