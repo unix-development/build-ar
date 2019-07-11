@@ -79,13 +79,13 @@ def _check_deploy_key():
 
 def _check_repository():
     valid = True
-    target = "repository.json"
+    target = "repository.yml"
 
-    if IS_TRAVIS and os.path.isfile(os.path.join(paths.base, "repository.json.enc")) is False:
+    if IS_TRAVIS and os.path.isfile(os.path.join(paths.base, "repository.yml.enc")) is False:
         valid = False
-        target = "repository.json.enc"
+        target = "repository.yml.enc"
 
-    elif os.path.isfile(os.path.join(paths.base, "repository.json")) is False:
+    elif os.path.isfile(os.path.join(paths.base, "repository.yml")) is False:
         valid = False
 
     validate(
@@ -103,7 +103,7 @@ def _check_content():
             break
 
     validate(
-        error="%s must be defined in repository.json" % name,
+        error="%s must be defined in repository.yml" % name,
         target="content",
         valid=valid
     )
@@ -128,7 +128,7 @@ def _check_database():
 
 def _check_port():
     validate(
-        error="port must be an interger in repository.json",
+        error="port must be an interger in repository.yml",
         target="port",
         valid=(type(conf.ssh_port) == int)
     )

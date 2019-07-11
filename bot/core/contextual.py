@@ -6,7 +6,7 @@ See the file 'LICENSE' for copying permission
 """
 
 import os
-import json
+import yaml
 
 from core.data import conf
 from core.data import paths
@@ -68,12 +68,12 @@ def set_configs():
     conf.package_to_test = None
     conf.environment = "prod"
 
-    path = os.path.join(paths.base, "repository.json")
+    path = os.path.join(paths.base, "repository.yml")
     content = {}
 
     if os.path.isfile(path):
-        with open(path) as fp:
-            content = json.load(fp)
+        with open(path, "r") as fp:
+            content = yaml.load(fp)
 
     for i, name in enumerate(ALLOWED_CONFIGS):
         value = content
