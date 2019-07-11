@@ -52,26 +52,33 @@ following the next steps.**
    repositories and click on generate token. Make sure to have a copy of your
    new personal access token now because you won’t be able to see it again!
 
-5. Create and define your repository configuration into `repository.json`. You
-   can paste your personal access token into token parameters.
+5. Create and define your repository configuration into `repository.yml` by using
+   [sample.yml](sample.yml) file. You can paste your personal access token into Github 
+   token parameters.
+   ```yaml
+   github:
+     token: aed564c9e6f2a4fcadcad11af3334f6e
+   ```
 
-   *Be careful about SSH path because the bot will remove files in choosen
-   directory before deploying builded packages and database.*
+   If you want to prevent auto update, you can remove these lines from your
+   repository.yml.
+   ```yaml
+   auto-update:
+     - bot
+     - readme
+   ```
 
-   ```json
-   {
-      "database": "custom",
-      "url": "https://mirror.yourdomain.org",
-      "github": {
-         "token": "aed564c9e6f2a4fcadcad11af3334f6e"
-      },
-      "ssh": {
-         "port": 22,
-         "user": "user",
-         "host": "yourdomain.org",
-         "path": "/path/to/your/repository"
-       }
-   }
+   If you prefers to use your repository in local system, you will need to
+   remove these lines or it will trigger errors. Be careful about SSH path
+   because the bot will remove files in chosen directory before deploying
+   packages and database.
+   ```yaml
+   url: https://mirror.yourdomain.org
+   ssh:
+     port: 22
+     user: user
+     host: yourdomain.org
+     path: /path/to/your/repository
    ```
 
 6. Add packages that you want to be in your repository. It needs to have a Git
