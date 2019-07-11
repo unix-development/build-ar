@@ -174,7 +174,7 @@ following the next steps.**
    ```
 5. Encrypt your repository configuration:
    ```
-   $ travis encrypt-file ./repository.json --add
+   $ travis encrypt-file ./repository.yml --add
    ```
 
 6. Let Travis-ci do its job! After committing and pushing your changes, you
