@@ -8,8 +8,8 @@ tmp/
 deploy_key
 deploy_key.pub
 package-lock.json
-repository.json
-repository.json.sample
+repository.yml
+sample.yml
 **/.*
 **/README.md
 */pkg
