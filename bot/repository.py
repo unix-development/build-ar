@@ -34,6 +34,9 @@ class Repository():
         if IS_DEVELOPMENT:
             return
 
+        if not isinstance(conf.auto_update, list) or "bot" not in conf.auto_update:
+            return
+
         print("Updating repository bot:")
 
         try:
