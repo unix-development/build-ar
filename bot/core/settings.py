@@ -13,7 +13,7 @@ from utils.process import git_remote_path
 # Bot version (<major>.<minor>.<month>.<monthly commit>)
 # To get the monthly commit, you need to execute
 # git rev-list --count HEAD --since="2019-07-01"
-VERSION = "1.0.7.47"
+VERSION = "1.0.7.61"
 
 # Upstream repository
 UPSTREAM_REPOSITORY = "https://github.com/unix-development/build-your-own-archlinux-repository"
@@ -28,7 +28,7 @@ IS_DEVELOPMENT = (CURRENT_REPOSITORY is UPSTREAM_REPOSITORY)
 IS_TRAVIS = ("TRAVIS" in os.environ and os.environ["TRAVIS"] != "")
 
 # Content allowed in repository.json
-ALLOWED_CONFIGS = ("database", "url", "github.token", "ssh.port", "ssh.user", "ssh.host", "ssh.path")
+ALLOWED_CONFIGS = ("database", "url", "github.token", "ssh.port", "ssh.user", "ssh.host", "ssh.path", "auto-update")
 
 # Alias configs for repository.json
-ALIAS_CONFIGS = ("db", "url", "github_token", "ssh_port", "ssh_user", "ssh_host", "ssh_path")
+ALIAS_CONFIGS = ("db", "url", "github_token", "ssh_port", "ssh_user", "ssh_host", "ssh_path", "auto_update")
