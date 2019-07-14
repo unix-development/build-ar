@@ -11,6 +11,7 @@ import base64
 from datetime import datetime
 from core.data import conf
 from core.data import paths
+from core.data import update_disabled
 from utils.style import bold
 from utils.editor import edit_file
 from utils.process import extract
@@ -79,6 +80,9 @@ class Interface():
         self.compress()
 
         # Creade README.md
+        if update_disabled("readme"):
+            return
+
         self.move_to_root()
         self.replace_markdown_variables()
         self.commit_readme()
