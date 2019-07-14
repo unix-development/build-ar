@@ -32,3 +32,6 @@ ALLOWED_CONFIGS = ("database", "url", "github.token", "ssh.port", "ssh.user", "s
 
 # Alias configs for repository.json
 ALIAS_CONFIGS = ("db", "url", "github_token", "ssh_port", "ssh_user", "ssh_host", "ssh_path", "auto_update")
+
+# SSH configs that define if it's a local repository or not
+SSH_CONFIGS = ("url", "ssh_port", "ssh_user", "ssh_host", "ssh_path")

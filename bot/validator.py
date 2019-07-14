@@ -16,9 +16,11 @@ import requests
 from core.settings import ALIAS_CONFIGS
 from core.settings import IS_DEVELOPMENT
 from core.settings import IS_TRAVIS
+from core.settings import SSH_CONFIGS
 
 from core.data import conf
 from core.data import paths
+from core.data import remote_repository
 from core.type import get_attr_value
 from utils.process import git_remote_path
 from utils.process import has_git_changes
@@ -96,8 +98,12 @@ def _check_repository():
 
 def _check_content():
     valid = True
+    content = ALIAS_CONFIGS
 
-    for name in ALIAS_CONFIGS:
+    if not remote_repository():
+        content = set(content) - set(SSH_CONFIGS)
+
+    for name in content:
         if not get_attr_value(conf, name):
             valid = False
             break
@@ -266,20 +272,26 @@ class Validator():
         print("Validating files:")
 
         _check_repository()
-        _check_deploy_key()
+
+        if remote_repository():
+            _check_deploy_key()
 
     def configs(self):
         print("Validating repository:")
 
         _check_content()
         _check_database()
-        _check_port()
+
+        if remote_repository():
+            _check_port()
 
     def connection(self):
         print("Validating connection:")
 
-        _check_ssh_connection()
-        _check_mirror_connection()
+        if remote_repository():
+            _check_ssh_connection()
+            _check_mirror_connection()
+
         _check_github_token()
 
     def content(self):

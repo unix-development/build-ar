@@ -18,6 +18,7 @@ from imp import load_source
 from core.data import conf
 from core.data import paths
 from core.data import update_disabled
+from core.data import remote_repository
 from utils.editor import edit_file
 from utils.editor import replace_ending
 from utils.process import extract
@@ -99,6 +100,21 @@ class Repository():
         if len(conf.updated) == 0:
             return
 
+        if remote_repository():
+            self._deploy_ssh()
+
+        self._deploy_git()
+
+    def _deploy_git(self):
+        print(title("Deploy to git remote") + "\n")
+
+        try:
+            subprocess.check_call("git push https://%s@%s HEAD:master &> /dev/null" % (
+                conf.github_token, git_remote_path()), shell=True)
+        except:
+            sys.exit("Error: Failed to push some refs to 'https://%s'" % git_remote_path())
+
+    def _deploy_ssh(self):
         print(title("Deploy to host remote") + "\n")
 
         strict_execute(f"""
@@ -114,14 +130,6 @@ class Repository():
             {paths.mirror}/ \
             {conf.ssh_user}@{conf.ssh_host}:{conf.ssh_path}
         """)
-
-        print(title("Deploy to git remote") + "\n")
-
-        try:
-            subprocess.check_call("git push https://%s@%s HEAD:master &> /dev/null" % (
-                conf.github_token, git_remote_path()), shell=True)
-        except:
-            sys.exit("Error: Failed to push some refs to 'https://%s'" % git_remote_path())
 
     def _execute(self, commands):
         subprocess.run(

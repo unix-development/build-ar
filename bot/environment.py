@@ -12,6 +12,7 @@ import subprocess
 
 from core.data import conf
 from core.data import paths
+from core.data import remote_repository
 from utils.style import bold
 from utils.process import output
 from utils.process import strict_execute
@@ -26,7 +27,7 @@ class Environment(object):
             if f in files:
                 files.remove(f)
 
-        if len(files) != len(remote):
+        if len(files) != len(remote) or not remote_repository():
             return
 
         print(bold("Pull remote mirror directory files:"))
@@ -48,6 +49,9 @@ class Environment(object):
         )
 
     def prepare_ssh(self):
+        if not remote_repository():
+            return
+
         self._execute(
             "eval $(ssh-agent); "
             "chmod 600 ./deploy_key; "

@@ -12,6 +12,7 @@ from datetime import datetime
 from core.data import conf
 from core.data import paths
 from core.data import update_disabled
+from core.data import remote_repository
 from utils.style import bold
 from utils.editor import edit_file
 from utils.process import extract
@@ -75,9 +76,10 @@ class Interface():
                         setattr(self, prefix + "_table_tbody", tbody + tr)
 
         # Create html mirror
-        self.move_to_mirror()
-        self.replace_html_variables()
-        self.compress()
+        if remote_repository():
+            self.move_to_mirror()
+            self.replace_html_variables()
+            self.compress()
 
         # Creade README.md
         if update_disabled("readme"):
@@ -152,9 +154,13 @@ class Interface():
     def replace_markdown_variables(self):
         for line in edit_file(paths.base + "/README.md"):
             line = line.replace("$content", self.markdown_table_tbody)
-            line = line.replace("$path", conf.url)
             line = line.replace("$database_capitalize", conf.db.capitalize())
             line = line.replace("$database", conf.db)
+
+            if not remote_repository():
+                conf.url = "file:///path/to/repository"
+
+            line = line.replace("$path", conf.url)
 
             print(line)
 
