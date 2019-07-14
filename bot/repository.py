@@ -17,6 +17,7 @@ from core.settings import IS_TRAVIS
 from imp import load_source
 from core.data import conf
 from core.data import paths
+from core.data import update_disabled
 from utils.editor import edit_file
 from utils.editor import replace_ending
 from utils.process import extract
@@ -31,10 +32,7 @@ from utils.validator import validate
 
 class Repository():
     def pull_main_repository(self):
-        if IS_DEVELOPMENT:
-            return
-
-        if not isinstance(conf.auto_update, list) or "bot" not in conf.auto_update:
+        if IS_DEVELOPMENT or update_disabled("bot"):
             return
 
         print("Updating repository bot:")
