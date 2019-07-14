@@ -13,3 +13,7 @@ paths = Attr()
 
 # Configs, user preferences, data, etc.
 conf = Attr()
+
+# Return true if no update is allowed
+def update_disabled(name):
+    return not isinstance(conf.auto_update, list) or name not in conf.auto_update
