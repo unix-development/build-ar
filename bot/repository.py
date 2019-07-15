@@ -100,7 +100,7 @@ class Repository():
     def commit_log(self):
         date = datetime.now()
         name = date.strftime("%Y-%m")
-        time = date.strftime("%Y-%m-%d %I:%M:%S")
+        time = date.strftime("%Y-%m-%d %H:%M:%S")
 
         if has_git_changes(paths.log):
             print(bold("Commit log files:"))

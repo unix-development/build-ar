@@ -29,7 +29,7 @@ def set_logs():
     logging.basicConfig(
         filename=paths.log + "/" + date.strftime("%Y-%m") + ".log",
         format="%(asctime)s - ERROR - %(message)s",
-        datefmt='%Y-%m-%d %I:%M:%S',
+        datefmt='%Y-%m-%d %H:%M:%S',
         level=logging.ERROR
     )
 
