@@ -26,7 +26,12 @@ def set_paths(root):
 
 def set_logs():
     date = datetime.now()
-    logging.basicConfig(filename=paths.log + "/" + date.strftime("%Y-%m") + ".log", level=logging.ERROR)
+    logging.basicConfig(
+        filename=paths.log + "/" + date.strftime("%Y-%m") + ".log",
+        format="%(asctime)s - ERROR - %(message)s",
+        datefmt='%Y-%m-%d %I:%M:%S',
+        level=logging.ERROR
+    )
 
 def get_base_path():
     return os.path.realpath(__file__).replace("/bot/core/contextual.py", "")

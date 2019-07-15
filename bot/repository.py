@@ -8,6 +8,7 @@ See the file 'LICENSE' for copying permission
 import os
 import sys
 import subprocess
+import logging
 
 
 from core.settings import UPSTREAM_REPOSITORY
@@ -200,6 +201,25 @@ class Package():
     def _build(self):
         print(bold("Build package:"))
 
+        errors = {
+            1: "Unknown cause of failure.",
+            2: "Error in configuration file.",
+            3: "User specified an invalid option",
+            4: "Error in user-supplied function in PKGBUILD.",
+            5: "Failed to create a viable package.",
+            6: "A source or auxiliary file specified in the PKGBUILD is missing.",
+            7: "The PKGDIR is missing.",
+            8: "Failed to install dependencies.",
+            9: "Failed to remove dependencies.",
+            10: "User attempted to run makepkg as root.",
+            11: "User lacks permissions to build or install to a given location.",
+            12: "Error parsing PKGBUILD.",
+            13: "A package has already been built.",
+            14: "The package failed to install.",
+            15: "Programs necessary to run makepkg are missing.",
+            16: "Specified GPG key does not exist."
+        }
+
         exit_code = strict_execute(f"""
         mkdir -p ./tmp; \
         makepkg \
@@ -215,8 +235,11 @@ class Package():
 
         strict_execute("rm -rf ./tmp")
 
-        if conf.environment is "prod" and exit_code == 0:
-            strict_execute("mv *.pkg.tar.xz %s" % paths.mirror)
+        if conf.environment is "prod":
+            if exit_code == 0:
+                strict_execute("mv *.pkg.tar.xz %s" % paths.mirror)
+            else:
+                logging.error(self.name + " package: " + errors.get(exit_code))
 
         return exit_code == 0
 
