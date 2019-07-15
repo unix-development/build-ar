@@ -16,7 +16,7 @@ def output(command):
 
 def strict_execute(command):
     try:
-        subprocess.check_call(command, shell=True)
+        return subprocess.call(command, shell=True)
     except subprocess.CalledProcessError as error:
         sys.exit(error)
     except OSError as error:
