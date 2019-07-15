@@ -27,3 +27,4 @@ sample.yml
 *.tgz
 *.xz
 *.zip
+!log/*.log
