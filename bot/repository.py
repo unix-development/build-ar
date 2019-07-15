@@ -102,6 +102,8 @@ class Repository():
         time = date.strftime("%Y-%m")
 
         if has_git_changes(paths.log):
+            print(bold("Commit log files:"))
+
             strict_execute(f"""
             git add {paths.log}/*;
             git commit -m "Log: Add last errors into {time}.log";

@@ -52,8 +52,8 @@ def main():
         environment.clean_mirror,
         repository.synchronize,
         repository.create_database,
-        interface.create,
         repository.commit_log,
+        interface.create,
         repository.deploy
     ])
 
