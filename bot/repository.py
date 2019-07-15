@@ -176,9 +176,9 @@ class Package():
             if len(conf.updated) > 0 and IS_TRAVIS:
                 return
 
-            self._build()
-            self._commit()
-            self._set_package_updated()
+            if self._build():
+                self._commit()
+                self._set_package_updated()
 
         self._set_package_checked()
 
@@ -200,7 +200,7 @@ class Package():
     def _build(self):
         print(bold("Build package:"))
 
-        strict_execute(f"""
+        exit_code = strict_execute(f"""
         mkdir -p ./tmp; \
         makepkg \
             SRCDEST=./tmp \
@@ -210,12 +210,15 @@ class Package():
             --nocolor \
             --noconfirm \
             --skipinteg \
-            --syncdeps; \
-        rm -rf ./tmp;
+            --syncdeps;
         """)
 
-        if conf.environment is "prod":
+        strict_execute("rm -rf ./tmp")
+
+        if conf.environment is "prod" and exit_code == 0:
             strict_execute("mv *.pkg.tar.xz %s" % paths.mirror)
+
+        return exit_code == 0
 
     def _commit(self):
         if conf.environment is not "prod":
