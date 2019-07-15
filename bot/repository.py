@@ -111,7 +111,7 @@ class Repository():
         if output("git branch -r --contains $(git log --pretty=format:'%h' -n 1) | sed s/^...//"):
             return
 
-        if remote_repository():
+        if remote_repository() and len(conf.updated) > 0:
             self._deploy_ssh()
 
         self._deploy_git()
