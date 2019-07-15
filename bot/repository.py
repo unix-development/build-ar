@@ -10,11 +10,11 @@ import sys
 import subprocess
 import logging
 
-
 from core.settings import UPSTREAM_REPOSITORY
 from core.settings import IS_DEVELOPMENT
 from core.settings import IS_TRAVIS
 
+from datetime import datetime
 from imp import load_source
 from core.data import conf
 from core.data import paths
@@ -97,8 +97,18 @@ class Repository():
                 {paths.mirror}/{package}-*.pkg.tar.xz
             """)
 
+    def commit_log(self):
+        date = datetime.now()
+        time = date.strftime("%Y-%m")
+
+        if has_git_changes(paths.log):
+            strict_execute(f"""
+            git add {paths.log}/*;
+            git commit -m "Log: Add last errors into {time}.log";
+            """)
+
     def deploy(self):
-        if len(conf.updated) == 0:
+        if output("git branch -r --contains $(git log --pretty=format:'%h' -n 1) | sed s/^...//"):
             return
 
         if remote_repository():

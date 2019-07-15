@@ -53,6 +53,7 @@ def main():
         repository.synchronize,
         repository.create_database,
         interface.create,
+        repository.commit_log,
         repository.deploy
     ])
 
