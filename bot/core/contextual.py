@@ -17,6 +17,7 @@ from core.settings import IS_TRAVIS
 
 def set_paths(root):
     paths.base = root
+    paths.log = os.path.join(root, "log")
     paths.mirror = os.path.join(root, "mirror")
     paths.pkg = os.path.join(root, "pkg")
     paths.www = os.path.join(root, "bot/www")
