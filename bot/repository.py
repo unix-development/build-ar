@@ -100,9 +100,6 @@ class Repository():
         if len(conf.updated) == 0:
             return
 
-        if output("git show -s --format=%s") is not "Core: Pull main repository project":
-            return
-
         if remote_repository():
             self._deploy_ssh()
 
