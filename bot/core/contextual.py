@@ -14,22 +14,23 @@ from core.data import conf
 from core.data import paths
 from core.settings import ALIAS_CONFIGS
 from core.settings import ALLOWED_CONFIGS
-from core.settings import IS_TRAVIS
 
 
 def set_paths(root):
+    now = datetime.now()
+    date = now.strftime("%Y-%m")
+
     paths.base = root
-    paths.log = os.path.join(root, "log")
+    paths.log = os.path.join(root, "log", date + ".log")
     paths.mirror = os.path.join(root, "mirror")
     paths.pkg = os.path.join(root, "pkg")
     paths.www = os.path.join(root, "bot/www")
 
 def set_logs():
-    date = datetime.now()
     logging.basicConfig(
-        filename=paths.log + "/" + date.strftime("%Y-%m") + ".log",
-        format="%(asctime)s - ERROR - %(message)s",
-        datefmt='%Y-%m-%d %H:%M:%S',
+        datefmt="%Y-%m-%d",
+        filename=paths.log,
+        format="%(asctime)s - %(message)s",
         level=logging.ERROR
     )
 

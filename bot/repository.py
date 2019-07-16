@@ -100,14 +100,22 @@ class Repository():
     def commit_log(self):
         date = datetime.now()
         name = date.strftime("%Y-%m")
-        time = date.strftime("%A %d %b, %H:%M:%S").lower()
+        time = date.strftime("%A %-d %B")
+        last_commit_message = output("git show -s --format='%s'")
+        last_commit_date = output("git log -1 --date=format:'%Y-%m-%d' --format='%ad'")
+
+        if os.stat(paths.log).st_size == 0:
+            return
+
+        if last_commit_message.startswith(f"Log: Add last errors into {name}.log") and last_commit_date == date.strftime("%Y-%m-%d"):
+            return
 
         if has_git_changes(paths.log):
             print(bold("Commit log files:"))
 
             strict_execute(f"""
-            git add {paths.log}/*;
-            git commit -m "Log: Add last errors into {name}.log ~ build exectued {time}";
+            git add {paths.log};
+            git commit -m "Log: Add errors into {name}.log ~ {time}";
             """)
 
     def deploy(self):
