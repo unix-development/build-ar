@@ -28,7 +28,7 @@ def set_paths(root):
 
 def set_logs():
     logging.basicConfig(
-        datefmt="%Y-%m-%d",
+        datefmt="%Y-%m-%d %I:%M:%S",
         filename=paths.log,
         format="%(asctime)s - %(message)s",
         level=logging.ERROR
