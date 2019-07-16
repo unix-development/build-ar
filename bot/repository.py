@@ -107,7 +107,7 @@ class Repository():
         if os.stat(paths.log).st_size == 0:
             return
 
-        if last_commit_message.startswith(f"Log: Add last errors into {name}.log") and last_commit_date == date.strftime("%Y-%m-%d"):
+        if last_commit_message.startswith(f"Log: Add errors into {name}.log") and last_commit_date == date.strftime("%Y-%m-%d") and IS_TRAVIS:
             return
 
         if has_git_changes(paths.log):
