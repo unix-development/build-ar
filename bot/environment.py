@@ -81,22 +81,6 @@ class Environment(object):
         if len(sys.argv) > 2:
             conf.package_to_test = sys.argv[2]
 
-    def clean_mirror(self):
-        if not os.path.exists(f"{paths.mirror}/{conf.db}.db"):
-            return
-
-        database = output(f"pacman -Sl {conf.db}")
-        files = self._get_mirror_packages()
-        packages = []
-
-        for package in database.split("\n"):
-            split = package.split(" ")
-            packages.append(split[1] + "-" + split[2] + "-")
-
-        for fp in files:
-            if self._in_mirror(packages, fp) is False:
-                os.remove(paths.mirror + "/" + fp)
-
     def _in_mirror(self, packages, fp):
         for package in packages:
             if fp.startswith(package):
