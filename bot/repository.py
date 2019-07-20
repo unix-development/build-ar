@@ -80,7 +80,7 @@ class Repository():
                 --nocolor \
                 --remove \
                 {paths.mirror}/{conf.db}.db.tar.gz \
-                {paths.mirror}/{package}-.pkg.tar.xz
+                {paths.mirror}/{package}*.pkg.tar.xz
             """)
 
     def deploy(self):
