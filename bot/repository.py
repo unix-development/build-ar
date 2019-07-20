@@ -75,12 +75,15 @@ class Repository():
         ))
 
         for package in conf.updated:
+            name = package["name"]
+            version = package["version"]
+
             strict_execute(f"""
             repo-add \
                 --nocolor \
                 --remove \
                 {paths.mirror}/{conf.db}.db.tar.gz \
-                {paths.mirror}/{package.name}-{package.version}-*.pkg.tar.xz
+                {paths.mirror}/{name}-{version}-*.pkg.tar.xz
             """)
 
     def deploy(self):

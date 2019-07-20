@@ -108,7 +108,7 @@ class Interface():
         print(title("Build README.md and mirror page:") + "\n")
 
         for package in conf.updated:
-            packages.append(package.name)
+            packages.append(package["name"])
 
         commit_msg = "Doc: Bump " + ", ".join(packages) + " in packages information table"
         strict_execute(f"""
