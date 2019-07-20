@@ -100,13 +100,17 @@ class Interface():
 
     def commit_readme(self):
         path = paths.base + "/README.md"
+        packages = []
 
         if (has_git_changes(path) is False or len(conf.updated) == 0):
             return
 
         print(title("Build README.md and mirror page:") + "\n")
 
-        commit_msg = "Doc: Bump " + ", ".join(conf.updated) + " in packages information table"
+        for package in conf.updated:
+            packages.append(package.name)
+
+        commit_msg = "Doc: Bump " + ", ".join(packages) + " in packages information table"
         strict_execute(f"""
         git add {path};
         git commit -m "{commit_msg}";

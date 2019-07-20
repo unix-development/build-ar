@@ -80,7 +80,7 @@ class Repository():
                 --nocolor \
                 --remove \
                 {paths.mirror}/{conf.db}.db.tar.gz \
-                {paths.mirror}/{package}*.pkg.tar.xz
+                {paths.mirror}/{package.name}-{package.version}-*.pkg.tar.xz
             """)
 
     def deploy(self):
@@ -350,7 +350,10 @@ class Package():
 
     def _set_package_updated(self):
         for name in self._name.split(" "):
-            conf.updated.append(name + '-' + self._epoch + self._version + '-')
+            conf.updated.append({
+                "name": name,
+                "version": self._epoch + self._version
+            })
 
     def _commit(self):
         if conf.environment is not "prod":
