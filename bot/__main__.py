@@ -51,7 +51,6 @@ def main():
         environment.prepare_pacman,
         repository.synchronize,
         repository.create_database,
-        repository.commit_log,
         interface.create,
         repository.deploy
     ])

@@ -21,18 +21,13 @@ def set_paths(root):
     date = now.strftime("%Y-%m")
 
     paths.base = root
-    paths.log = os.path.join(root, "log", date + ".log")
+    paths.log = os.path.join(root, "log")
     paths.mirror = os.path.join(root, "mirror")
     paths.pkg = os.path.join(root, "pkg")
     paths.www = os.path.join(root, "bot/www")
 
 def set_logs():
-    logging.basicConfig(
-        datefmt="%Y-%m-%d %I:%M:%S",
-        filename=paths.log,
-        format="%(asctime)s - %(message)s",
-        level=logging.ERROR
-    )
+    return
 
 def get_base_path():
     return os.path.realpath(__file__).replace("/bot/core/contextual.py", "")
