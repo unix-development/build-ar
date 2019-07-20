@@ -13,7 +13,7 @@ from validator import validator
 from core.contextual import get_base_path
 from core.contextual import set_configs
 from core.contextual import set_paths
-from core.contextual import set_logs
+from core.contextual import set_directories
 from core.contextual import set_repository
 from core.runner import runner
 
@@ -22,8 +22,8 @@ def set_contextual():
     base = get_base_path()
     set_paths(base)
     set_repository()
+    set_directories()
     set_configs()
-    set_logs()
 
 def main():
     set_contextual()

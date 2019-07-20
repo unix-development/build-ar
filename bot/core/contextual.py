@@ -7,27 +7,26 @@ See the file 'LICENSE' for copying permission
 
 import os
 import yaml
-import logging
 
-from datetime import datetime
 from core.data import conf
 from core.data import paths
 from core.settings import ALIAS_CONFIGS
 from core.settings import ALLOWED_CONFIGS
+from utils.process import strict_execute
 
 
 def set_paths(root):
-    now = datetime.now()
-    date = now.strftime("%Y-%m")
-
     paths.base = root
     paths.log = os.path.join(root, "log")
     paths.mirror = os.path.join(root, "mirror")
     paths.pkg = os.path.join(root, "pkg")
     paths.www = os.path.join(root, "bot/www")
 
-def set_logs():
-    return
+def set_directories():
+    strict_execute("""
+    mkdir -p {paths.log};
+    mkdir -p {paths.mirror};
+    """)
 
 def get_base_path():
     return os.path.realpath(__file__).replace("/bot/core/contextual.py", "")
