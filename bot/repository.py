@@ -57,6 +57,8 @@ class Repository():
         print("  [ ✓ ] up to date")
 
     def create_database(self):
+        os.chdir(paths.mirror)
+
         if len(conf.updated) == 0:
             return
 
@@ -76,8 +78,9 @@ class Repository():
             strict_execute(f"""
             repo-add \
                 --nocolor \
+                --remove \
                 {paths.mirror}/{conf.db}.db.tar.gz \
-                {paths.mirror}/{package}-*.pkg.tar.xz
+                {paths.mirror}/{package}-.pkg.tar.xz
             """)
 
     def deploy(self):
@@ -346,7 +349,8 @@ class Package():
             self.separator()
 
     def _set_package_updated(self):
-        conf.updated.extend(self._name.split(" "))
+        for name in self._name.split(" "):
+            conf.updated.extend(name + '-' + self._epoch + self._version + '-')
 
     def _commit(self):
         if conf.environment is not "prod":
