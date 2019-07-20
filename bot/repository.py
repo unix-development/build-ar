@@ -350,7 +350,7 @@ class Package():
 
     def _set_package_updated(self):
         for name in self._name.split(" "):
-            conf.updated.extend(name + '-' + self._epoch + self._version + '-')
+            conf.updated.append(name + '-' + self._epoch + self._version + '-')
 
     def _commit(self):
         if conf.environment is not "prod":
