@@ -16,7 +16,7 @@ from core.data import conf
 from core.data import paths
 from core.data import update_disabled
 from core.data import remote_repository
-from utils.style import bold
+from utils.style import title
 from utils.editor import edit_file
 from utils.process import extract
 from utils.process import git_remote_path
@@ -104,7 +104,7 @@ class Interface():
         if (has_git_changes(path) is False or len(conf.updated) == 0):
             return
 
-        print(bold("Build README.md and mirror page:"))
+        print(title("Build README.md and mirror page:") + "\n")
 
         commit_msg = "Doc: Bump " + ", ".join(conf.updated) + " in packages information table"
         strict_execute(f"""
