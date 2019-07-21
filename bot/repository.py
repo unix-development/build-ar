@@ -15,7 +15,6 @@ from core.settings import UPSTREAM_REPOSITORY
 from core.settings import IS_DEVELOPMENT
 from core.settings import IS_TRAVIS
 
-from datetime import datetime
 from imp import load_source
 from core.data import conf
 from core.data import paths
@@ -235,6 +234,10 @@ class Package():
 
     def clean_directory(self):
         files = os.listdir(self.path)
+        keep_files = []
+
+        if _attribute_exists(self.module, "keep_files") and type(self.module.keep_files) is list:
+            keep_files = self.module.keep_files
 
         for f in files:
             path = os.path.join(self.path, f)
@@ -242,7 +245,7 @@ class Package():
             if os.path.isdir(path):
                 shutil.rmtree(path)
 
-            elif os.path.isfile(path) and f != "package.py":
+            elif os.path.isfile(path) and f != "package.py" and f not in keep_files:
                 os.remove(path)
 
     def has_new_version(self):
@@ -272,12 +275,10 @@ class Package():
 
         sys.path.insert(0, "{paths.base}/bot");
         from utils.editor import edit_file;
-        from utils.editor import copy_file;
         sys.path.insert(0, "{self.path}");
 
         import package;
         package.edit_file = edit_file;
-        package.copy_file = copy_file;
         package.pre_build();
         """
 
