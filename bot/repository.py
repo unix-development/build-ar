@@ -269,17 +269,20 @@ class Package():
 
         command = f"""
         import sys;
+
         sys.path.insert(0, "{paths.base}/bot");
         from utils.editor import edit_file;
+        from utils.editor import copy_file;
         sys.path.insert(0, "{self.path}");
 
         import package;
         package.edit_file = edit_file;
+        package.copy_file = copy_file;
         package.pre_build();
         """
 
         command = " ".join(command.replace("\n", "").split())
-        exit_code = self._execute(f"python -c '{command}'", True)
+        exit_code = self._execute(f"python -c '{command}'", False)
 
         if exit_code > 0:
             self.errors.append("An error append when executing pre_build function into package.py")
