@@ -23,7 +23,7 @@ def set_paths(root):
     paths.www = os.path.join(root, "bot/www")
 
 def set_directories():
-    strict_execute("""
+    strict_execute(f"""
     mkdir -p {paths.log};
     mkdir -p {paths.mirror};
     """)
