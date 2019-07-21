@@ -17,6 +17,7 @@ from utils.process import strict_execute
 
 def set_paths(root):
     paths.base = root
+    paths.files = os.path.join(root, "files")
     paths.log = os.path.join(root, "log")
     paths.mirror = os.path.join(root, "mirror")
     paths.pkg = os.path.join(root, "pkg")
