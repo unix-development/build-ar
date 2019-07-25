@@ -12,7 +12,8 @@ def has_git_changes(path):
     return output("git status " + path + " --porcelain | sed s/^...//")
 
 def output(command):
-    return subprocess.check_output(command, shell=True).decode(sys.stdout.encoding).strip()
+    output = subprocess.check_output(command, shell=True, stderr=subprocess.STDOUT)
+    return output.decode(sys.stdout.encoding).strip()
 
 def strict_execute(command):
     try:
