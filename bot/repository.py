@@ -303,8 +303,6 @@ class Package():
                 f.write(self.name + "\n")
 
     def set_real_version(self):
-        path = os.path.join(self.path, "tmp")
-
         try:
             os.path.isfile(self.path + "/PKGBUILD")
             output("source " + self.path + "/PKGBUILD; type pkgver &> /dev/null")
@@ -320,8 +318,6 @@ class Package():
             --noconfirm \
             --skipinteg;
         """)
-
-        shutil.rmtree(path)
 
         if exit_code > 0:
             self.errors.append("An error append when executing makepkg")
@@ -377,7 +373,6 @@ class Package():
             """, True)
 
     def _make(self):
-        path = os.path.join(self.path, "tmp")
         errors = {
             1: "Unknown cause of failure.",
             2: "Error in configuration file.",
@@ -407,8 +402,6 @@ class Package():
             --skipinteg \
             --syncdeps;
         """, True)
-
-        shutil.rmtree(path)
 
         if conf.environment is "prod" and exit_code == 0:
             self._execute("mv *.pkg.tar.xz %s" % paths.mirror)
