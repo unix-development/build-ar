@@ -313,7 +313,7 @@ class Package():
 
         exit_code = self._execute(f"""
         mkdir -p ./tmp;
-        cp `ls | grep -v tmp` ./tmp;
+        cp -r `ls | grep -v tmp` ./tmp;
         makepkg \
             SRCDEST=./tmp \
             --nobuild \
@@ -402,7 +402,7 @@ class Package():
 
         exit_code = self._execute(f"""
         mkdir -p ./tmp;
-        cp `ls | grep -v tmp` ./tmp;
+        cp -r `ls | grep -v tmp` ./tmp;
         makepkg \
             SRCDEST=./tmp \
             --clean \
