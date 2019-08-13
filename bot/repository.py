@@ -312,9 +312,7 @@ class Package():
             return
 
         exit_code = self._execute(f"""
-        mkdir -p ./tmp;
         makepkg \
-            SRCDEST=./tmp \
             --nobuild \
             --nodeps \
             --nocheck \
@@ -400,9 +398,7 @@ class Package():
         }
 
         exit_code = self._execute(f"""
-        mkdir -p ./tmp; \
         makepkg \
-            SRCDEST=./tmp \
             --clean \
             --install \
             --nocheck \
