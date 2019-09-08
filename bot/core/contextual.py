@@ -81,7 +81,7 @@ def set_configs():
 
     if os.path.isfile(path):
         with open(path, "r") as fp:
-            content = yaml.load(fp)
+            content = yaml.safe_load(fp)
 
     for i, name in enumerate(ALLOWED_CONFIGS):
         value = content

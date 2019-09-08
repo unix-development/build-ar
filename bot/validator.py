@@ -309,7 +309,7 @@ class Validator():
 
         with open(".travis.yml", "r") as stream:
             try:
-                content = yaml.load(stream)
+                content = yaml.safe_load(stream)
             except yaml.YAMLError as error:
                 content = error
 
