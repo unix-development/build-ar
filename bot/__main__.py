@@ -21,8 +21,8 @@ from core.runner import runner
 def set_contextual():
     base = get_base_path()
     set_paths(base)
-    set_repository()
     set_directories()
+    set_repository()
     set_configs()
 
 def main():
