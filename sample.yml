@@ -1,25 +1,16 @@
 database: custom
-
 github:
   token: aed564c9e6f2a4fcadcad11af3334f6e
 
-# =========================================================
-# AUTO UPDATER
-#
 # If you want to prevent auto update, you can remove
 # these lines.
-# =========================================================
 auto-update:
   - bot
   - readme
 
-# =========================================================
-# SSH CONFIGURATIONS
-#
 # If you prefere to use your repository in local
 # system, you will need to remove these lines or it
 # will trigger errors.
-# =========================================================
 url: https://mirror.yourdomain.org
 ssh:
   port: 22
