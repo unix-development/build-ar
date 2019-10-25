@@ -69,6 +69,8 @@ class Environment(object):
         Server = file:///%s
         """ % (conf.db, paths.mirror))
 
+        self._execute("sudo chmod 777 /etc/pacman.conf")
+
         if os.path.exists(os.path.join(paths.mirror, conf.db + ".db")):
             with open("/etc/pacman.conf", "a+") as fp:
                 fp.write(textwrap.dedent(content))
