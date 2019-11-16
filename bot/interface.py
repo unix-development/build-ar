@@ -68,7 +68,7 @@ class Interface():
                         tr = tr.replace("$date", date)
                         tr = tr.replace("$version", version)
 
-                        if prefix is "markdown":
+                        if prefix == "markdown":
                             description = description.replace("\\", "\\\\")
                             description = description.replace("*", "\*")
                             description = description.replace("_", "\_")

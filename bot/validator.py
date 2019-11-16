@@ -42,13 +42,6 @@ def _check_is_docker_image():
         valid=(os.environ.get("IS_DOCKER", False))
     )
 
-def _check_operating_system():
-    validate(
-        error="This program needs to be executed in Arch Linux.",
-        target="operating system",
-        valid=(platform.dist()[0] == "arch")
-    )
-
 def _check_internet_up():
     try:
         socket.create_connection(("www.github.com", 80))
@@ -181,7 +174,7 @@ def _check_pkg_content():
     )
 
 def _check_pkg_testing():
-    if conf.environment is "prod":
+    if conf.environment == "prod":
         return
 
     valid = True
@@ -216,7 +209,7 @@ def _check_ssh_connection():
     validate(
         error="ssh connection could not be established.",
         target="ssh address",
-        valid=(output(script) is "1")
+        valid=(output(script) == "1")
     )
 
 def _check_mirror_connection():
@@ -265,7 +258,6 @@ class Validator():
 
         _check_user_privileges()
         _check_is_docker_image()
-        _check_operating_system()
         _check_internet_up()
 
     def files(self):

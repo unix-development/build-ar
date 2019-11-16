@@ -298,7 +298,7 @@ class Package():
         """)
 
     def set_package_checked(self):
-        if conf.environment is "prod":
+        if conf.environment == "prod":
             with open(f"{paths.mirror}/packages_checked", "a+") as f:
                 f.write(self.name + "\n")
 
@@ -364,7 +364,7 @@ class Package():
             })
 
     def _commit(self):
-        if conf.environment is not "prod":
+        if conf.environment != "prod":
             return
 
         print(bold("Commit changes:"))
@@ -416,7 +416,7 @@ class Package():
 
         shutil.rmtree(path)
 
-        if conf.environment is "prod" and exit_code == 0:
+        if conf.environment == "prod" and exit_code == 0:
             self._execute("mv *.pkg.tar.xz %s" % paths.mirror)
 
         return exit_code == 0
