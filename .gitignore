@@ -5,6 +5,7 @@ mirror/
 pkgs/
 src/
 tmp/
+TAGS
 deploy_key
 deploy_key.pub
 package-lock.json
