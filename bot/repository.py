@@ -150,14 +150,13 @@ class Repository():
         package = Package(name)
 
         processes = [
-            package.set_package_checked,
             package.clean_directory,
             package.is_user_config_valid,
             package.pull_repository,
             package.pre_build,
             package.set_real_version,
             package.set_variables,
-            package.is_build_valid,
+            package.is_build_valid
         ]
 
         for process in processes:
@@ -171,8 +170,9 @@ class Repository():
             outdated.append(name)
             print(f"  [ - ] {package.name}")
             return True
-
-        print(f"  [ ✓ ] {package.name}")
+        else:
+            package.set_package_checked()
+            print(f"  [ ✓ ] {package.name}")
 
     def _execute(self, commands):
         subprocess.run(
@@ -206,12 +206,14 @@ class Package():
         self.set_variables()
         self.verify_dependencies()
 
-        if len(conf.updated) > 0 and IS_TRAVIS:
-            return
-
         if self._make():
+            self.clean_directory()
+            self.pull_repository()
+            self.pre_build()
+            self.set_real_version()
             self._commit()
             self._set_package_updated()
+            self.set_package_checked()
 
     def is_user_config_valid(self):
         self._check_module_source()
@@ -344,10 +346,21 @@ class Package():
                 output("pacman -Sp '" + dependency + "' &>/dev/null")
                 continue
             except:
-                if dependency not in conf.packages:
-                    sys.exit("\nError: %s is not part of the official package and can't be found in pkg directory." % dependency)
+                redirect = False
 
-                if dependency not in conf.updated:
+                if dependency not in conf.packages:
+                    dependency = dependency.split(">")[0].split("<")[0]
+
+                    if output("git ls-remote https://aur.archlinux.org/%s.git" % dependency):
+                        redirect = True
+                        self._add_to_pkg(dependency)
+                    else:
+                        sys.exit("\nError: %s is not part of the official package and can't be found in pkg directory." % dependency)
+
+                if redirect or dependency not in conf.updated:
+                    if (len(conf.updated) > 0 and IS_TRAVIS):
+                        return
+
                     print("Install missing dependencies before to build it.")
 
                     redirect = True
@@ -355,6 +368,21 @@ class Package():
 
         if redirect is True and IS_TRAVIS is False:
             self.separator()
+
+    def _add_to_pkg(self, dependency):
+        directory = os.path.join(paths.pkg, dependency)
+
+        conf.packages.append(dependency)
+
+        self._execute(f"mkdir -p ../{dependency};")
+
+        with open(f"{directory}/package.py", "w") as f:
+            f.write("%s\n%s\n\n%s\n%s" % (
+                "#!/usr/bin/env python",
+                "# -*- coding:utf-8 -*-",
+                ("name = \"%s\"" % dependency),
+                ("source = \"https://aur.archlinux.org/%s.git\"" % dependency)
+            ))
 
     def _set_package_updated(self):
         for name in self._name.split(" "):
@@ -369,9 +397,9 @@ class Package():
 
         print(bold("Commit changes:"))
 
-        if has_git_changes("."):
+        if has_git_changes(self.path):
             self._execute(f"""
-            git add .;
+            git add {self.path};
             git commit -m "Bot: Add last update into {self.name} package ~ version {self._version}";
             """, True)
         else:
