@@ -261,12 +261,17 @@ class Package():
         return True
 
     def set_variables(self):
-        self._version = extract(self.path, "pkgver")
-        self._name = extract(self.path, "pkgname")
-        self._epoch = extract(self.path, "epoch")
+        self._version = None
+        self._name = None
+        self._epoch = None
 
-        if self._epoch:
-            self._epoch += ":"
+        if os.path.isfile(self.path + "/PKGBUILD"):
+            self._version = extract(self.path, "pkgver")
+            self._name = extract(self.path, "pkgname")
+            self._epoch = extract(self.path, "epoch")
+
+            if self._epoch:
+                self._epoch += ":"
 
     def pre_build(self):
         if "pre_build" not in dir(self.module):
