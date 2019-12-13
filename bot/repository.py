@@ -484,8 +484,8 @@ class Package():
             self.errors.append("The name defined in package.py is the not the same in PKGBUILD.")
 
     def _print_errors(self):
-        errors = "\n".join([str(error) for error in self.errors])
-        print(f"  [ x ] {self.name}\n==> ERROR:\n" + errors + "\n")
+        errors = "\n  - ".join([str(error) for error in self.errors])
+        print(f"  [ x ] {self.name}\n  - " + errors + "\n")
 
     def _execute(self, process, show_output=False):
         if show_output:
