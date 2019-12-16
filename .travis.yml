@@ -6,8 +6,6 @@ install:
 script:
   - make container
   - make run
-git:
-  depth: false
 cache:
   directories:
     - mirror
