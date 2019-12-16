@@ -55,6 +55,40 @@ class Repository():
 
         print("  [ ✓ ] up to date")
 
+    def clean_database(self):
+        in_directory = []
+        in_database = output("pacman -Slq %s | sort" % conf.db).split("\n")
+
+        for name in conf.packages:
+            directory = paths.pkg + "/" + name
+
+            try:
+                open(directory + "/PKGBUILD")
+            except FileNotFoundError:
+                continue
+
+            in_directory = in_directory + extract(directory, "pkgname").split(" ")
+
+        os.chdir(paths.mirror)
+        useless_packages = set(in_database) - set(in_directory)
+
+        if len(useless_packages) == 0:
+            return
+
+        print("Remove packages in database:")
+
+        for name in (set(in_database) - set(in_directory)):
+            schema = self._get_schema(name)
+            path = name + "-" + schema["version"]
+
+            strict_execute(f"""
+            repo-remove \
+                --nocolor \
+                --remove \
+                {paths.mirror}/{conf.db}.db.tar.gz \
+                {name}
+            """)
+
     def create_database(self):
         os.chdir(paths.mirror)
 
@@ -93,6 +127,38 @@ class Repository():
             self._deploy_ssh()
 
         self._deploy_git()
+
+    def _strip_key(self, value):
+        return ":".join(value.split(":")[1:]).strip()
+
+    def _get_schema(self, name):
+        schema = {}
+        is_package = False
+        lines = output("pacman -Si %s" % name).split("\n")
+        keys = {
+            "repository": "Repository",
+            "description": "Description",
+            "version": "Version",
+            "date": "Build Date",
+        }
+
+        for line in lines:
+            if is_package is False:
+                if line.startswith(keys["repository"]) and  self._strip_key(line) == conf.db:
+                    is_package = True
+            else:
+                for key in keys:
+                    if line.startswith(keys[key]):
+                        schema[key] = self._strip_key(line)
+
+                        if key == "date":
+                            parameters = schema[key].split(" ")
+                            schema[key] = parameters[1] + " " + parameters[2] + " " + parameters[3]
+
+                if line == "":
+                    is_package = False
+
+        return schema
 
     def _deploy_git(self):
         print(title("Deploy to git remote") + "\n")
@@ -492,6 +558,7 @@ class Package():
             return subprocess.call(process, shell=True, cwd=self.path)
         else:
             return subprocess.call(process, shell=True, cwd=self.path, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+
 
 def _attribute_exists(module, name):
     try:

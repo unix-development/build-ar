@@ -49,6 +49,7 @@ def main():
         environment.prepare_git,
         environment.prepare_mirror,
         environment.prepare_pacman,
+        repository.clean_database,
         repository.synchronize,
         repository.create_database,
         interface.create,
