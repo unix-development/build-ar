@@ -15,12 +15,12 @@ container:
 		--build-arg TRAVIS=$(TRAVIS) \
 		--tag=build-your-own-archlinux-repository ./
 
-.PHONY: package
-package: test-docker
+.PHONY: test
+test: test-docker
 	@docker run \
 		--volume="$(shell pwd)":/home/bot/remote \
-		--init --tty build-your-own-archlinux-repository \
-		python bot package $(test)
+		--init --interactive --tty build-your-own-archlinux-repository \
+		python bot test
 
 .PHONY: run
 run: test-docker update
