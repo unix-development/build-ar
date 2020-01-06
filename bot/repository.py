@@ -258,7 +258,6 @@ class Repository():
             else:
                 print("Make sure you answer with the word Yes or the word No.")
 
-
     def _input_package_to_test(self):
         t = Autocomplete()
         t.create_list(conf.packages)
