@@ -3,7 +3,7 @@ all: container run
 
 .PHONY: test-docker
 test-docker:
-	@if [[ "$(shell docker images -q build-your-own-archlinux-repository)" == "" ]]; then \
+	@if [ "$(shell docker images -q build-your-own-archlinux-repository)" == "" ]; then \
 		echo "Before to use Docker container, you must install it. Please execute the command 'make container'."; \
 		exit 1; \
 	fi
