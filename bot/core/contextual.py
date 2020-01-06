@@ -17,15 +17,16 @@ from utils.process import strict_execute
 
 def set_paths(root):
     paths.base = root
-    paths.files = os.path.join(root, "files")
-    paths.log = os.path.join(root, "log")
     paths.mirror = os.path.join(root, "mirror")
+    paths.log = os.path.join(root, "log")
     paths.pkg = os.path.join(root, "pkg")
+    paths.tmp = os.path.join(root, "tmp")
     paths.www = os.path.join(root, "bot/www")
 
 def set_directories():
     strict_execute(f"""
     mkdir -p {paths.log};
+    mkdir -p {paths.tmp};
     mkdir -p {paths.mirror};
     """)
 

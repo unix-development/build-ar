@@ -7,7 +7,9 @@ See the file 'LICENSE' for copying permission
 
 import os
 import sys
+import glob
 import shutil
+import readline
 import subprocess
 import multiprocessing
 
@@ -31,6 +33,33 @@ from utils.style import bold
 
 manager = multiprocessing.Manager()
 outdated = manager.list()
+
+
+class Autocomplete(object):
+    """
+    A tab completer that can either complete from
+    the filesystem or from a list.
+    """
+
+    def create_list(self, ll):
+        """
+        This is a closure that creates a method that autocompletes from
+        the given list.
+
+        Since the autocomplete function can't be given a list to complete from
+        a closure is used to create the listCompleter function with a list to complete
+        from.
+        """
+        def completer(text, state):
+            line = readline.get_line_buffer()
+
+            if not line:
+                return [c + "" for c in ll][state]
+
+            else:
+                return [c + "" for c in ll if c.startswith(line)][state]
+
+        self.completer = completer
 
 
 class Repository():
@@ -206,11 +235,45 @@ class Repository():
             self.build_package(name)
 
     def test_package(self):
-        self.build_package(conf.package_to_test, True)
+        paths.mirror = paths.tmp
+        name = self._input_package_to_test()
 
-    def build_package(self, name, is_dependency=False):
-        package = Package(name, is_dependency)
+        while True:
+            self.build_package(name, True, True)
+            if not self._input_for_restart_test():
+                return
+
+    def build_package(self, name, is_dependency=False, is_testing=False):
+        package = Package(name, is_dependency, is_testing)
         package.build()
+
+    def _input_for_restart_test(self):
+        while True:
+            answer = input("Do you want to restart the test ? [y/N] ").lower()
+
+            if answer == "yes" or answer == "y":
+                return True
+            elif answer == "no" or answer == "n" or answer == "":
+                return False
+            else:
+                print("Make sure you answer with the word Yes or the word No.")
+
+
+    def _input_package_to_test(self):
+        t = Autocomplete()
+        t.create_list(conf.packages)
+
+        readline.set_completer_delims('\t')
+        readline.parse_and_bind("tab: complete")
+        readline.set_completer(t.completer)
+
+        while True:
+            package = input("What package do you want to test? ")
+
+            if package in conf.packages:
+                return package
+            else:
+                print("Error: %s is not in package directory." % package)
 
     def _check_package_status(self, name):
         package = Package(name)
@@ -250,11 +313,17 @@ class Repository():
 
 
 class Package():
-    def __init__(self, name, is_dependency=False):
+    def __init__(self, name, is_dependency=False, is_testing=False):
         self.errors = []
 
+        if is_testing:
+            strict_execute(f"cp -r {paths.pkg}/{name} {paths.tmp}")
+            self.path = os.path.join(paths.tmp, name)
+        else:
+            self.path = os.path.join(paths.pkg, name)
+
         self.name = name
-        self.path = os.path.join(paths.pkg, name)
+        self.is_testing = is_testing
         self.module = load_source(name + ".package", os.path.join(self.path, "package.py"))
         self.is_dependency = is_dependency
 
@@ -277,9 +346,11 @@ class Package():
             self.pull_repository()
             self.pre_build()
             self.set_real_version()
-            self._commit()
-            self._set_package_updated()
-            self.set_package_checked()
+
+            if self.is_testing is False:
+                self._commit()
+                self._set_package_updated()
+                self.set_package_checked()
 
     def is_user_config_valid(self):
         self._check_module_source()
@@ -435,7 +506,7 @@ class Package():
                     print("Install missing dependencies before to build it.")
 
                     redirect = True
-                    repository.build_package(dependency, True)
+                    repository.build_package(dependency, True, self.is_testing)
 
         if redirect is True and IS_TRAVIS is False:
             self.separator()
@@ -445,7 +516,7 @@ class Package():
 
         conf.packages.append(dependency)
 
-        self._execute(f"mkdir -p ../{dependency};")
+        self._execute(f"mkdir {directory};")
 
         with open(f"{directory}/package.py", "w") as f:
             f.write("%s\n%s\n\n%s\n%s" % (

@@ -173,31 +173,6 @@ def _check_pkg_content():
         valid=(len(diff) == 0)
     )
 
-def _check_pkg_testing():
-    if conf.environment == "prod":
-        return
-
-    valid = True
-    error_msg = ""
-
-    if conf.package_to_test is None:
-        valid = False
-        error_msg = "You need to define which package you want to test with this command: make package test=discord"
-
-    elif conf.package_to_test not in conf.packages:
-        valid = False
-        error_msg = "%s is not in pkg directory." % conf.package_to_test
-
-    elif has_git_changes(paths.pkg + "/" + conf.package_to_test):
-        valid = False
-        error_msg = "You need to commit your changes before to test your package."
-
-    validate(
-        error=error_msg,
-        target="testing",
-        valid=valid
-    )
-
 def _check_ssh_connection():
     script = "ssh -i ./deploy_key -p %i -q %s@%s [[ -d %s ]] && echo 1 || echo 0" % (
         conf.ssh_port,
@@ -291,7 +266,6 @@ class Validator():
 
         _check_pkg_directory()
         _check_pkg_content()
-        _check_pkg_testing()
 
     def travis(self):
         if IS_TRAVIS is False:
