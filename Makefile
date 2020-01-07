@@ -1,3 +1,6 @@
+# Use bash syntax
+SHELL := /bin/bash
+
 .PHONY: all
 all: container run
 
