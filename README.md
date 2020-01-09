@@ -5,8 +5,7 @@ version of software has been released, build packages and deploy them into a
 server.
 
 ## Usage
-**Important: Make sure you have Docker and Python 3 on your system before
-following the next steps.**
+**Important: Make sure you have Docker on your system before following the next steps.**
 
 1. Fork this [repository](https://github.com/unix-development/build-your-own-archlinux-repository)
    by clicking on the fork button at the top of the page.
@@ -123,10 +122,15 @@ following the next steps.**
    You can test your package build by running this:
 
    ```
-   $ make package test=dwm
+   $ make test
    ```
 
-7. To use Pacman, you need to add this configuration to your
+7. When you're ready, let the bot do its job with this command:
+   ```
+	$ make run
+   ```
+
+8. To use Pacman, you need to add this configuration to your
     `/etc/pacman.conf`.
 
     ```
@@ -134,11 +138,6 @@ following the next steps.**
     SigLevel = Optional TrustedOnly
     Server = http://mirror.yourdomain.org
     ```
-
-8. Let the bot do its job with this command:
-   ```
-	$ make run
-   ```
 
 ## Use Travis CI to execute cron job
 
