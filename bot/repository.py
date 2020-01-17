@@ -204,7 +204,6 @@ class Repository():
         strict_execute(f"""
         rsync \
             --archive \
-            --compress \
             --copy-links \
             --delete \
             --recursive \

@@ -195,7 +195,7 @@ def _check_mirror_connection():
         f.write(token)
         f.close()
 
-    os.system("rsync -aqvz -e 'ssh -i ./deploy_key -p %i' %s %s@%s:%s" % (
+    os.system("rsync -aqv -e 'ssh -i ./deploy_key -p %i' %s %s@%s:%s" % (
         conf.ssh_port, source, conf.ssh_user, conf.ssh_host, conf.ssh_path)
     )
 
