@@ -241,7 +241,6 @@ class Validator():
         print("Validating requirements:")
 
         _check_user_privileges()
-        _check_git_branch()
         _check_is_docker_image()
         _check_internet_up()
 
