@@ -32,7 +32,6 @@ def main():
         validator.requirements,
         validator.files,
         validator.travis,
-        validator.content,
         validator.configs,
         environment.prepare_ssh,
         validator.connection
@@ -42,7 +41,6 @@ def main():
         validator.requirements,
         validator.files,
         validator.travis,
-        validator.content,
         validator.configs,
         environment.prepare_ssh,
         validator.connection,
