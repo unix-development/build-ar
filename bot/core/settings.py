@@ -13,10 +13,10 @@ from utils.process import git_remote_path
 # Bot version (<major>.<minor>.<month>.<monthly commit>)
 # To get the monthly commit, you need to execute
 # git rev-list --count HEAD --since="2019-07-01"
-VERSION = "1.0.7.61"
+VERSION = "1.1.1.14"
 
 # Upstream repository
-UPSTREAM_REPOSITORY = "https://github.com/unix-development/build-your-own-archlinux-repository"
+UPSTREAM_REPOSITORY = "https://github.com/unix-development/build-ar"
 
 # Current repository
 CURRENT_REPOSITORY = "https://" + git_remote_path().rstrip(".git")
