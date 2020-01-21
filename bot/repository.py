@@ -624,9 +624,19 @@ class Package():
 
     def _execute(self, process, show_output=False):
         if show_output:
-            return subprocess.call(process, shell=True, cwd=self.path)
+            return subprocess.call(
+                process,
+                shell=True,
+                cwd=self.path
+            )
         else:
-            return subprocess.call(process, shell=True, cwd=self.path, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+            return subprocess.call(
+                process,
+                shell=True,
+                cwd=self.path,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )
 
 
 def _attribute_exists(module, name):
