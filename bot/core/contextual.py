@@ -77,12 +77,15 @@ def set_configs():
     conf.package_to_test = None
     conf.environment = "prod"
 
+    content = None
     path = os.path.join(paths.base, "repository.yml")
-    content = {}
 
     if os.path.isfile(path):
         with open(path, "r") as fp:
-            content = yaml.safe_load(fp)
+            try:
+                content = yaml.safe_load(fp)
+            except:
+                content = None
 
     for i, name in enumerate(ALLOWED_CONFIGS):
         value = content
