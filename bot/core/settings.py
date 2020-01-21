@@ -22,7 +22,7 @@ UPSTREAM_REPOSITORY = "https://github.com/unix-development/build-ar"
 CURRENT_REPOSITORY = "https://" + git_remote_path().rstrip(".git")
 
 # Check if it's upstream repository
-IS_DEVELOPMENT = (CURRENT_REPOSITORY is UPSTREAM_REPOSITORY)
+IS_DEVELOPMENT = (CURRENT_REPOSITORY == UPSTREAM_REPOSITORY)
 
 # Define if it's Travis-CI
 IS_TRAVIS = ("TRAVIS" in os.environ and os.environ["TRAVIS"] != "")
