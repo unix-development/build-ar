@@ -53,9 +53,6 @@ class Interface():
         else:
             packages = packages.split("\n")
 
-        print(packages)
-        sys.exit()
-
         for name in packages:
             schema = self._get_schema(name)
             description = schema["description"]
