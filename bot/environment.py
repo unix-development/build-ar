@@ -13,9 +13,11 @@ import subprocess
 from core.data import conf
 from core.data import paths
 from core.data import remote_repository
+
 from utils.style import bold
 from utils.process import output
 from utils.process import strict_execute
+from utils.process import execute_quietly
 
 
 class Environment(object):
@@ -43,65 +45,46 @@ class Environment(object):
         """)
 
     def prepare_git(self):
-        self._execute(
-            "git config --global user.email 'uvobot@lognoz.org'; "
-            "git config --global user.name 'uvobot';"
-        )
+        execute_quietly("""
+        git config --global user.email 'uvobot@lognoz.org';
+        git config --global user.name 'uvobot';
+        """)
 
     def prepare_ssh(self):
         if not remote_repository():
             return
 
-        self._execute(
-            "eval $(ssh-agent); "
-            "chmod 600 ./deploy_key; "
-            "ssh-add ./deploy_key; "
-            "mkdir -p ~/.ssh; "
-            "chmod 0700 ~/.ssh; "
-            "ssh-keyscan -t rsa -H %s >> ~/.ssh/known_hosts; "
-            % conf.ssh_host
-        )
+        execute_quietly(f"""
+        eval $(ssh-agent);
+        chmod 600 ./deploy_key;
+        ssh-add ./deploy_key;
+        mkdir -p ~/.ssh;
+        chmod 0700 ~/.ssh;
+        ssh-keyscan -t rsa -H {conf.ssh_host} >> ~/.ssh/known_hosts;
+        """)
 
     def prepare_pacman(self):
-        content = ("""
-        [%s]
-        SigLevel = Optional TrustedOnly
-        Server = file:///%s
-        """ % (conf.db, paths.mirror))
+        path = paths.mirror + "/" + conf.db + ".db"
 
-        self._execute("sudo chmod 777 /etc/pacman.conf")
+        execute_quietly("sudo chmod 777 /etc/pacman.conf")
 
-        if os.path.exists(os.path.join(paths.mirror, conf.db + ".db")):
-            with open("/etc/pacman.conf", "a+") as fp:
-                fp.write(textwrap.dedent(content))
+        if os.path.exists(path) is False:
+            return
 
-        self._execute("sudo pacman -Sy")
+        with open("/etc/pacman.conf", "a+") as fp:
+            fp.write(textwrap.dedent(f"""
+            [{conf.db}]
+            SigLevel = Optional TrustedOnly
+            Server = file:///{paths.mirror}
+            """))
 
-    def _in_mirror(self, packages, fp):
-        for package in packages:
-            if fp.startswith(package):
-                return True
+        execute_quietly("cp %s /var/lib/pacman/sync/{conf.db}" % path)
 
-        return False
+    def prepare_package_testing(self):
+        conf.environment = "dev"
 
-    def _get_mirror_packages(self):
-        packages = []
-        for root, dirs, files in os.walk(paths.mirror):
-            for fp in files:
-                if not fp.endswith(".tar.xz"):
-                    continue
-
-                packages.append(fp)
-
-        return packages
-
-    def _execute(self, commands):
-        subprocess.run(
-            commands,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-            shell=True
-        )
+        if len(sys.argv) > 2:
+            conf.package_to_test = sys.argv[2]
 
 
 environment = Environment()
