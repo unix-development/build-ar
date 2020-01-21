@@ -27,6 +27,7 @@ from utils.process import git_remote_path
 from utils.process import has_git_changes
 from utils.process import output
 from utils.process import strict_execute
+from utils.process import execute_quietly
 from utils.style import title
 from utils.style import bold
 
@@ -86,7 +87,12 @@ class Repository():
 
     def clean_database(self):
         in_directory = []
-        in_database = output("pacman -Slq %s | sort" % conf.db).split("\n")
+        in_database = output("pacman -Slq %s | sort" % conf.db)
+
+        if in_database.startswith("error: repository"):
+            return
+        else:
+            in_database = in_database.split("\n")
 
         for name in conf.packages:
             directory = paths.pkg + "/" + name
@@ -163,7 +169,15 @@ class Repository():
     def _get_schema(self, name):
         schema = {}
         is_package = False
-        lines = output("pacman -Si %s" % name).split("\n")
+
+        path = paths.mirror + "/" + conf.db + ".db"
+        execute_quietly("cp %s /var/lib/pacman/sync/{conf.db}" % path)
+
+        try:
+            lines = output("pacman -Si %s" % name).split("\n")
+        except:
+            return
+
         keys = {
             "repository": "Repository",
             "description": "Description",
@@ -190,11 +204,19 @@ class Repository():
         return schema
 
     def _deploy_git(self):
+        if IS_DEVELOPMENT:
+            return
+
         print(title("Deploy to git remote") + "\n")
 
         try:
-            subprocess.check_call("git push https://%s@%s HEAD:master &> /dev/null" % (
-                conf.github_token, git_remote_path()), shell=True)
+            remote_path = git_remote_path()
+
+            subprocess.check_call(f"""
+            git push https://{conf.github_token}@{remote_path} HEAD:master &> /dev/null
+            """, shell=True)
+
+            print("Sucessufly push on git remote")
         except:
             sys.exit("Error: Failed to push some refs to 'https://%s'" % git_remote_path())
 
