@@ -23,6 +23,14 @@ def strict_execute(command):
     except OSError as error:
         sys.exit(error)
 
+def execute_quietly(commands):
+    subprocess.run(
+        commands,
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+        shell=True
+    )
+
 def git_remote_path():
     return output('git remote get-url origin') \
         .replace('https://', '') \
