@@ -554,7 +554,7 @@ class Package():
             })
 
     def _commit(self):
-        if conf.environment != "prod":
+        if IS_DEVELOPMENT or conf.environment != "prod":
             return
 
         print(bold("Commit changes:"))

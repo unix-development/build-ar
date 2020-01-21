@@ -6,6 +6,7 @@ See the file 'LICENSE' for copying permission
 """
 
 import os
+import sys
 import base64
 import subprocess
 
@@ -24,6 +25,7 @@ from utils.process import git_remote_path
 from utils.process import has_git_changes
 from utils.process import output
 from utils.process import strict_execute
+from utils.process import execute_quietly
 
 
 class Interface():
@@ -41,9 +43,18 @@ class Interface():
     markdown_table_tr = "*$name*<br>$description | $version | $date\n"
 
     def create(self):
-        self._execute("sudo pacman -Sy")
+        if IS_DEVELOPMENT:
+            return
 
-        packages = output("pacman -Slq %s | sort" % conf.db).split("\n")
+        packages = output("pacman -Slq %s | sort" % conf.db)
+
+        if packages.startswith("error: repository"):
+            return
+        else:
+            packages = packages.split("\n")
+
+        print(packages)
+        sys.exit()
 
         for name in packages:
             schema = self._get_schema(name)
