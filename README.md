@@ -1,4 +1,4 @@
-# Build-Ar — Build Your Own Arch Linux Repository
+# Build-Ar, Build Your Own Arch Linux Repository
 This project is an easy-to-use program that provides functionalities to build a
 custom repository for Arch Linux. This bot will automatically check if a new
 version of software has been released, build packages and deploy them into a
