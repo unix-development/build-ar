@@ -35,6 +35,15 @@ def _check_user_privileges():
         valid=(os.getuid() != 0)
     )
 
+def _check_git_branch():
+    branch = output("git rev-parse --abbrev-ref HEAD")
+
+    validate(
+        error="This program needs to be on master branch before to build.",
+        target="git repository",
+        valid=(branch == "master")
+    )
+
 def _check_is_docker_image():
     validate(
         error="This program needs to be executed in a docker image.",
@@ -232,6 +241,7 @@ class Validator():
         print("Validating requirements:")
 
         _check_user_privileges()
+        _check_git_branch()
         _check_is_docker_image()
         _check_internet_up()
 
