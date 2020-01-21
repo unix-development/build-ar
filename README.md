@@ -1,4 +1,4 @@
-# Build Your Own Arch Linux Repository
+# Build-Ar — Build Your Own Arch Linux Repository
 This project is an easy-to-use program that provides functionalities to build a
 custom repository for Arch Linux. This bot will automatically check if a new
 version of software has been released, build packages and deploy them into a
@@ -7,7 +7,7 @@ server.
 ## Usage
 **Important: Make sure you have Docker on your system before following the next steps.**
 
-1. Fork this [repository](https://github.com/unix-development/build-your-own-archlinux-repository)
+1. Fork this [repository](https://github.com/unix-development/build-ar)
    by clicking on the fork button at the top of the page.
 
 2. To build the docker container you will need to run:
