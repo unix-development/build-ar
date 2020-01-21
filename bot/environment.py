@@ -78,8 +78,8 @@ class Environment(object):
             Server = file:///{paths.mirror}
             """))
 
-        execute_quietly("""
-        cp {path} /var/lib/pacman/sync/{conf.db}.db
+        execute_quietly(f"""
+        sudo cp {path} /var/lib/pacman/sync/{conf.db}.db
         """)
 
     def prepare_package_testing(self):
