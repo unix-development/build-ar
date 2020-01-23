@@ -3,7 +3,7 @@ node_modules/
 repository/
 mirror/
 pkgs/
-src/
+pkg/src/
 tmp/
 TAGS
 deploy_key
