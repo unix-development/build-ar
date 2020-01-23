@@ -85,10 +85,12 @@ def _check_mirror_connection():
     execute(f"""
     rsync \
         --archive \
+        --copy-links \
         --delete \
+        --recursive \
         --update \
         --verbose \
-        {app.path.mirror}/ \
+        {app.path.mirror}/validation_token \
         {app.ssh.user}@{app.ssh.host}:{app.ssh.path}
     """)
 
