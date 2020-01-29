@@ -130,17 +130,17 @@ def _check_packages():
 class Validator():
     current = 1
     statements = {
-        "_check_user_privilege": "checking user privilege",
-        "_check_docker_image": "checking docker image",
-        "_check_internet_up": "checking internet connection",
-        "_check_repository": "checking repository",
-        "_check_deploy_key": "checking deploy key",
-        "_check_database": "checking database",
-        "_check_ssh_port": "checking ssh port",
-        "_check_ssh_connection": "checking ssh connection",
-        "_check_mirror_connection": "checking mirror connection",
-        "_check_github_token": "checking github token",
-        "_check_packages": "checking package directory"
+        "_check_user_privilege": "user privilege",
+        "_check_docker_image": "docker image",
+        "_check_internet_up": "internet connection",
+        "_check_repository": "repository",
+        "_check_deploy_key": "deploy key",
+        "_check_database": "database",
+        "_check_ssh_port": "ssh port",
+        "_check_ssh_connection": "ssh connection",
+        "_check_mirror_connection": "mirror connection",
+        "_check_github_token": "github token",
+        "_check_packages": "package directory"
     }
 
     def execute(self):
@@ -152,12 +152,49 @@ class Validator():
                 "_check_mirror_connection"
             ])
 
+        self._prepare()
+
+        for reference in self.statements:
+            text = self.statements[reference]
+            if app.runner == "run":
+                self._print_on_same_line(text)
+            else:
+                self._print_on_multiple_line(text)
+
+            self._catch_error(reference)
+
+        if app.runner == "run":
+            self._print_on_same_line(text, True)
+
+    def _prepare(self):
+        self.current = 0
+        self.longest_text = 0
         self.length = len(self.statements)
 
         for reference in self.statements:
-            print(f"({self._space()}{self.current}/{self.length}) {self.statements[reference]}")
-            self._catch_error(reference)
-            self.current = self.current + 1
+            length = len(self.statements[reference])
+
+            if self.longest_text < length:
+                self.longest_text = length
+
+    def _print_on_same_line(self, text, last=False):
+        if last:
+            achivement = "Done"
+            end = '\n'
+        else:
+            achivement = str(round(self.current / self.length * 100)) + "%"
+            end = '\r'
+
+        space = " " * (self.longest_text - len(text))
+        print(f"Validating {text}... {achivement}{space}", end=end)
+
+    def _print_on_multiple_line(self, text):
+        if self.current + 1 < 10 and self.length >= 10:
+            space = " "
+        else:
+            space = ""
+
+        print(f"({space}{self.current + 1}/{self.length}) Validating {text}")
 
     def _delete(self, to_remove):
         for reference in to_remove:
@@ -166,20 +203,17 @@ class Validator():
     def _catch_error(self, reference):
         text = eval(reference + "()")
 
-        if text:
-            sys.exit(self._get_formated_error(text))
+        if not text:
+            self.current = self.current + 1
+            return
+
+        sys.exit(self._get_formated_error(text))
 
     def _get_formated_error(self, error):
         text = "\nError: "
         for line in error.strip().split("\n"):
             text = text + line.strip() + "\n"
         return text
-
-    def _space(self):
-        if self.current < 10 and self.length >= 10:
-            return " "
-        else:
-            return ""
 
 
 validator = Validator()
