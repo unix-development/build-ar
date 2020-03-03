@@ -22,6 +22,7 @@ class App():
         self._set_repository()
         self._set_package()
         self._set_environment()
+        self._set_runner()
 
     def _get_base_path(self):
         return os.path.realpath(__file__).replace("/src/core/app.py", "")
@@ -95,6 +96,12 @@ class App():
             .replace('git://', '')
 
         self.remote_user = self.remote_path.split("/")[1]
+
+    def _set_runner(self):
+        self.runner = None
+
+        if len(sys.argv) == 2:
+            self.runner = sys.argv[1]
 
     def has(self, name):
         if name == "ssh":
