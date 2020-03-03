@@ -23,25 +23,25 @@ test: test-docker
 	@docker run \
 		--volume="$(shell pwd)":/home/bot/remote \
 		--init --interactive --tty build-your-own-archlinux-repository \
-		python bot test
+		python src test
 
 .PHONY: run
 run: test-docker update
 	@docker run \
 		--volume="$(shell pwd)":/home/bot/remote \
 		--init --tty build-your-own-archlinux-repository \
-		python bot build
+		python src build
 
 .PHONY: update
 update: test-docker
 	@docker run \
 		--volume="$(shell pwd)":/home/bot/remote \
 		--init --tty build-your-own-archlinux-repository \
-		python bot update
+		python src update
 
 .PHONY: validation
 validation: test-docker
 	@docker run \
 		--volume="$(shell pwd)":/home/bot/remote \
 		--init --tty build-your-own-archlinux-repository \
-		python bot validation
+		python src validation
