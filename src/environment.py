@@ -53,7 +53,7 @@ class Environment():
 
     def prepare_mirror(self):
         """
-        This function mirror by verifing if we can pull files online.
+        This function prepare mirror by verifing if we can pull files online.
         """
         black_list   = [ "validation_token", "packages_checked" ]
         staged       = output("git ls-files " + app.path.mirror).strip()
@@ -80,6 +80,28 @@ class Environment():
         """)
 
         os.system(command)
+
+    def prepare_pacman(self):
+        """
+        This function is used to update pacman remote.
+        """
+        path = app.path.mirror + "/" + app.database + ".db"
+
+        execute("sudo chmod 777 /etc/pacman.conf")
+
+        if os.path.exists(path) is False:
+            return
+
+        with open("/etc/pacman.conf", "a+") as fp:
+            fp.write(textwrap.dedent(f"""
+            [{app.database}]
+            SigLevel = Optional TrustedOnly
+            Server = file:///{app.path.mirror}
+            """))
+
+        execute(f"""
+        sudo cp {path} /var/lib/pacman/sync/{app.database}.db
+        """)
 
 
 environment = Environment()
