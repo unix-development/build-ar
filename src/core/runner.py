@@ -7,17 +7,27 @@ See the file 'LICENSE' for copying permission
 
 import sys
 
+from core.app import app
+
 
 class Runner():
-    commands = dict()
+    parameters = dict()
 
-    def set(self, abstract, runners):
-        self.commands[abstract] = runners
+    def set(self, name, runners):
+        if type(runners) is list:
+            self.parameters[name] = runners
+        else:
+            self.parameters[name] = [runners]
 
-    def get(self):
-        for index, arg in enumerate(sys.argv):
-            for name in self.commands:
-                if name == arg:
-                    return self.commands[name]
+    def execute(self):
+        if not app.runner:
+            return
+
+        elif app.runner not in self.parameters:
+            return
+
+        for runner in self.parameters[app.runner]:
+            runner()
+
 
 runner = Runner()
