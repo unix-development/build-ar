@@ -68,7 +68,7 @@ def _check_ssh_connection():
 
     # Catch exit code with SSH connection script.
     exit_code = output(f"""
-    ssh {app.ssh.user}@{app.ssh.host} \
+    ssh -p {app.ssh.port} {app.ssh.user}@{app.ssh.host} \
         [[ -d {app.ssh.path} ]] && echo 1 || echo 0
     """)
 
@@ -168,14 +168,14 @@ class Validator():
 
     def _prepare(self):
         self.current = 0
-        self.longest_text = 0
+        self.max_length = 0
         self.length = len(self.statements)
 
         for reference in self.statements:
             length = len(self.statements[reference])
 
-            if self.longest_text < length:
-                self.longest_text = length
+            if self.max_length < length:
+                self.max_length = length
 
     def _print_on_same_line(self, text, last=False):
         if last:
@@ -185,7 +185,7 @@ class Validator():
             achivement = str(round(self.current / self.length * 100)) + "%"
             end = '\r'
 
-        space = " " * (self.longest_text - len(text))
+        space = " " * (self.max_length - len(text))
         print(f"Validating {text}... {achivement}{space}", end=end)
 
     def _print_on_multiple_line(self, text):
