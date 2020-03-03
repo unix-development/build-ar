@@ -19,9 +19,15 @@ from environment import environment
 
 
 def _file_exists(path):
+    """
+    This function is used to checks if file exists.
+    """
     return os.path.isfile(os.path.join(app.path.base, path))
 
 def _get_directories(path):
+    """
+    Get list of directories locate in path.
+    """
     directories = []
     for f in os.scandir(path):
         if f.is_dir():
@@ -29,28 +35,46 @@ def _get_directories(path):
     return directories
 
 def _check_user_privilege():
+    """
+    Check if the user privilege is different as root.
+    """
     if os.getuid() == 0:
         return "This program needs to be not execute as root."
 
 def _check_docker_image():
+    """
+    Check if the script is run in a docker image.
+    """
     if not os.environ.get("IS_DOCKER", True):
         return "This program needs to be executed in a docker image."
 
 def _check_internet_up():
+    """
+    Check if internet is up.
+    """
     try:
         socket.create_connection(("www.github.com", 80))
     except OSError:
         return "This program needs to be connected to internet."
 
 def _check_repository():
+    """
+    Check if repository.yml exists in project.
+    """
     if _file_exists("repository.yml") is False:
         return "repository.yml could not been found."
 
 def _check_deploy_key():
+    """
+    Check if deplay_key exists in project.
+    """
     if _file_exists("deploy_key") is False:
         return "deploy_key could not been found."
 
 def _check_database():
+    """
+    Check if the database define in repository.yml is valid.
+    """
     if not app.database:
         return "Database must be defined in repository.yml"
     elif app.database in ("core", "extra", "community"):
@@ -59,10 +83,16 @@ def _check_database():
         return "Database must be an alphanumeric string."
 
 def _check_ssh_port():
+    """
+    Check if the ssh port define in repository.yml is an integer.
+    """
     if type(app.ssh.port) != int:
         return "Port must be an interger in repository.yml"
 
 def _check_ssh_connection():
+    """
+    Check if a ssh connection can be establish.
+    """
     # Prepare SSH with deploy_key.
     environment.prepare_ssh()
 
@@ -76,6 +106,9 @@ def _check_ssh_connection():
         return "SSH connection could not be established."
 
 def _check_mirror_connection():
+    """
+    Check if a connection can be establish with the mirror.
+    """
     # Write a validation token file to test mirror connection.
     with open(app.path.mirror + "/validation_token", "w") as f:
         f.write(secrets.token_hex(15))
@@ -106,6 +139,10 @@ def _check_mirror_connection():
         return "This program can't connect to %s." % app.website
 
 def _check_github_token():
+    """
+    Check if github token and the remote user have the right access to
+    push on repository.
+    """
     response = output(f"""
     curl -su {app.remote_user}:{app.github_token} https://api.github.com/user
     """)
@@ -117,6 +154,9 @@ def _check_github_token():
         """
 
 def _check_packages():
+    """
+    Check if there is packages in pkg directory.
+    """
     # Check directories in pkg with no package.py
     directories = _get_directories(app.path.pkg)
     undefined_packages = set(directories) - set(app.package)
@@ -144,6 +184,9 @@ class Validator():
     }
 
     def execute(self):
+        """
+        Execute all statements function defined.
+        """
         if not app.has("ssh"):
             self._delete([
                 "_check_deploy_key",
@@ -167,6 +210,9 @@ class Validator():
             self._print_on_same_line(text, True)
 
     def _prepare(self):
+        """
+        Prepare validation.
+        """
         self.current = 0
         self.max_length = 0
         self.length = len(self.statements)
@@ -178,6 +224,9 @@ class Validator():
                 self.max_length = length
 
     def _print_on_same_line(self, text, last=False):
+        """
+        Print validation message on same line.
+        """
         if last:
             achivement = "Done"
             end = '\n'
@@ -189,6 +238,9 @@ class Validator():
         print(f"Validating {text}... {achivement}{space}", end=end)
 
     def _print_on_multiple_line(self, text):
+        """
+        Print validation message on multiple line.
+        """
         if self.current + 1 < 10 and self.length >= 10:
             space = " "
         else:
@@ -197,10 +249,16 @@ class Validator():
         print(f"({space}{self.current + 1}/{self.length}) Validating {text}")
 
     def _delete(self, to_remove):
+        """
+        Delete statement executor.
+        """
         for reference in to_remove:
             del(self.statements[reference])
 
     def _catch_error(self, reference):
+        """
+        This function is used to stop the program and return an error.
+        """
         text = eval(reference + "()")
 
         if not text:
@@ -210,6 +268,9 @@ class Validator():
         sys.exit(self._get_formated_error(text))
 
     def _get_formated_error(self, error):
+        """
+        Get the error message on the right format.
+        """
         text = "\nError: "
         for line in error.strip().split("\n"):
             text = text + line.strip() + "\n"
