@@ -9,6 +9,7 @@ import os
 import sys
 import yaml
 
+from core.system import system
 from util.process import execute
 from util.process import output
 from util.attr import attr
@@ -23,6 +24,19 @@ class App():
         self._set_package()
         self._set_environment()
         self._set_runner()
+        self._set_system()
+
+    def has(self, name):
+        if name == "ssh":
+            for key in ["user", "port", "host", "path"]:
+                if getattr(self.ssh, key) is not None:
+                    return True
+
+    def _set_system(self):
+        self.system = system
+        self.system.module = attr({
+            "need_update": os.path.join(self.path.mirror, "to_update")
+        })
 
     def _get_base_path(self):
         return os.path.realpath(__file__).replace("/src/core/app.py", "")
@@ -102,11 +116,5 @@ class App():
 
         if len(sys.argv) == 2:
             self.runner = sys.argv[1]
-
-    def has(self, name):
-        if name == "ssh":
-            for key in ["user", "port", "host", "path"]:
-                if getattr(self.ssh, key) is not None:
-                    return True
 
 app = App()

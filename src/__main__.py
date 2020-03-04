@@ -15,10 +15,10 @@ def main():
     runner.set("validation", validator.execute)
 
     runner.set("run", [
-        validator.execute,
-        environment.prepare_git,
-        environment.prepare_mirror,
-        environment.prepare_pacman,
+        #validator.execute,
+        #environment.prepare_git,
+        #environment.prepare_mirror,
+        #environment.prepare_pacman,
         synchronizer.scan,
     ])
 

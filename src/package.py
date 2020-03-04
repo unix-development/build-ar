@@ -26,7 +26,6 @@ def _attribute_exists(module, name):
 
 class Package():
     error = []
-    status = "success"
 
     def __init__(self, **parameter):
         self.name = parameter["name"]
@@ -92,7 +91,6 @@ class Package():
         shutil.rmtree(path)
 
         if exit_code > 0:
-            self.status = "error"
             self.error.append("An error append when executing makepkg")
 
     def set_variable(self):
@@ -110,8 +108,10 @@ class Package():
 
     def validate_build(self):
         self._check_build_exists()
-        self._check_build_version()
-        self._check_build_name()
+
+        if not self.has_error():
+            self._check_build_version()
+            self._check_build_name()
 
     def need_update(self):
         if len(self.error) > 0:
@@ -123,29 +123,63 @@ class Package():
 
         return True
 
+    def has_error(self):
+        if len(self.error) > 0:
+            return True
+        return False
+
+    def verify_dependencies(self):
+        depends = extract(self.path, "depends")
+        makedepends = extract(self.path, "makedepends")
+        dependencies = (depends + " " + makedepends).strip()
+        dependencies_to_ensure = []
+
+        if dependencies == "":
+            return
+
+        for dependency in dependencies.split(" "):
+            dependency = dependency.split(">")[0].split("<")[0]
+            in_repository = self._is_dependency_in_repository(dependency)
+            if not in_repository:
+                dependencies_to_ensure.append(dependency)
+
+        return dependencies_to_ensure
+
+    def _is_dependency_in_repository(self, dependency):
+        try:
+            output("pacman -Sp '" + dependency + "' &>/dev/null")
+        except:
+            if dependency in app.package:
+                return True
+
+            if output("git ls-remote https://aur.archlinux.org/%s.git" % dependency):
+                return False
+            else:
+                self.error(f"""
+                {dependency} is not part of the official package
+                and can't be found in pkg directory.
+                """)
+
+        return True
+
     def _check_build_exists(self):
         if not os.path.isfile(self.path + "/PKGBUILD"):
-            self.status = "error"
             self.error.append("PKGBUILD does not exists.")
 
     def _check_build_version(self):
         if not self._version:
-            self.status = "error"
             self.error.append("No version variable is defined in PKGBUILD.")
 
     def _check_build_name(self):
         if not self._name:
-            self.status = "error"
             self.error.append("No name variable is defined in PKGBUILD.")
 
     def _check_module_source(self):
         if not _attribute_exists(self.module, "source"):
-            self.status = "error"
             self.error.append("No source variable is defined in package.py")
 
     def _check_module_name(self):
         if _attribute_exists(self.module, "name") is False:
-            self.status = "error"
             self.error.append("No name variable is defined in package.py")
 
     def _prepare_checking_environment(self):
