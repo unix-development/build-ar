@@ -33,9 +33,9 @@ class App():
         self.path = attr({
             "base": root,
             "mirror": os.path.join(root, "mirror"),
-            "log": os.path.join(root, "log"),
             "pkg": os.path.join(root, "pkg"),
             "tmp": os.path.join(root, "tmp"),
+            "log": os.path.join(root, "log"),
             "www": os.path.join(root, "bot/www")
         })
 

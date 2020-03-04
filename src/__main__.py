@@ -9,14 +9,20 @@ from core.app import app
 from core.runner import runner
 from environment import environment
 from validator import validator
+from synchronizer import synchronizer
 
 def main():
-    runner.set("validation", [
-        validator.execute
+    runner.set("validation", validator.execute)
+
+    runner.set("run", [
+        validator.execute,
+        environment.prepare_git,
+        environment.prepare_mirror,
+        environment.prepare_pacman,
+        synchronizer.scan,
     ])
 
-    for execute in runner.get():
-        execute()
+    runner.execute()
 
 
 if __name__ == "__main__":
