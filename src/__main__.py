@@ -10,16 +10,19 @@ from core.runner import runner
 from environment import environment
 from validator import validator
 from synchronizer import synchronizer
+from repository import repository
+
 
 def main():
     runner.set("validation", validator.execute)
 
     runner.set("run", [
-        #validator.execute,
-        #environment.prepare_git,
-        #environment.prepare_mirror,
-        #environment.prepare_pacman,
+        validator.execute,
+        environment.prepare_git,
+        environment.prepare_mirror,
+        environment.prepare_pacman,
         synchronizer.scan,
+        repository.make
     ])
 
     runner.execute()

@@ -17,14 +17,16 @@ from util.attr import attr
 
 class App():
     package = []
+    need_to_update = []
 
     def __init__(self):
         self._set_path()
         self._set_repository()
-        self._set_package()
+        self._set_system()
+        self._set_package_in_directory()
+        self._set_package_to_update()
         self._set_environment()
         self._set_runner()
-        self._set_system()
 
     def has(self, name):
         if name == "ssh":
@@ -94,13 +96,20 @@ class App():
         else:
             self.auto_update = []
 
-    def _set_package(self):
+    def _set_package_in_directory(self):
         for name in os.listdir(self.path.pkg):
             path = os.path.join(self.path.pkg, name, "package.py")
             if os.path.isfile(path):
                 self.package.append(name)
 
         self.package.sort()
+
+    def _set_package_to_update(self):
+        content = self.system.get("need_update")
+
+        for name in content:
+            if name in self.package:
+                self.need_to_update.append(name)
 
     def _set_environment(self):
         self.is_travis = ("TRAVIS" in os.environ and os.environ["TRAVIS"] != "")

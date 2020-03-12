@@ -17,5 +17,17 @@ class System():
             f.write(content)
             f.close()
 
+    def get(self, name):
+        if name == "need_update":
+            path = self.module.need_update
+
+        try:
+            with open(path, "r") as f:
+                content = f.read()
+
+            return content.split("\n")
+        except:
+            return []
+
 
 system = System()

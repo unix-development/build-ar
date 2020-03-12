@@ -6,6 +6,7 @@ See the file 'LICENSE' for copying permission
 """
 
 import os
+import sys
 import shutil
 import subprocess
 
@@ -187,11 +188,60 @@ class Package():
         execute(f"cp -rf {self.path} {temporary_source}")
         self.path = temporary_source
 
-    def _execute(self, command):
-        return subprocess.call(
-            command,
-            shell=True,
-            cwd=self.path,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL
-        )
+    def _make(self):
+        path = os.path.join(self.path, "tmp")
+        errors = {
+            1: "Unknown cause of failure.",
+            2: "Error in configuration file.",
+            3: "User specified an invalid option",
+            4: "Error in user-supplied function in PKGBUILD.",
+            5: "Failed to create a viable package.",
+            6: "A source or auxiliary file specified in the PKGBUILD is missing.",
+            7: "The PKGDIR is missing.",
+            8: "Failed to install dependencies.",
+            9: "Failed to remove dependencies.",
+            10: "User attempted to run makepkg as root.",
+            11: "User lacks permissions to build or install to a given location.",
+            12: "Error parsing PKGBUILD.",
+            13: "A package has already been built.",
+            14: "The package failed to install.",
+            15: "Programs necessary to run makepkg are missing.",
+            16: "Specified GPG key does not exist."
+        }
+
+        exit_code = self._execute(f"""
+        mkdir -p ./tmp;
+        cp -r `ls | grep -v tmp` ./tmp;
+        makepkg \
+            SRCDEST=./tmp \
+            --clean \
+            --install \
+            --nocheck \
+            --nocolor \
+            --noconfirm \
+            --skipinteg \
+            --syncdeps;
+        """, True)
+
+        shutil.rmtree(path)
+
+        if exit_code == 0:
+            self._execute("mv *.pkg.tar.xz %s" % app.path.mirror)
+
+        return exit_code == 0
+
+    def _execute(self, command, show_output=False):
+        if show_output:
+            return subprocess.call(
+                command,
+                shell=True,
+                cwd=self.path
+            )
+        else:
+            return subprocess.call(
+                command,
+                shell=True,
+                cwd=self.path,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL
+            )

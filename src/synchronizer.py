@@ -29,6 +29,10 @@ class Synchronizer():
     }
 
     def scan(self):
+        # If there is already package to update, we skip the scan.
+        if len(app.need_to_update) > 0:
+            return
+
         self._prepare()
         self._execute(app.package)
 
