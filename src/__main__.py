@@ -8,9 +8,9 @@ See the file 'LICENSE' for copying permission
 from core.app import app
 from core.runner import runner
 from environment import environment
-from validator import validator
-from synchronizer import synchronizer
 from repository import repository
+from synchronizer import synchronizer
+from validator import validator
 
 
 def main():
@@ -20,7 +20,7 @@ def main():
         validator.execute,
         environment.prepare_git,
         environment.prepare_mirror,
-        environment.prepare_pacman,
+        environment.syncronize_database,
         synchronizer.scan,
         repository.make
     ])
@@ -29,4 +29,7 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+   try:
+      main()
+   except KeyboardInterrupt:
+      sys.exit(0)

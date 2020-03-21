@@ -17,7 +17,7 @@ from util.attr import attr
 
 class App():
     package = []
-    need_to_update = []
+    need_update = []
 
     def __init__(self):
         self._set_path()
@@ -109,7 +109,7 @@ class App():
 
         for name in content:
             if name in self.package:
-                self.need_to_update.append(name)
+                self.need_update.append(name)
 
     def _set_environment(self):
         self.is_travis = ("TRAVIS" in os.environ and os.environ["TRAVIS"] != "")

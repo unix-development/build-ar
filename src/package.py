@@ -50,7 +50,7 @@ class Package():
         for f in files:
             path = os.path.join(self.path, f)
             if os.path.isdir(path):
-                shutil.rmtree(path)
+                self._delete_directory(path)
             elif os.path.isfile(path) and f != "package.py" and f not in keep_files:
                 os.remove(path)
 
@@ -89,7 +89,7 @@ class Package():
             --skipinteg;
         """)
 
-        shutil.rmtree(path)
+        self._delete_directory(path)
 
         if exit_code > 0:
             self.error.append("An error append when executing makepkg")
@@ -188,7 +188,7 @@ class Package():
         execute(f"cp -rf {self.path} {temporary_source}")
         self.path = temporary_source
 
-    def _make(self):
+    def make(self):
         path = os.path.join(self.path, "tmp")
         errors = {
             1: "Unknown cause of failure.",
@@ -223,7 +223,7 @@ class Package():
             --syncdeps;
         """, True)
 
-        shutil.rmtree(path)
+        self._delete_directory(path)
 
         if exit_code == 0:
             self._execute("mv *.pkg.tar.xz %s" % app.path.mirror)
@@ -245,3 +245,10 @@ class Package():
                 stdout=subprocess.DEVNULL,
                 stderr=subprocess.DEVNULL
             )
+
+    def _delete_directory(self, path):
+        """
+        This fuction will try to change file permission and call the
+        rmtree shutil function.
+        """
+        self._execute(f"rm -rf {path}")

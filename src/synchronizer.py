@@ -14,6 +14,7 @@ from core.app import app
 from package import Package
 from util.process import execute
 from util.process import output
+from util.style import bold
 
 
 class Synchronizer():
@@ -30,7 +31,10 @@ class Synchronizer():
 
     def scan(self):
         # If there is already package to update, we skip the scan.
-        if len(app.need_to_update) > 0:
+        if len(app.need_update) > 0:
+            print(bold("Prepare packages... Done"))
+            self.status["need_update"] = len(app.need_update)
+            self._print_update_section()
             return
 
         self._prepare()
@@ -42,7 +46,7 @@ class Synchronizer():
 
         if len(self.dependencies_to_ensure) > 0:
             self.is_dependency = True
-            print("Prepare missing dependencies...")
+            print(bold("Prepare missing dependencies..."))
 
             while len(self.dependencies_to_ensure) > 0:
                 dependencies = self.dependencies_to_ensure.copy()
@@ -61,6 +65,7 @@ class Synchronizer():
                     self._push_response(dependency, response)
 
         app.system.write("need_update", self.need_update)
+        app.need_update = self.need_update
 
     def _create_missing_dependency(self, dependency):
         directory = os.path.join(app.path.pkg, dependency)
@@ -81,8 +86,10 @@ class Synchronizer():
         self.current = multiprocessing.Value(ctypes.c_int, 0)
         self.result = self.manager.dict()
 
-        print("Prepare packages... Done")
-        print(f"  {str(self.length)} packages founds")
+        s = "s" if self.length > 1 else ""
+
+        print(bold("Prepare packages... Done"))
+        print(f"  {str(self.length)} package{s} founds")
 
     def _print_update_section(self):
         need_update = str(self.status["need_update"])
@@ -95,7 +102,7 @@ class Synchronizer():
 
         error = str(self.status["error"])
         s = "s" if self.status["error"] > 1 else ""
-        print("Validating integrity... Done")
+        print(bold("Validating integrity... Done"))
         print(f"  {error} package{s} have problem")
 
     def _execute(self, packages):
@@ -145,6 +152,7 @@ class Synchronizer():
         if not package.has_error() and not self.is_dependency:
             dependencies_to_ensure = package.verify_dependencies()
 
+        self.current.value += 1
         self.result[package.name] = {
             "error": package.error,
             "has_error": package.has_error(),
@@ -153,7 +161,6 @@ class Synchronizer():
         }
 
         self._print()
-        self.current.value += 1
 
     def _print(self):
         """
@@ -162,14 +169,14 @@ class Synchronizer():
         if self.is_dependency:
             return
 
-        if self.current.value == self.length - 1:
+        if self.current.value == self.length:
             achivement = "Done"
             end = '\n'
         else:
-            achivement = str(round(self.current.value / (self.length - 1) * 100)) + "%"
+            achivement = str(round(self.current.value / (self.length) * 100)) + "%"
             end = '\r'
 
-        print(f"Synchronizing packages... {achivement}", end=end)
+        print(bold(f"Synchronizing packages... {achivement}"), end=end)
 
 
 synchronizer = Synchronizer()

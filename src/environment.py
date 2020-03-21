@@ -6,17 +6,20 @@ See the file 'LICENSE' for copying permission
 """
 
 import os
-import time
 import sys
+import time
+import textwrap
 import subprocess
 
 from core.app import app
-
 from util.process import execute
 from util.process import output
+from util.style import bold
 
 
 class Environment():
+    is_pacman_initialized = False
+
     def prepare_ssh(self):
         """
         This function prepare ssh before to interact with the remote.
@@ -55,8 +58,8 @@ class Environment():
         """
         This function prepare mirror by verifing if we can pull files online.
         """
-        black_list   = [ "validation_token", "packages_checked" ]
-        staged       = output("git ls-files " + app.path.mirror).strip()
+        black_list = [ "validation_token", "packages_checked" ]
+        staged = output("git ls-files " + app.path.mirror).strip()
         in_directory = os.listdir(app.path.mirror)
 
         if staged != "":
@@ -69,7 +72,7 @@ class Environment():
         if not app.has("ssh") or in_directory != []:
             return
 
-        print("Updating local mirror directory... ")
+        print(bold("Updating local mirror directory... "))
 
         command = (f"""
         rsync \
@@ -81,26 +84,29 @@ class Environment():
 
         os.system(command)
 
-    def prepare_pacman(self):
+    def syncronize_database(self):
         """
         This function is used to update pacman remote.
         """
         path = app.path.mirror + "/" + app.database + ".db"
 
-        execute("sudo chmod 777 /etc/pacman.conf")
+        if not self.is_pacman_initialized:
+            execute("sudo chmod 777 /etc/pacman.conf")
 
-        if os.path.exists(path) is False:
-            return
+            if os.path.exists(path) is False:
+                return
 
-        with open("/etc/pacman.conf", "a+") as fp:
-            fp.write(textwrap.dedent(f"""
-            [{app.database}]
-            SigLevel = Optional TrustedOnly
-            Server = file:///{app.path.mirror}
-            """))
+            with open("/etc/pacman.conf", "a+") as fp:
+                fp.write(textwrap.dedent(f"""
+                [{app.database}]
+                SigLevel = Optional TrustedOnly
+                Server = file://{app.path.mirror}
+                """))
+
+            self.is_pacman_initialized = True
 
         execute(f"""
-        sudo cp {path} /var/lib/pacman/sync/{app.database}.db
+        sudo cp {path} /var/lib/pacman/sync/
         """)
 
 

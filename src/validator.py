@@ -15,6 +15,7 @@ import requests
 from core.app import app
 from util.process import execute
 from util.process import output
+from util.style import bold
 from environment import environment
 
 
@@ -235,7 +236,7 @@ class Validator():
             end = '\r'
 
         space = " " * (self.max_length - len(text))
-        print(f"Validating {text}... {achivement}{space}", end=end)
+        print(bold(f"Validating {text}... {achivement}{space}"), end=end)
 
     def _print_on_multiple_line(self, text):
         """
