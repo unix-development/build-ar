@@ -18,11 +18,14 @@ from util.style import bold
 
 
 class Environment():
+    """
+    Main environment class used to prepare ssh, git and mirror.
+    """
     is_pacman_initialized = False
 
     def prepare_ssh(self):
         """
-        This function prepare ssh before to interact with the remote.
+        Preparing ssh before to interact with the remote.
         """
         execute(f"""
         eval $(ssh-agent);
@@ -46,8 +49,8 @@ class Environment():
 
     def prepare_git(self):
         """
-        This function prepare git by setting user name and email.
-        Uvobot is used to commit repository changes.
+        Preparing git by setting user name and email. Uvobot is used
+        to commit repository changes.
         """
         execute("""
         git config --global user.email 'uvobot@lognoz.org';
@@ -56,7 +59,7 @@ class Environment():
 
     def prepare_mirror(self):
         """
-        This function prepare mirror by verifing if we can pull files online.
+        Preparing mirror by verifing if we can pull files online.
         """
         black_list = [ "validation_token", "packages_checked" ]
         staged = output("git ls-files " + app.path.mirror).strip()
@@ -86,7 +89,7 @@ class Environment():
 
     def syncronize_database(self):
         """
-        This function is used to update pacman remote.
+        Adding database to pacman.conf and syncronize custom database.
         """
         path = app.path.mirror + "/" + app.database + ".db"
 
