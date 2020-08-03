@@ -15,9 +15,13 @@ from core.app import app
 from util.process import execute
 from util.process import output
 from util.process import extract
+from util.style import red
 
 
 def _attribute_exists(module, name):
+    """
+    Checking if an attribute exists in module.
+    """
     try:
         getattr(module, name)
         return True
@@ -26,9 +30,15 @@ def _attribute_exists(module, name):
 
 
 class Package():
+    """
+    Main package class used to build new version.
+    """
     error = []
 
     def __init__(self, **parameter):
+        """
+        Setting package parmaters.
+        """
         self.name = parameter["name"]
         self.is_dependency = parameter["is_dependency"]
         self.path = os.path.join(app.path.pkg, self.name)
@@ -41,6 +51,10 @@ class Package():
         self.module = load_source(self.name + ".package", os.path.join(self.path, "package.py"))
 
     def clean_directory(self):
+        """
+        Deleting all useless files to verify if there is any difference
+        between the git repository pulled and the last commit.
+        """
         files = os.listdir(self.path)
         keep_files = []
 
@@ -55,10 +69,16 @@ class Package():
                 os.remove(path)
 
     def validate_configuration(self):
+        """
+        Checking if the module configuration is valid.
+        """
         self._check_module_source()
         self._check_module_name()
 
     def pull_repository(self):
+        """
+        Pulling git repository source.
+        """
         self._execute(f"""
         git init --quiet;
         git remote add origin {self.module.source};
@@ -68,6 +88,9 @@ class Package():
         """)
 
     def set_real_version(self):
+        """
+        Setting the real PKGBUILD version by recompiling package.
+        """
         path = os.path.join(self.path, "tmp")
 
         try:
@@ -75,6 +98,12 @@ class Package():
             output("source " + self.path + "/PKGBUILD; type pkgver &> /dev/null")
         except:
             return
+
+        makedepends = extract(self.path, "makedepends")
+        if makedepends:
+            self._execute(f"""
+            sudo pacman --noconfirm -S {makedepends}
+            """)
 
         exit_code = self._execute(f"""
         mkdir -p ./tmp;
@@ -95,6 +124,9 @@ class Package():
             self.error.append("An error append when executing makepkg")
 
     def set_variable(self):
+        """
+        Setting variables define in PKGBUILD.
+        """
         self._version = None
         self._name = None
         self._epoch = None
@@ -108,6 +140,9 @@ class Package():
                 self._epoch += ":"
 
     def validate_build(self):
+        """
+        Checking if the build is valid.
+        """
         self._check_build_exists()
 
         if not self.has_error():
@@ -115,6 +150,9 @@ class Package():
             self._check_build_name()
 
     def need_update(self):
+        """
+        Checking if package need to be updated.
+        """
         if len(self.error) > 0:
             return False
 
@@ -125,11 +163,17 @@ class Package():
         return True
 
     def has_error(self):
+        """
+        Checking if there is any errors.
+        """
         if len(self.error) > 0:
             return True
         return False
 
     def verify_dependencies(self):
+        """
+        Checking what dependencies needs to ensure.
+        """
         depends = extract(self.path, "depends")
         makedepends = extract(self.path, "makedepends")
         dependencies = (depends + " " + makedepends).strip()
@@ -147,6 +191,10 @@ class Package():
         return dependencies_to_ensure
 
     def _is_dependency_in_repository(self, dependency):
+        """
+        Checking if the dependency is part of the official repository or
+        if it exists in AUR.
+        """
         try:
             output("pacman -Sp '" + dependency + "' &>/dev/null")
         except:
@@ -164,31 +212,52 @@ class Package():
         return True
 
     def _check_build_exists(self):
+        """
+        Checking if the PKGBUILD exists.
+        """
         if not os.path.isfile(self.path + "/PKGBUILD"):
             self.error.append("PKGBUILD does not exists.")
 
     def _check_build_version(self):
+        """
+        Checking if the version is define in PKGBUILD.
+        """
         if not self._version:
             self.error.append("No version variable is defined in PKGBUILD.")
 
     def _check_build_name(self):
+        """
+        Checking if the name is define in PKGBUILD.
+        """
         if not self._name:
             self.error.append("No name variable is defined in PKGBUILD.")
 
     def _check_module_source(self):
+        """
+        Checking if the module source is define in package.
+        """
         if not _attribute_exists(self.module, "source"):
             self.error.append("No source variable is defined in package.py")
 
     def _check_module_name(self):
+        """
+        Checking if the module name is define in package.
+        """
         if _attribute_exists(self.module, "name") is False:
             self.error.append("No name variable is defined in package.py")
 
     def _prepare_checking_environment(self):
+        """
+        Preparing testing environment by creating temporary source.
+        """
         temporary_source = os.path.join(app.path.tmp, self.name)
         execute(f"cp -rf {self.path} {temporary_source}")
         self.path = temporary_source
 
     def make(self):
+        """
+        Building the package with the command makepkg.
+        """
         path = os.path.join(self.path, "tmp")
         errors = {
             1: "Unknown cause of failure.",
@@ -227,10 +296,16 @@ class Package():
 
         if exit_code == 0:
             self._execute("mv *.pkg.tar.xz %s" % app.path.mirror)
+        else:
+            print(red(f"Build: {errors[exit_code]}"))
 
         return exit_code == 0
 
     def _execute(self, command, show_output=False):
+        """
+        Executing subprocess command. The second argument expect to recive
+        true if you want to show subprocess output.
+        """
         if show_output:
             return subprocess.call(
                 command,
@@ -248,7 +323,6 @@ class Package():
 
     def _delete_directory(self, path):
         """
-        This fuction will try to change file permission and call the
-        rmtree shutil function.
+        Deleting the given directory.
         """
         self._execute(f"rm -rf {path}")
