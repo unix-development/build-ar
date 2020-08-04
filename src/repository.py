@@ -15,10 +15,17 @@ from util.style import bold
 
 
 class Repository():
+    """
+    Main repository class used to compile packages and add it to the
+    database repository.
+    """
     need_update = []
 
     def make(self):
-        # If there is no package to update, we skip the make.
+        """
+        Scanning all packages and compile it.
+        If there is no package to update, we skip the make.
+        """
         if len(app.need_update) == 0:
             return
 
@@ -30,6 +37,9 @@ class Repository():
             print("")
 
     def _compile(self, name):
+        """
+        Creating new package instance by the given name and compile it.
+        """
         package = Package(
             name=name,
             is_dependency=False,
@@ -41,22 +51,23 @@ class Repository():
 
         if not package.has_error():
             package.pull_repository()
-            package.set_real_version()
             package.set_variable()
             package.validate_build()
 
         if not package.has_error():
             package.make()
 
-        self._add(name)
+        self._push_to_database(name)
         self.need_update.remove(name)
 
         app.system.write("need_update", self.need_update)
 
-    def _add(self, name):
+    def _push_to_database(self, name):
+        """
+        Pushing package to database repository.
+        """
         execute(f"""
-        repo-add \
-            --remove \
+        repo-add --remove \
             {app.path.mirror}/{app.database}.db.tar.gz \
             {app.path.mirror}/{name}-*.pkg.tar.xz
         """)
