@@ -33,12 +33,11 @@ class Package():
     """
     Main package class used to build new version.
     """
-    error = []
-
     def __init__(self, **parameter):
         """
-        Setting package parmaters.
+        Setting package parameters.
         """
+        self.error = []
         self.name = parameter["name"]
         self.is_dependency = parameter["is_dependency"]
         self.path = os.path.join(app.path.pkg, self.name)
@@ -144,7 +143,6 @@ class Package():
         Checking if the build is valid.
         """
         self._check_build_exists()
-
         if not self.has_error():
             self._check_build_version()
             self._check_build_name()
