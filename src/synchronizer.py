@@ -18,48 +18,52 @@ from util.style import bold
 
 
 class Synchronizer():
-    error = []
-    need_update = []
-    dependencies_to_ensure =[]
-    is_dependency = False
-
-    # This variables define the status of the repository.
-    status = {
-        "error": 0,
-        "need_update": 0
-    }
+    """
+    Main Synchronizer class used to scan packages defined into pkg
+    directory an update.
+    """
+    def __init__(self):
+        """
+        Setting synchronizer variables.
+        """
+        self.is_dependency = False
+        self.error = []
+        self.need_update = []
+        self.to_ensure = []
+        self.status_error = 0;
+        self.status_need_update = 0;
 
     def scan(self):
-        # If there is already package to update, we skip the scan.
+        """
+        Scanning packages defined in pkg directory. If there is already
+        packages to update, we skip the scan.
+        """
         if len(app.need_update) > 0:
             print(bold("Prepare packages... Done"))
-            self.status["need_update"] = len(app.need_update)
+            self.status_need_update = len(app.need_update)
             self._print_update_section()
             return
 
         self._prepare()
         self._execute(app.package)
-
-        # Print informations about packages.
         self._print_update_section()
         self._print_error_section()
 
-        if len(self.dependencies_to_ensure) > 0:
+        if len(self.to_ensure) > 0:
             self.is_dependency = True
             print(bold("Prepare missing dependencies..."))
 
-            while len(self.dependencies_to_ensure) > 0:
-                dependencies = self.dependencies_to_ensure.copy()
-
-                # Create the dependency.
+            while len(self.to_ensure) > 0:
+                dependencies = self.to_ensure.copy()
+                # Creates the dependency if it's missing.
                 for dependency in dependencies:
                     print("  -> " + dependency)
                     app.package.append(dependency)
                     self._create_missing_dependency(dependency)
                     self._check_status(dependency)
-                    self.dependencies_to_ensure.remove(dependency)
-
-                # Parse the response.
+                    self.to_ensure.remove(dependency)
+                # Parses the response after missing dependency is
+                # added to dependencies.
                 for dependency in dependencies:
                     response = self.result[dependency]
                     self._push_response(dependency, response)
@@ -68,6 +72,9 @@ class Synchronizer():
         app.need_update = self.need_update
 
     def _create_missing_dependency(self, dependency):
+        """
+        Creating missing package dependency.
+        """
         directory = os.path.join(app.path.pkg, dependency)
         execute(f"mkdir {directory};")
 
@@ -80,32 +87,42 @@ class Synchronizer():
             ))
 
     def _prepare(self):
+        """
+        Preparing multiprocessing and printing how many package was found.
+        """
         self.length = len(app.package)
-
         self.manager = multiprocessing.Manager()
         self.current = multiprocessing.Value(ctypes.c_int, 0)
         self.result = self.manager.dict()
 
         s = "s" if self.length > 1 else ""
-
         print(bold("Prepare packages... Done"))
         print(f"  {str(self.length)} package{s} founds")
 
     def _print_update_section(self):
-        need_update = str(self.status["need_update"])
-        s = "s" if self.status["need_update"] > 1 else ""
+        """
+        Printing how many packages need to be updated.
+        """
+        need_update = str(self.status_need_update)
+        s = "s" if self.status_need_update > 1 else ""
         print(f"  {need_update} package{s} need update")
 
     def _print_error_section(self):
-        if self.status["error"] == 0:
+        """
+        Printing packages integrity.
+        """
+        if self.status_error == 0:
             return
 
-        error = str(self.status["error"])
-        s = "s" if self.status["error"] > 1 else ""
+        error = str(self.status_error)
+        s = "s" if self.status_error > 1 else ""
         print(bold("Validating integrity... Done"))
         print(f"  {error} package{s} have problem")
 
     def _execute(self, packages):
+        """
+        Creating multiprocessing to analyzing packages response.
+        """
         processes = []
 
         self._print()
@@ -123,17 +140,23 @@ class Synchronizer():
             self._push_response(name, response)
 
     def _push_response(self, name, response):
-        self.dependencies_to_ensure = self.dependencies_to_ensure + response["dependencies"]
+        """
+        Pushing package response.
+        """
+        self.to_ensure = self.to_ensure + response["dependencies"]
 
         if response["has_error"]:
-            self.status["error"] = self.status["error"] + 1
+            self.status_error = self.status_error + 1
             self.error.append(response)
         elif response["need_update"]:
-            self.status["need_update"] = self.status["need_update"] + 1
+            self.status_need_update = self.status_need_update + 1
             self.need_update.append(name)
 
     def _check_status(self, name):
-        dependencies_to_ensure = []
+        """
+        Checking and setting package status.
+        """
+        to_ensure = []
         package = Package(
             name=name,
             is_dependency=False,
@@ -150,21 +173,21 @@ class Synchronizer():
             package.validate_build()
 
         if not package.has_error() and not self.is_dependency:
-            dependencies_to_ensure = package.verify_dependencies()
+            to_ensure = package.verify_dependencies()
 
         self.current.value += 1
         self.result[package.name] = {
             "error": package.error,
             "has_error": package.has_error(),
             "need_update": package.need_update(),
-            "dependencies": dependencies_to_ensure
+            "dependencies": to_ensure
         }
 
         self._print()
 
     def _print(self):
         """
-        Print message on same line.
+        Printing message on same line.
         """
         if self.is_dependency:
             return
