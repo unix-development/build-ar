@@ -187,6 +187,16 @@ table {
 
 		&:last-child {
 			width: 40%;
+
+			a {
+				font-weight: 300;
+				display: block;
+				margin-top: 5px;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				display: block;
+				width: 300px;
+			}
 		}
 	}
 

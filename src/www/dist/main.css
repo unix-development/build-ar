@@ -110,6 +110,14 @@ table {
       display: block; }
     table td:last-child {
       width: 40%; }
+      table td:last-child a {
+        font-weight: 300;
+        display: block;
+        margin-top: 5px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: block;
+        width: 300px; }
   table a {
     color: #3e3e3e;
     text-decoration: none; }
