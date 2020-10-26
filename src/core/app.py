@@ -52,7 +52,7 @@ class App():
             "pkg": os.path.join(root, "pkg"),
             "tmp": os.path.join(root, "tmp"),
             "log": os.path.join(root, "log"),
-            "www": os.path.join(root, "bot/www")
+            "www": os.path.join(root, "src/www")
         })
 
         execute(f"""
@@ -91,8 +91,8 @@ class App():
             except:
                 self.ssh[key] = None
 
-        if content.auto_update is list:
-            self.auto_update = content.auto_update
+        if type(content["auto-update"]) is list:
+            self.auto_update = content["auto-update"]
         else:
             self.auto_update = []
 
