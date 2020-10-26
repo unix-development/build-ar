@@ -14,7 +14,6 @@ from core.app import app
 from datetime import datetime
 from util.process import output
 from util.editor import edit_file
-from util.process import git_remote_path
 
 
 class Interface():
@@ -38,9 +37,9 @@ class Interface():
         self._compress_index()
 
         # Generate README.md file.
-        self._move_to_root()
-        self._replace_variables("readme")
-
+        if "readme" in app.auto_update:
+            self._move_to_root()
+            self._replace_variables("readme")
 
     def _compress_index(self):
         """
@@ -84,6 +83,9 @@ class Interface():
         return content
 
     def _get_file_location(self, content):
+        """
+        Getting package file location.
+        """
         path = content["name"] + "-" + content["version"]
 
         for location in os.listdir(app.path.mirror):
@@ -151,7 +153,7 @@ class Interface():
         """
         Replacing variables in template.
         """
-        remote_path = git_remote_path().rstrip(".git")
+        remote_path = app.remote_path.rstrip(".git")
         content = self._get_fetched_package(type_template)
         logo = "data:image/png;base64," + self._get_base64("/images/logo.png")
         background = "data:image/png;base64," + self._get_base64("/images/background.png")
